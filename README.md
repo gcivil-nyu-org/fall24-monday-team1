@@ -37,4 +37,13 @@
 
 ## Social Interactions
 
+- As a user, I want to add another user as a friend so that I can connect with them.
+- As a user, I want to send and view messages to and from another user so that I can communicate easily.
+- As a user, I want to create a group chat so that I can have conversations with multiple people at once.
+- As a user, I want to send and view messages in a group chat so that I can interact with all group members.
+- As a user, I want to manage group members so that I can control who is in the chat.
+- As a user, I want to create comments so that I can share my thoughts.
+- As a user, I want to edit or delete comments so that I can maintain clarity and accuracy in my contributions.
+- As a user, I want to upvote or downvote content so that I can express my opinion on it.
+- As a user, I want to make reactions so that I can quickly respond to content without typing.
 ## Events
