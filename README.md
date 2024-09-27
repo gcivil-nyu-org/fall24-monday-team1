@@ -13,14 +13,11 @@
 
 ## Personalize Your Profile
 
-- As a new user I want to create an account using my email or social media logins so that I can access the gaming journaling features and save my progress.
-- As a new user I want to set up my profile with a display name, avatar, and bio so that I can personalize my presence in the application.
-- As a gamer I want to link my profiles from gaming platforms (e.g., Steam, Xbox Live, PlayStation Network) so that my achievements and gaming stats can be automatically imported and reflected in my profile.
+- As a new user I want to create an account using my email and password so that I can access the gaming journaling features and save my progress.
+- As a new user I want to set up my profile with a display name, avatar,profile photo and bio so that I can personalize my presence in the application.
 - As a user I want to customize the privacy settings for my profile and journals so that I can control what information is visible to others.
 - As a user I want to view and edit my profile information at any time so that I can keep my profile up-to-date.
 - As a gamer I want to view the profiles of other users so that I can see their game progress, journals, and achievements.
-- As a user I want to upload a profile photo from my device or select one from a preset gallery so that I can personalize my profile with an image that represents me.
-- As a user I want my online status (online/offline) to be visible to others so that my friends or followers can see when I'm active on the app.
 
 ## User Journalling
 
@@ -39,18 +36,15 @@
 
 - As a user, I want to add another user as a friend so that I can connect with them.
 - As a user, I want to send and view messages to and from another user so that I can communicate easily.
-- As a user, I want to create a group chat so that I can have conversations with multiple people at once.
-- As a user, I want to send and view messages in a group chat so that I can interact with all group members.
-- As a user, I want to manage group members so that I can control who is in the chat.
 - As a user, I want to create comments so that I can share my thoughts.
 - As a user, I want to edit or delete comments so that I can maintain clarity and accuracy in my contributions.
 - As a user, I want to upvote or downvote content so that I can express my opinion on it.
-- As a user, I want to make reactions so that I can quickly respond to content without typing.
+
 ## Events
 
 - As an event organizer, I want to add a new event so that it is visible to all the users on the app.
-- As a user, I want to register/unregister to the event visible on the app.
-- As a user, I want to share an event in direct message or group chat, so that I can have my friends at the event.
-- As an event organizer, I want to modify/reschedule/cancel and event so that it can update the regiestered users.
+- As a user, I want to register/unregister to the event visible on the app to be aware of the event
+- As a user, I want to share an event in direct message, so that I can have my friends at the event.
+- As an event organizer, I want to modify/reschedule/cancel and event so that it can update the registered users.
 - As a user, I want to favourite upcoming events so that when registration opens I can keep track of the events.
 - As a user, I want to keep track of past and future events I will or have attended so that I get a holisitic view of the events I have attended
