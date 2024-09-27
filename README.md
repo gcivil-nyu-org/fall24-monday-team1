@@ -17,7 +17,7 @@
 - As a new user I want to set up my profile with a display name, avatar,profile photo and bio so that I can personalize my presence in the application.
 - As a user I want to customize the privacy settings for my profile and journals so that I can control what information is visible to others.
 - As a user I want to view and edit my profile information at any time so that I can keep my profile up-to-date.
-- As a gamer I want to view the profiles of other users so that I can see their game progress, journals, and achievements.
+- As a user I want to view the profiles of other users so that I can see their game progress, journals, and achievements.
 
 ## User Journalling
 
