@@ -1,5 +1,10 @@
 # fall24-monday-team1
 
+#Context Diagram
+
+![image](https://github.com/user-attachments/assets/02ee0960-8826-403a-acb9-4192b5d6ac0b)
+
+
 # User Personas
 
 ## User:
@@ -55,5 +60,4 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a user, I want to keep track of past and future events I will or have attended so that I get a holisitic view of the events I have attended
 
 
-![image](https://github.com/user-attachments/assets/02ee0960-8826-403a-acb9-4192b5d6ac0b)
 
