@@ -47,3 +47,10 @@
 - As a user, I want to upvote or downvote content so that I can express my opinion on it.
 - As a user, I want to make reactions so that I can quickly respond to content without typing.
 ## Events
+
+- As an event organizer, I want to add a new event so that it is visible to all the users on the app.
+- As a user, I want to register/unregister to the event visible on the app.
+- As a user, I want to share an event in direct message or group chat, so that I can have my friends at the event.
+- As an event organizer, I want to modify/reschedule/cancel and event so that it can update the regiestered users.
+- As a user, I want to favourite upcoming events so that when registration opens I can keep track of the events.
+- As a user, I want to keep track of past and future events I will or have attended so that I get a holisitic view of the events I have attended
