@@ -48,3 +48,7 @@
 - As an event organizer, I want to modify/reschedule/cancel and event so that it can update the registered users.
 - As a user, I want to favourite upcoming events so that when registration opens I can keep track of the events.
 - As a user, I want to keep track of past and future events I will or have attended so that I get a holisitic view of the events I have attended
+
+
+![image](https://github.com/user-attachments/assets/02ee0960-8826-403a-acb9-4192b5d6ac0b)
+
