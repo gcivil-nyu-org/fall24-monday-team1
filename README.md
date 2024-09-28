@@ -31,9 +31,11 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a user I want to view the profiles of other users so that I can see their game progress, journals, and achievements.
 
 ## User Journalling
-- As a user, I want to be able to add video games to my user profile in a variety of "chests" based on my playing status
+- As a user, I want to be able to add video games to my user profile in a variety of "chests" (Completed, Want to Play, Abandoned, Paused, Playing) based on my playing status
 - As a user, I want to be able to browse video game information in-app : reviews, trailers, plot information, completion time, etc.
 - As a user, I want to be able to review and rate video games that I have already played
+- As a user, I want to be able to add achievements and trophies that I collect while playing the games
+
 
 ## Game Lists
 
@@ -53,6 +55,8 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a user, I want to create comments so that I can share my thoughts.
 - As a user, I want to edit or delete comments so that I can maintain clarity and accuracy in my contributions.
 - As a user, I want to upvote or downvote content so that I can express my opinion on it.
+- As a user, I want to be able to see other popular users so that I can connect with them
+- As a user, I want to be able to create a "clan" of multiple users so we can connect and play multiplayer games
 
 ## Events
 
@@ -62,6 +66,7 @@ The Event Organizer is responsible for creating events that are visible to users
 - As an event organizer, I want to modify/reschedule/cancel and event so that it can update the registered users.
 - As a user, I want to favourite upcoming events so that when registration opens I can keep track of the events.
 - As a user, I want to keep track of past and future events I will or have attended so that I get a holisitic view of the events I have attended
+- As a creator, I want to be able to create an event when a new video game release is coming up so I can foster conversation about it.
 
 
 
