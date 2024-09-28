@@ -2,7 +2,8 @@
 
 #Context Diagram
 
-![image](https://github.com/user-attachments/assets/02ee0960-8826-403a-acb9-4192b5d6ac0b)
+<img width="732" alt="Screenshot 2024-09-27 at 8 57 28 PM" src="https://github.com/user-attachments/assets/3ce4bb98-9f37-4828-afda-59e85a08022f">
+
 
 
 # User Personas
