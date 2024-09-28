@@ -31,6 +31,9 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a user I want to view the profiles of other users so that I can see their game progress, journals, and achievements.
 
 ## User Journalling
+- As a user, I want to be able to add video games to my user profile in a variety of "chests" based on my playing status
+- As a user, I want to be able to browse video game information in-app : reviews, trailers, plot information, completion time, etc.
+- As a user, I want to be able to review and rate video games that I have already played
 
 ## Game Lists
 
@@ -40,7 +43,7 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a user, I want to be able to add more games to a list that I own (created by me, or added as a collaborator by another user) in the future
 - As a user, I want to be able to add comments to lists as long as I have permission to access this list (if the owner made it public or gave me access to this list)
 - As a user, I want to be able to search for lists that other users have created by the name of the list
-
+- As a user, I want to see recommendations for popular lists that have been created and made public by other users
 
 
 ## Social Interactions
