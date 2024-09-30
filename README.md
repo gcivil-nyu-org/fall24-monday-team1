@@ -1,6 +1,6 @@
 # fall24-monday-team1
 
-#Context Diagram
+# Context Diagram
 
 ![image](https://github.com/user-attachments/assets/ea0bf208-20cc-4efc-a0f9-76e96cf4d2f7)
 
