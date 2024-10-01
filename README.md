@@ -24,25 +24,35 @@ The Event Organizer is responsible for creating events that are visible to users
 
 ## User Authentication and Onboarding
 - As a new user I want to create an account using my email and password so that I can access the gaming journaling features and save my progress.
+- As a returning user, I want to reset my password securely so that I can regain access to my account if I forget my credentials.
+- As an admin, I want to be able to delete or ban some specific account so that I can punish those defy the rules.
 
 ## Role-Based Access Management
-- 
+- As an admin, I want to assign roles (e.g., user, moderator, admin) to new users so that I can control permissions and access levels within the application.
+- As a user, I want to see my own role and permissions within the app so that I understand what features I can access.
+- As a moderator, I want to manage user content (e.g., comments, messages) so that I can ensure a safe and respectful community environment.
+- As an admin, I want to be able to revoke or change user roles as necessary so that I can maintain the integrity of the platform.
 
 ## User Messaging and Communication
 
 - As a user, I want to send and view messages to and from another user so that I can communicate easily.
+- As a user, I want to receive notifications for new messages so that I don’t miss important communications from my friends.
 
 ## User Impressions
 
 - As a user, I want to create comments so that I can share my thoughts.
 - As a user, I want to edit or delete comments so that I can maintain clarity and accuracy in my contributions.
 - As a user, I want to upvote or downvote content so that I can express my opinion on it.
+- As a user, I want to tag other users in my comments so that I can direct my thoughts to specific individuals.
+- As a user, I want to receive notifications when someone replies to my comments so that I can engage in ongoing discussions.
+- As a user, I want to see the most upvoted comments first so that I can quickly find the most relevant insights.
 
 ## Friend Network and Community Management
 
 - As a user, I want to add another user as a friend so that I can connect with them.
 - As a user, I want to be able to see other popular users so that I can connect with them.
 - As a user, I want to be able to create a "clan" of multiple users so we can connect and play multiplayer games.
+- As a user, I want to be able to remove friends or block users so that I can maintain a safe and enjoyable experience.
 
 ## User Profile Management
 - As a new user I want to set up my profile with a display name, avatar,profile photo and bio so that I can personalize my presence in the application.
