@@ -22,9 +22,29 @@ The Event Organizer is responsible for creating events that are visible to users
 
 # Epics
 
-## Personalize Your Profile
-
+## User Authentication and Onboarding
 - As a new user I want to create an account using my email and password so that I can access the gaming journaling features and save my progress.
+
+## Role-Based Access Management
+- 
+
+## User Messaging and Communication
+
+- As a user, I want to send and view messages to and from another user so that I can communicate easily.
+
+## User Impressions
+
+- As a user, I want to create comments so that I can share my thoughts.
+- As a user, I want to edit or delete comments so that I can maintain clarity and accuracy in my contributions.
+- As a user, I want to upvote or downvote content so that I can express my opinion on it.
+
+## Friend Network and Community Management
+
+- As a user, I want to add another user as a friend so that I can connect with them.
+- As a user, I want to be able to see other popular users so that I can connect with them.
+- As a user, I want to be able to create a "clan" of multiple users so we can connect and play multiplayer games.
+
+## User Profile Management
 - As a new user I want to set up my profile with a display name, avatar,profile photo and bio so that I can personalize my presence in the application.
 - As a user I want to customize the privacy settings for my profile and journals so that I can control what information is visible to others.
 - As a user I want to view and edit my profile information at any time so that I can keep my profile up-to-date.
@@ -48,17 +68,6 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a user, I want to see recommendations for popular lists that have been created and made public by other users
 
 
-## User Messaging and Communication
-
-## User Impressions
-
-## Friend Network and Community Management
-
-## User Authentication and Onboarding
-
-## Role-Based Access Management
-
-## User Profile Management
 
 ## Events
 
