@@ -2,8 +2,7 @@
 
 # Context Diagram
 
-![image](https://github.com/user-attachments/assets/ea0bf208-20cc-4efc-a0f9-76e96cf4d2f7)
-
+![HLD Checkpoint (1)](https://github.com/user-attachments/assets/fc4014b6-9c3b-40e2-aad9-72804b75bd86)
 
 
 
