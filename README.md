@@ -16,7 +16,7 @@ The user interacts with the system to personalize their profile by creating an a
 
 The Creator designs and customizes game lists, deciding how they want them to be structured and presented. They can manage the visibility of these lists, setting them as private, friend-only, or public. Over time, they can add more games to the lists and allow others to comment if they grant access.
 
-## Event Organizers:
+## Gaming Event Organizers:
 
 The Event Organizer is responsible for creating events that are visible to users on the platform. They can modify, reschedule, or cancel events as needed. Additionally, they track user registrations for events and update participants accordingly. The Event Organizer also engages with users to help them discover and attend events that may interest them.
 
