@@ -27,7 +27,7 @@ The Event Organizer is responsible for creating events that are visible to users
 - As a returning user, I want to reset my password securely so that I can regain access to my account if I forget my credentials.
 
 ## Role-Based Access Management
-<<TODO>>
+- As a user, I should be able to see different versions of the app based on the permissions and user type
 
 ## User Messaging and Communication
 
