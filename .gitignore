@@ -58,3 +58,6 @@ coverage.xml
 eb-activity.log
 eb-cli.log
 eb-engine.log
+
+
+checkpoint/static/*
