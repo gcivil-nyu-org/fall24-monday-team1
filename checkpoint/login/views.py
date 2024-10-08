@@ -10,12 +10,11 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')  # redirect to home or dashboard
+            return redirect('home')  # TODO: redirect to setup profile page
     else:
         form = UserCreationForm()
     return render(request, 'signup.html', {'form': form})
 
-# Login view
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -25,9 +24,12 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')  # redirect to home or dashboard
+                return redirect('home')  # TODO: redirect to dashboard/profile page
             else:
                 messages.error(request, 'Invalid username or password')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+def home(request):
+    return render(request, 'index.html')
