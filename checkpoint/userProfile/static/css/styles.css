@@ -1,0 +1,69 @@
+/* Body styling */
+body {
+    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    height: 100vh;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    padding-top: 56px; /* Adjust padding to account for the fixed navbar height */
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Navbar link colors */
+.navbar-brand, .nav-link {
+    color: white !important;
+}
+
+.nav-link:hover {
+    color: #ddd !important;
+}
+
+/* Flexbox for centering content */
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Allows stacking of multiple elements */
+    height: calc(100vh - 56px); /* Full height minus the navbar height */
+    color: white; /* Text color for better contrast */
+    text-align: center;
+}
+
+/* Profile photo styling */
+.profile-photo {
+    max-width: 150px;
+    border-radius: 75px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add some shadow for depth */
+}
+
+/* Animations */
+h1 {
+    animation: fadeIn 2s ease-in-out, slideIn 2s ease-in-out;
+    color: #ddd;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Bio section styling */
+.bio {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
