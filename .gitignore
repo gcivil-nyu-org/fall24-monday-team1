@@ -1,0 +1,63 @@
+.venv/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Elastic Beanstalk specific
+.elasticbeanstalk/*
+
+# AWS Credentials
+.aws/credentials
+
+# macOS files
+.DS_Store
+
+
+# Environment variables
+*.env
+
+
+# VSCode files
+.vscode/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# Secret keys or config files
+secret.json
+config.json
+
+# Coverage reports
+htmlcov/
+*.cover
+.coverage
+.cache
+
+# Unit test / coverage results
+*.coverage
+.cache/
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# pytest
+.pytest_cache/
+
+# JetBrains IDE files
+.idea/
+
+# Elastic Beanstalk specific logs
+eb-activity.log
+eb-cli.log
+eb-engine.log
+
+
+checkpoint/static/*
