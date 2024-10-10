@@ -4,7 +4,6 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 
-
 User = get_user_model()
 
 def signup(request):
@@ -41,11 +40,6 @@ def signup(request):
 
     return render(request, 'signup.html')
 
-# login/views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
 
 def login_view(request):
     if request.method == 'POST':
