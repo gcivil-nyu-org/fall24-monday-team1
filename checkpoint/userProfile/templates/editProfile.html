@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkpoint</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Edit Profile Form -->
+    <div class="container mt-5">
+        <h1>Edit Profile</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="display_name">Display Name:</label>
+                <input type="text" class="form-control" id="display_name" name="display_name" value="{{ profile.display_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="profile_photo">Profile Photo:</label>
+                <input type="file" class="form-control-file" id="profile_photo" name="profile_photo">
+            </div>
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea class="form-control" id="bio" name="bio" rows="3">{{ profile.bio }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="privacy_setting">Privacy Setting:</label>
+                <select class="form-control" id="privacy_setting" name="privacy_setting">
+                    <option value="public" {% if profile.privacy_setting == 'public' %}selected{% endif %}>Public</option>
+                    <option value="friends_only" {% if profile.privacy_setting == 'friends_only' %}selected{% endif %}>Friends Only</option>
+                    <option value="private" {% if profile.privacy_setting == 'private' %}selected{% endif %}>Private</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="account_role">Account Role:</label>
+                <select class="form-control" id="account_role" name="account_role">
+                    <option value="gamer" {% if profile.account_role == 'gamer' %}selected{% endif %}>Gamer</option>
+                    <option value="creator" {% if profile.account_role == 'creator' %}selected{% endif %}>Creator</option>
+                    <option value="event_organizer" {% if profile.account_role == 'event_organizer' %}selected{% endif %}>Event Organizer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gaming_usernames">Gaming Usernames (JSON format):</label>
+                <textarea class="form-control" id="gaming_usernames" name="gaming_usernames" rows="3">{{ profile.gaming_usernames|json_script:"gaming_usernames_json" }}</textarea>
+                <small class="form-text text-muted">Format: {"platform1": "username1", "platform2": "username2"}</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+    </div>
+</body>
+</html>

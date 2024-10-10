@@ -30,15 +30,37 @@
     <!-- Profile Content -->
     <div class="profile-container">
         <h1>{{ profile.display_name }}</h1>
-        {% if profile.profile_photo %}
-            <img src="{{ profile.profile_photo.url }}" alt="{{ profile.display_name }}'s profile photo" class="profile-photo">
+        {% if viewable %}
+            {% if profile.profile_photo %}
+                <img src="{{ profile.profile_photo.url }}" alt="{{ profile.display_name }}'s profile photo" class="profile-photo">
+            {% else %}
+                <img src="{% static 'images/default_profile.png' %}" alt="Default profile photo" class="profile-photo">
+            {% endif %}
+            <div class="account-info mt-3">
+                <p><strong>Account Role:</strong> {{ profile.get_account_role_display }}</p>
+                <p><strong>Privacy Setting:</strong> {{ profile.get_privacy_setting_display }}</p>
+            </div>
+            <div class="bio">
+                <p><strong>Bio:</strong></p>
+                <p>{{ profile.bio }}</p>
+            </div>
+            <div class="gaming-usernames mt-3">
+                <p><strong>Gaming Usernames:</strong></p>
+                {% if profile.gaming_usernames %}
+                    <ul>
+                        {% for platform, username in profile.gaming_usernames.items %}
+                            <li><strong>{{ platform }}:</strong> {{ username }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No gaming usernames provided.</p>
+                {% endif %}
+            </div>
         {% else %}
-            <img src="{% static 'images/default_profile.png' %}" alt="Default profile photo" class="profile-photo">
+            <div class="bio">
+                <p><strong>The user profile is private.</strong></p>
+            </div>
         {% endif %}
-        <div class="bio">
-            <p><strong>Bio:</strong></p>
-            <p>{{ profile.bio }}</p>
-        </div>
     </div>
 </body>
 </html>
