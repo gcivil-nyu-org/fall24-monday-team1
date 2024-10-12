@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from userProfile.models import UserProfile
 
 
 User = get_user_model()
@@ -27,6 +27,7 @@ def signup(request):
             messages.error(request, "Passwords don't match.")
             return redirect('signup')
     
+        #TODO: add more password validations
         
         # Create new user
         user = User.objects.create_user(
@@ -37,15 +38,12 @@ def signup(request):
         user.save()
 
         messages.success(request, "New user added!")
-        return redirect('login') #TODO: change to redirect to profile page
+        new_user = authenticate(request, username=username, password=password1)
+        login(request, new_user)
+        return redirect('createUserProfile:createProfile')
+
 
     return render(request, 'signup.html')
-
-# login/views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
 
 def login_view(request):
     if request.method == 'POST':
@@ -59,7 +57,11 @@ def login_view(request):
             login(request, user)
             print(f"User {username} logged in successfully.")  # Print message to console
             messages.success(request, "Login successful! Redirecting to your profile.")
-            # return redirect('profile')  # Redirect to profile page
+            # if profile exists, redirect to create my profile, else to viewmyprofile
+            if UserProfile.objects.filter(user=request.user).exists():
+                return redirect('userProfile:myProfile')  # Redirect to profile page
+            else:
+                return redirect('createUserProfile:createProfile')
         else:
             print(f"Failed login attempt for user {username}.")  # Print message to console
             messages.error(request, "Invalid username or password.")
