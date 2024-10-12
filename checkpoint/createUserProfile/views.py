@@ -31,7 +31,7 @@ def create_profile(request):
                     gaming_usernames[platform] = username
 
             # Store the gaming usernames as a JSON field
-            profile.gaming_usernames = json.dumps(gaming_usernames)
+            profile.gaming_usernames = gaming_usernames
             print(profile.gaming_usernames)
             profile.save()
 
