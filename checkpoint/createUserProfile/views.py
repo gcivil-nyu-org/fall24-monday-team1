@@ -11,7 +11,7 @@ def create_profile(request):
         if form.is_valid():
             # Check if a profile already exists
             if UserProfile.objects.filter(user=request.user).exists():
-                return redirect('userProfile:editProfile')
+                return redirect('userProfile:myProfile')
             
             profile = form.save(commit=False)
             profile.user = request.user

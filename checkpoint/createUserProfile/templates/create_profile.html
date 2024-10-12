@@ -7,6 +7,24 @@
     <title>Create Profile</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        function addPlatform() {
+            const container = document.getElementById('gaming_usernames_container');
+            const newPlatformHTML = `
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" name="gaming_usernames[new_platform]" placeholder="Username" required>
+                    <div class="input-group-append">
+                        <span class="input-group-text">New Platform</span>
+                        <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', newPlatformHTML);
+        }
+    
+        function removePlatform(element) {
+            element.closest('.input-group').remove();
+        }
+    </script>
 </head>
 <body>
     <!-- Navbar -->
@@ -57,9 +75,20 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="gaming_usernames">Gaming Usernames (JSON format):</label>
-                <textarea class="form-control" id="gaming_usernames" name="gaming_usernames" rows="3"></textarea>
-                <small class="form-text text-muted">Format: {"platform1": "username1", "platform2": "username2"}</small>
+                <label>Gaming Usernames:</label>
+                <div id="gaming_usernames_container">
+                    {% for platform, username in profile.gaming_usernames.items %}
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control" name="gaming_usernames[{{ platform }}]" placeholder="Username" value="{{ username }}" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text">{{ platform|title }}</span>
+                            <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-secondary mt-2" onclick="addPlatform()">Add New Platform</button>
+                <small class="form-text text-muted">Add, edit, or delete your gaming usernames for each platform.</small>
             </div>
             <button type="submit" class="btn btn-primary">Create Profile</button>
         </form>
