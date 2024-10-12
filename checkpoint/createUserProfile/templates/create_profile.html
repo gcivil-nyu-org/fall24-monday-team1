@@ -10,21 +10,22 @@
     <script>
         function addPlatform() {
             const container = document.getElementById('gaming_usernames_container');
-            const newPlatformHTML = `
-                <div class="input-group mb-2">
-                    <input type="text" class="form-control" name="gaming_usernames[new_platform]" placeholder="Username" required>
-                    <div class="input-group-append">
-                        <span class="input-group-text">New Platform</span>
-                        <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
-                    </div>
-                </div>`;
-            container.insertAdjacentHTML('beforeend', newPlatformHTML);
+            const newPlatform = document.createElement('div');
+            newPlatform.className = 'input-group mb-2';
+            newPlatform.innerHTML = `
+                <input type="text" class="form-control" name="platforms[]" placeholder="Platform Name" required>
+                <input type="text" class="form-control ml-2" name="gaming_usernames[]" placeholder="Username" required>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                </div>
+            `;
+            container.appendChild(newPlatform);
         }
     
         function removePlatform(element) {
             element.closest('.input-group').remove();
         }
-    </script>
+    </script>  
 </head>
 <body>
     <!-- Navbar -->
@@ -77,17 +78,21 @@
             <div class="form-group">
                 <label>Gaming Usernames:</label>
                 <div id="gaming_usernames_container">
-                    {% for platform, username in profile.gaming_usernames.items %}
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="gaming_usernames[{{ platform }}]" placeholder="Username" value="{{ username }}" required>
-                        <div class="input-group-append">
-                            <span class="input-group-text">{{ platform|title }}</span>
-                            <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
-                        </div>
-                    </div>
-                    {% endfor %}
+                    <!-- Loop through existing gaming usernames if present -->
+                    {% if profile.gaming_usernames %}
+                        {% for platform, username in profile.gaming_usernames.items %}
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="gaming_usernames[{{ platform }}]" placeholder="Username" value="{{ username }}" required>
+                                <input type="text" class="form-control ml-2" name="platforms[{{ platform }}]" placeholder="Platform" value="{{ platform }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
-                <button type="button" class="btn btn-secondary mt-2" onclick="addPlatform()">Add New Platform</button>
+                <!-- Button to add new platform and username -->
+                <button type="button" class="btn btn-secondary mt-2" onclick="addPlatform()">Add New Platform & Username</button>
                 <small class="form-text text-muted">Add, edit, or delete your gaming usernames for each platform.</small>
             </div>
             <button type="submit" class="btn btn-primary">Create Profile</button>
