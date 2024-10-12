@@ -7,14 +7,11 @@ import json
 @login_required
 def editProfile(request):
     profile = get_object_or_404(UserProfile, user=request.user)
-    print(profile)
 
     if request.method == 'POST':
         post_params = request.POST
         
         # Print all parameters
-        for key, value in post_params.items():
-            print(f'{key}: {value}')
         profile.display_name = request.POST.get('display_name')
         profile.bio = request.POST.get('bio')
         profile.privacy_setting = request.POST.get('privacy_setting')

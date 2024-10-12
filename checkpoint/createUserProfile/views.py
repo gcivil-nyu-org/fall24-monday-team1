@@ -24,15 +24,12 @@ def create_profile(request):
             gaming_usernames = {}
             platforms = request.POST.getlist('platforms[]')  # Get list of platforms
             usernames = request.POST.getlist('gaming_usernames[]')  # Get list of usernames
-            print(platforms)
-            print(usernames)
             for platform, username in zip(platforms, usernames):
                 if platform and username:
                     gaming_usernames[platform] = username
 
             # Store the gaming usernames as a JSON field
             profile.gaming_usernames = gaming_usernames
-            print(profile.gaming_usernames)
             profile.save()
 
             messages.success(request, 'Profile created successfully!')
