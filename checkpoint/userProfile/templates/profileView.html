@@ -1,0 +1,332 @@
+{% load static %}
+<!-- profileView.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ profile.display_name }}'s Profile</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Checkpoint</a>
+        <div class="collapse navbar-collapse justify-content-end">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="card mb-4">
+            <div class="card-body text-center">
+              <img
+                {% if profile.profile_photo %}
+                src="{{ profile.profile_photo.url}}"
+                {% else %}
+                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                {% endif %}
+                alt="avatar"
+                class="rounded-circle img-fluid"
+                style="width: 150px"
+              />
+              <h5 class="my-3">{{ profile.display_name }}</h5>
+              <p class="text-muted mb-1 cap-text">{{ profile.account_role }}</p>
+              <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+              <div class="d-flex justify-content-center mb-2">
+                {% if own %}
+                <button
+                  type="button"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  class="btn btn-primary"
+                  onclick="window.location.href='/profile/edit';"
+                >
+                  Edit
+                </button>
+                {% else %}
+                <button
+                  type="button"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  class="btn btn-primary"
+                >
+                  Follow
+                </button>
+                <button
+                  type="button"
+                  data-mdb-button-init
+                  data-mdb-ripple-init
+                  class="btn btn-outline-primary ms-1"
+                >
+                  Message
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% if viewable %}
+          <div class="card mb-4 mb-lg-0">
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush rounded-3">
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center p-3"
+                >
+                  <i class="fas fa-gamepad fa-lg text-warning"></i>
+                  <p class="mb-0">Gaming Usernames</p>
+                </li>
+
+                {% for platform, username in gaming_usernames.items %}
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center p-3"
+                >
+                  {% if platform == "playstation" %}
+                  <i class="fab fa-playstation fa-lg text-body"></i>
+                  {% elif platform == "xbox" %}
+                  <i class="fab fa-xbox fa-lg" style="color: #4a8d4b"></i>
+                  {% elif platform == "steam" %}
+                  <i class="fab fa-steam fa-lg" style="color: #00adee"></i>
+                  {% elif platform == "nintendo" %}
+                  <i
+                    class="fab fa-nintendo-switch fa-lg"
+                    style="color: #e60012"
+                  ></i>
+                  {% elif platform == "others" %}
+                  <i class="fab fa-whatsapp fa-lg" style="color: #25d366"></i>
+                  {% else %}
+                  <i class="fas fa-user fa-lg text-secondary"></i>
+                  {% endif %}
+                  <p class="mb-0 cap-text">
+                    {{ platform|title }}: <strong>{{ username }}</strong>
+                  </p>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-lg-8">
+          <div class="card mb-4">
+            <div class="card-body">
+              {% if viewable %}
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Display Name</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{{ profile.display_name }}</p>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Email</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{{ profile.user.email }}</p>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Phone</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">(097) 234-5678</p>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Mobile</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">(098) 765-4321</p>
+                </div>
+              </div>
+              <hr />
+              <div class="row">
+                <div class="col-sm-3">
+                  <p class="mb-0">Bio</p>
+                </div>
+                <div class="col-sm-9">
+                  <p class="text-muted mb-0">{{ profile.bio }}</p>
+                </div>
+              </div>
+              {% else %}
+              <p class="text-danger mb-0">This profile is private.</p>
+              {% endif %}
+            </div>
+          </div>
+          {% if viewable %}
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4">
+                    <span class="text-primary font-italic me-1"
+                      >assignment</span
+                    >
+                    Game Status
+                  </p>
+                  <p class="mb-1" style="font-size: 0.77rem">
+                    Horizon Zero Dawn
+                  </p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 80%"
+                      aria-valuenow="80"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">GTA V</p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 72%"
+                      aria-valuenow="72"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">God of War</p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 89%"
+                      aria-valuenow="89"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">
+                    The Witcher 3
+                  </p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 55%"
+                      aria-valuenow="55"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">Half Life</p>
+                  <div class="progress rounded mb-2" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 66%"
+                      aria-valuenow="66"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4">
+                    <span class="text-primary font-italic me-1"
+                      >assignment</span
+                    >
+                    Project Status
+                  </p>
+                  <p class="mb-1" style="font-size: 0.77rem">Web Design</p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 80%"
+                      aria-valuenow="80"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">
+                    Website Markup
+                  </p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 72%"
+                      aria-valuenow="72"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">One Page</p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 89%"
+                      aria-valuenow="89"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">
+                    Mobile Template
+                  </p>
+                  <div class="progress rounded" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 55%"
+                      aria-valuenow="55"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <p class="mt-4 mb-1" style="font-size: 0.77rem">
+                    Backend API
+                  </p>
+                  <div class="progress rounded mb-2" style="height: 5px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 66%"
+                      aria-valuenow="66"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

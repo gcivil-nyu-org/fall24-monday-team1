@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        function addPlatform() {
+            const container = document.getElementById('gaming_usernames_container');
+            const newPlatform = document.createElement('div');
+            newPlatform.className = 'input-group mb-2';
+            newPlatform.innerHTML = `
+                <input type="text" class="form-control" name="platforms[]" placeholder="Platform Name" required>
+                <input type="text" class="form-control ml-2" name="gaming_usernames[]" placeholder="Username" required>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                </div>
+            `;
+            container.appendChild(newPlatform);
+        }
+    
+        function removePlatform(element) {
+            element.closest('.input-group').remove();
+        }
+    </script>  
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkpoint</a>
+            <div>
+                <h1>Create Profile</h1>
+            </div>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <!-- Add any relevant links here -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Create Profile Form -->
+    <div class="container mt-5">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="display_name">Display Name:</label>
+                <input type="text" class="form-control" id="display_name" name="display_name" required>
+            </div>
+            <div class="form-group">
+                <label for="profile_photo">Profile Photo:</label>
+                <input type="file" class="form-control-file" id="profile_photo" name="profile_photo">
+            </div>
+            <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea class="form-control" id="bio" name="bio" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="privacy_setting">Privacy Setting:</label>
+                <select class="form-control" id="privacy_setting" name="privacy_setting">
+                    <option value="public">Public</option>
+                    <option value="friends_only">Friends Only</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="account_role">Account Role:</label>
+                <select class="form-control" id="account_role" name="account_role">
+                    <option value="gamer">Gamer</option>
+                    <option value="creator">Creator</option>
+                    <option value="event_organizer">Event Organizer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gaming Usernames:</label>
+                <div id="gaming_usernames_container">
+                    <!-- Loop through existing gaming usernames if present -->
+                    {% if profile.gaming_usernames %}
+                        {% for platform, username in profile.gaming_usernames.items %}
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="gaming_usernames[{{ platform }}]" placeholder="Username" value="{{ username }}" required>
+                                <input type="text" class="form-control ml-2" name="platforms[{{ platform }}]" placeholder="Platform" value="{{ platform }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <!-- Button to add new platform and username -->
+                <button type="button" class="btn btn-secondary mt-2" onclick="addPlatform()">Add New Platform & Username</button>
+                <small class="form-text text-muted">Add, edit, or delete your gaming usernames for each platform.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Profile</button>
+        </form>
+    </div>
+</body>
+</html>

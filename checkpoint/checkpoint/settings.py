@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'login',
-
+    'userProfile',
+    'createUserProfile',
 ]
 
 MIDDLEWARE = [
@@ -87,6 +88,8 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 AUTH_USER_MODEL = 'login.CheckpointUser'
 
+LOGIN_URL = '/login/' 
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -121,6 +124,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # STATICFILES_DIRS = [Path.joinpath(BASE_DIR, 'static')]
 STATIC_ROOT = 'static'
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
