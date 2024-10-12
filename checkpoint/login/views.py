@@ -3,7 +3,9 @@ from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from userProfile.models import UserProfile
+import django.contrib.auth.password_validation as validators
 
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -26,8 +28,13 @@ def signup(request):
         if password1!=password2:
             messages.error(request, "Passwords don't match.")
             return redirect('signup')
-    
-        #TODO: add more password validations
+        
+        try:
+            validators.validate_password(password=password1)
+        except ValidationError as err:
+            messages.error(request, err)
+            return redirect('signup')
+
         
         # Create new user
         user = User.objects.create_user(
