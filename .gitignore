@@ -61,3 +61,7 @@ eb-engine.log
 
 
 checkpoint/static/*
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
