@@ -19,7 +19,9 @@ def viewProfile(request, user_id):
     # Prepare the context with the profile data
     context = {
         'profile': profile,
-        'viewable': viewable
+        'viewable': viewable,
+        'gaming_usernames': profile.gaming_usernames,
+        'own' : profile.user == request.user,
     }
 
     return render(request, 'profileView.html', context)

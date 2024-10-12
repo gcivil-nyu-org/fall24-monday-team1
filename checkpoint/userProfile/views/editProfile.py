@@ -10,6 +10,11 @@ def editProfile(request):
     print(profile)
 
     if request.method == 'POST':
+        post_params = request.POST
+        
+        # Print all parameters
+        for key, value in post_params.items():
+            print(f'{key}: {value}')
         profile.display_name = request.POST.get('display_name')
         profile.bio = request.POST.get('bio')
         profile.privacy_setting = request.POST.get('privacy_setting')
@@ -18,15 +23,19 @@ def editProfile(request):
         # Handle profile photo upload
         if 'profile_photo' in request.FILES:
             profile.profile_photo = request.FILES['profile_photo']
-        
-        # Handle gaming usernames JSON
-        gaming_usernames = request.POST.get('gaming_usernames')
-        if gaming_usernames:
-            try:
-                profile.gaming_usernames = json.loads(gaming_usernames)
-            except json.JSONDecodeError:
-                profile.gaming_usernames = {}  # Fallback to empty dict on error
-        
+        gaming_usernames = {}
+        prevPlatform = ""
+        for key, value in request.POST.items():
+            if key.startswith('gaming_usernames[') and key.endswith(']'):
+                index = key[17:-1]  # Extract platform name from the key
+                if (index[:12] == "__platform__"):
+                    prevPlatform = value
+                else:
+                    if (index[:12] == "__username__" ):
+                        gaming_usernames[prevPlatform] = value
+                    else:
+                        gaming_usernames[index] = value  # Add to the dictionary
+        profile.gaming_usernames = gaming_usernames
         profile.save()
         return redirect('/profile/')  # Redirect to the profile view
 

@@ -70,3 +70,7 @@ h1 {
     border-radius: 8px;
     margin-top: 20px;
 }
+
+p.cap-text:first-letter {
+    text-transform: uppercase;
+}
