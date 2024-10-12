@@ -39,7 +39,11 @@
           <div class="card mb-4">
             <div class="card-body text-center">
               <img
+                {% if profile.profile_photo %}
+                src="{{ profile.profile_photo.url}}"
+                {% else %}
                 src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                {% endif %}
                 alt="avatar"
                 class="rounded-circle img-fluid"
                 style="width: 150px"
