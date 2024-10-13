@@ -61,3 +61,5 @@ eb-engine.log
 
 
 checkpoint/static/*
+
+checkpoint/media/profile_photos*
