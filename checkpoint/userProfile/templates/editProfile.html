@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        let platformCounter = 0;
+        function addPlatform() {
+            const container = document.getElementById('gaming_usernames_container');
+            const newPlatform = document.createElement('div');
+            newPlatform.className = 'input-group mb-2';
+            newPlatform.innerHTML = `
+                <input type="text" class="form-control" name="gaming_usernames[__platform__${platformCounter}]" placeholder="Platform Name" required>
+                <input type="text" class="form-control" name="gaming_usernames[__username__${platformCounter}]" placeholder="Username" required>
+                <div class="input-group-append">
+                    <span class="input-group-text">New Platform</span>
+                    <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                </div>
+            `;
+            container.appendChild(newPlatform);
+        }
+
+        function removePlatform(button) {
+            const platformDiv = button.closest('.input-group');
+            platformDiv.remove();
+        }
+    </script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkpoint</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <!-- Add Navbar Items Here -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Edit Profile Form -->
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h4>Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="display_name">Display Name:</label>
+                        <input type="text" class="form-control" id="display_name" name="display_name" value="{{ profile.display_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile_photo">Profile Photo:</label>
+                        <input type="file" class="form-control-file" id="profile_photo" name="profile_photo">
+                    </div>
+                    <div class="form-group">
+                        <label for="bio">Bio:</label>
+                        <textarea class="form-control" id="bio" name="bio" rows="3">{{ profile.bio }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="privacy_setting">Privacy Setting:</label>
+                        <select class="form-control" id="privacy_setting" name="privacy_setting">
+                            <option value="public" {% if profile.privacy_setting == 'public' %}selected{% endif %}>Public</option>
+                            <option value="friends_only" {% if profile.privacy_setting == 'friends_only' %}selected{% endif %}>Friends Only</option>
+                            <option value="private" {% if profile.privacy_setting == 'private' %}selected{% endif %}>Private</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_role">Account Role:</label>
+                        <select class="form-control" id="account_role" name="account_role">
+                            <option value="gamer" {% if profile.account_role == 'gamer' %}selected{% endif %}>Gamer</option>
+                            <option value="creator" {% if profile.account_role == 'creator' %}selected{% endif %}>Creator</option>
+                            <option value="event_organizer" {% if profile.account_role == 'event_organizer' %}selected{% endif %}>Event Organizer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Gaming Usernames:</label>
+                        <div id="gaming_usernames_container">
+                            {% for platform, username in profile.gaming_usernames.items %}
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="gaming_usernames[{{ platform }}]" placeholder="Username" value="{{ username }}" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">{{ platform|title }}</span>
+                                    <button type="button" class="btn btn-danger" onclick="removePlatform(this)">Delete</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-secondary mt-2" onclick="addPlatform()">Add New Platform</button>
+                        <small class="form-text text-muted">Add, edit, or delete your gaming usernames for each platform.</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
