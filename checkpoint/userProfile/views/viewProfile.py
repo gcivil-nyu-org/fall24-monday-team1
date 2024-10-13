@@ -22,6 +22,7 @@ def viewProfile(request, user_id):
         'viewable': viewable,
         'gaming_usernames': profile.gaming_usernames,
         'own' : profile.user == request.user,
+        'loginIn' : request.user is not None
     }
 
     return render(request, 'profileView.html', context)
