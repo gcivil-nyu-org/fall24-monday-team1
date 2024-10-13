@@ -23,12 +23,18 @@
         <a class="navbar-brand" href="#">Checkpoint</a>
         <div class="collapse navbar-collapse justify-content-end">
           <ul class="navbar-nav">
+            {% if loginIn %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            {% else %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">Login</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
             </li>
+            {% endif %}
           </ul>
         </div>
       </div>
@@ -50,7 +56,7 @@
               />
               <h5 class="my-3">{{ profile.display_name }}</h5>
               <p class="text-muted mb-1 cap-text">{{ profile.account_role }}</p>
-              <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
+              <!-- <p class="text-muted mb-4">Bay Area, San Francisco, CA</p> -->
               <div class="d-flex justify-content-center mb-2">
                 {% if own %}
                 <button
@@ -146,15 +152,15 @@
                 </div>
               </div>
               <hr />
-              <div class="row">
+              <!-- <div class="row">
                 <div class="col-sm-3">
                   <p class="mb-0">Phone</p>
                 </div>
                 <div class="col-sm-9">
                   <p class="text-muted mb-0">(097) 234-5678</p>
                 </div>
-              </div>
-              <hr />
+              </div> -->
+              <!-- <hr />
               <div class="row">
                 <div class="col-sm-3">
                   <p class="mb-0">Mobile</p>
@@ -163,7 +169,7 @@
                   <p class="text-muted mb-0">(098) 765-4321</p>
                 </div>
               </div>
-              <hr />
+              <hr /> -->
               <div class="row">
                 <div class="col-sm-3">
                   <p class="mb-0">Bio</p>
@@ -183,9 +189,9 @@
               <div class="card mb-4 mb-md-0">
                 <div class="card-body">
                   <p class="mb-4">
-                    <span class="text-primary font-italic me-1"
+                    <!-- <span class="text-primary font-italic me-1"
                       >assignment</span
-                    >
+                    > -->
                     Game Status
                   </p>
                   <p class="mb-1" style="font-size: 0.77rem">
@@ -250,7 +256,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
               <div class="card mb-4 mb-md-0">
                 <div class="card-body">
                   <p class="mb-4">
@@ -322,7 +328,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
           {% endif %}
         </div>
