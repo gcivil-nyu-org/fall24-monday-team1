@@ -29,7 +29,7 @@ DEBUG = True
 #ALLOWED_HOSTS = ['checkpoint.eba-4drvums3.us-east-1.elasticbeanstalk.com','172.31.16.114']
 
  # USE THIS FOR DEV:
- ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
+ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
 
 
 # Application definition
