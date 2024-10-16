@@ -16,7 +16,7 @@ def send_welcome_email(user):
     recipient_list = [user.email]
 
     # Render the HTML template
-    html_content = render_to_string('templates/welcome_email.html', {'user': user})
+    html_content = render_to_string('checkpoint/userProfile/templates/welcome_email.html', {'user': user})
     text_content = strip_tags(html_content)
 
     email = EmailMultiAlternatives(subject, text_content, 'from@example.com', recipient_list)
