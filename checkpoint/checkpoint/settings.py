@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,6 +25,10 @@ SECRET_KEY = 'django-insecure-mlg)s414krx#)ratx2&u_%9d=7y+^nx#$*zu2#wp4smioi=x6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# USE THIS FOR PROD:
+#ALLOWED_HOSTS = ['checkpoint.eba-4drvums3.us-east-1.elasticbeanstalk.com','172.31.16.114']
+
+ # USE THIS FOR DEV:
 ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
 
 
@@ -133,3 +137,17 @@ MEDIA_ROOT = 'media'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "Checkpoint"
+EMAIL_HOST_USER = 'checkpointgame11@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'euic jiwn yckv qwor'  # Replace with your email password
+
+
+
+
+
