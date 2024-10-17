@@ -1,0 +1,77 @@
+/* search.css */
+
+/* Background gradient */
+body {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Navbar link colors */
+.navbar-brand, .nav-link {
+    color: white !important;
+}
+
+.nav-link:hover {
+    color: #ddd !important;
+}
+
+/* Container */
+.container {
+    text-align: center;
+    margin-top: 120px; /* Space below navbar */
+}
+
+h1 {
+    color: white;
+    font-size: 36px;
+    font-weight: 100;
+    margin-bottom: 20px;
+}
+
+/* Search input */
+input[type="text"] {
+    padding: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    width: 300px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border: 2px solid #6a11cb;
+}
+
+/* Submit button */
+.btn {
+    padding: 10px 20px;
+    background-color: #6a11cb;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #2575fc;
+}
