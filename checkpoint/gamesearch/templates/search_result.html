@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
-    <title>Game Search Results</title>
+    <title>Game List</title>
     <link rel="stylesheet" href="{% static 'gamesearch/search_result.css' %}">
 </head>
 <body>
@@ -12,12 +12,27 @@
         <h1>Search Results</h1>
         <ul class="game-list">
             {% for game in games %}
-                <li class="game-item">
-                    <h2>{{ game.name }} ({{ game.first_release_date }})</h2>
+            <li class="game-item" onclick="handleClick('{{ game.name }}')">
+                <div class="game-thumbnail">
+                    {% if game.img_url %}
+                    <img src="https://{{ game.img_url }}" alt="{{ game.name }}">
+                    {% else %}
+                    <img src="{% static 'default-thumbnail.jpg' %}" alt="No image available">
+                    {% endif %}
+                </div>
+                <div class="game-info">
+                    <h2>{{ game.name }} {% if game.release_date %}({{ game.release_date|slice:":4" }}){% endif %}</h2>
                     <p>{{ game.genres|join:", " }}</p>
-                </li>
+                </div>
+            </li>
             {% endfor %}
         </ul>
     </div>
+
+    <script>
+        function handleClick(gameName) {
+            console.log('Clicked on: ' + gameName);
+        }
+    </script>
 </body>
 </html>
