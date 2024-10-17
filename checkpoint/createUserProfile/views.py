@@ -1,20 +1,20 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from userProfile.models import UserProfile
-from .forms import UserProfileForm  # Import the form
+from .forms import UserProfileForm
 from django.contrib import messages
+from django.core.mail import send_mail
 import json
 
 @login_required
 def create_profile(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES)
-        post_params = request.POST
-        # Print all parameters
+        
         if form.is_valid():
-
             # Check if a profile already exists
             if UserProfile.objects.filter(user=request.user).exists():
+                messages.warning(request, 'Profile already exists. Redirecting to your profile.')
                 return redirect('userProfile:myProfile')
 
             profile = form.save(commit=False)
@@ -29,10 +29,28 @@ def create_profile(request):
                     gaming_usernames[platform] = username
 
             # Store the gaming usernames as a JSON field
-            profile.gaming_usernames = gaming_usernames
+            profile.gaming_usernames = json.dumps(gaming_usernames)  # Serialize to JSON
             profile.save()
 
             messages.success(request, 'Profile created successfully!')
+
+            # Sending welcome email
+            my_subject = "Welcome to the platform!"
+            my_message = "Thank you for creating your profile."
+            my_recipient = request.user.email  # Get the email of the logged-in user
+            
+            try:
+                send_mail(
+                    subject=my_subject,
+                    message=my_message,
+                    from_email=None,
+                    recipient_list=[my_recipient],
+                    fail_silently=False
+                )
+                messages.info(request, 'A welcome email has been sent to your registered email.')
+            except Exception as e:
+                messages.error(request, f'Error sending email: {e}')
+
             return redirect('userProfile:myProfile')
         else:
             messages.error(request, 'Please correct the errors below.')
