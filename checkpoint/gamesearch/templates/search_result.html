@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Game Search Results</title>
+    <link rel="stylesheet" href="{% static 'gamesearch/search_result.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Search Results</h1>
+        <ul class="game-list">
+            {% for game in games %}
+                <li class="game-item">
+                    <h2>{{ game.name }} ({{ game.first_release_date }})</h2>
+                    <p>{{ game.genres|join:", " }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
