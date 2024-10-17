@@ -141,11 +141,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Use your email provider's SMTP server
-EMAIL_PORT = 587
+EMAIL_PORT = 465
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'checkpointgame11@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'Checkpoint@123'  # Replace with your email password
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 
 
