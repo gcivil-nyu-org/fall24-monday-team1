@@ -34,6 +34,7 @@ def search_game(request):
         # 1. get actual cover image URL
         for game in search_result:
             row = {}
+            row['id'] = game['id']
             img_url = None
             if 'name' in game:
                 row['name'] = game['name']
@@ -64,6 +65,7 @@ def search_game(request):
 
 
             data.append(row)
+
         print(data)
         return render(request, 'search_result.html', {'games': data})
 

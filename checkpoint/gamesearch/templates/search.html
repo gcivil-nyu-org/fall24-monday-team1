@@ -29,7 +29,13 @@
         <form method="POST" action="{% url 'search_game' %}">
             {% csrf_token %}
             <input type="text" name="game_query" placeholder="Enter game title" required>
-            <button type="submit" class="btn">Search</button>
+            <button type="submit" id="search-btn" class="btn" onClick="showSpinner()">Search</button>
+            <script>
+                function showSpinner() {
+                    var btn = document.getElementById('search-btn');
+                    btn.innerHTML = '<div class="spinner"></div>';
+                }
+            </script>
         </form>
     </div>
 </body>
