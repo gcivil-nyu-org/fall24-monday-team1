@@ -37,53 +37,77 @@
                 url: "{% url 'game-data-fetch' game_id %}",  // Django URL that handles the data fetching
                 method: 'GET',
                 success: function(response) {
-                    // Game data received from the backend
                     var game = response;
 
-                    // Remove the spinner
                     $('#loading-spinner').remove();
 
-                    // Append the game details in the formatted style
                     var gameHtml = `
-                        <div class="border p-3 mb-3">
-                            <div class="row justify-content-center">
-                                <div class="col-md-4">
-                                    <img src="https://${game.cover}" alt="Game Poster" class="img-fluid" style="border: 1px solid #ddd;">
+                                <div class="border p-3 mb-3">
+                                    <div class="row justify-content-center">
+                                        <div class="col-md-4">
+                                            <img src="https://${game.cover}" alt="Game Poster" class="img-fluid" style="border: 1px solid #ddd;">
+                                        </div>
+                                        <div class="col-md-8 text-start">
+                                            <h2>
+                                                <a href="${game.url}" target="_blank" class="text-decoration-none text-dark fw-bold">${game.name}</a> 
+                                                <span class="fw-normal">(${game.release_year})</span>
+                                            </h2>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Genres:</strong> ${game.genres.join(', ')}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Rating:</strong> ${game.rating.toFixed(2)}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Summary:</strong>
+                                        <p>${game.summary}</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <strong>Platforms:</strong> ${game.platforms.join(', ')}
+                                    </div>
+
+                                    <!-- Center-aligned section for adding to shelf -->
+                                    <div class="row justify-content-center align-items-center mt-3">
+                                        <div class="col-md-6 text-center">
+                                            <strong>Add to shelf:</strong>
+                                            <select class="form-select d-inline w-auto mx-2" id="shelf-select">
+                                                <option value="completed">Completed</option>
+                                                <option value="want-to-play">Want to Play</option>
+                                                <option value="abandoned">Abandoned</option>
+                                                <option value="paused">Paused</option>
+                                                <option value="playing">Playing</option>
+                                            </select>
+                                            <button class="btn btn-primary d-inline" id="shelf-submit">Submit</button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-8 text-start">
-                                    <h2><a href="${game.url}" target="_blank" class="text-decoration-none text-dark fw-bold">${game.name}</a> <span class="fw-normal">(${game.release_year})</span></h2>
-                                </div>
-                            </div>
-                        
+                            `;
 
-                        <div class="mb-3">
-                            <strong>Genres:</strong> ${game.genres.join(', ')}
-                        </div>
-
-                        <div class="mb-3">
-                            <strong>Rating:</strong> ${game.rating.toFixed(2)}
-                        </div>
-
-                        <div class="mb-3">
-                            <strong>Summary:</strong>
-                            <p>${game.summary}</p>
-                        </div>
-
-                        <div class="mb-3">
-                            <strong>Platforms:</strong> ${game.platforms.join(', ')}
-                        </div>
-                        </div>
-                    `;
-
+                    // TODO: add the add to shelves buttons
+                    // TODO: check what features we would want to see on the page
                     // Insert the game details into the page
                     $('#game-content').html(gameHtml);
+                    $('#shelf-submit').on('click', function() {
+                        var selectedShelf = $('#shelf-select').val();
+                        console.log('Game ID:', game.id);
+                        console.log('Selected Shelf:', selectedShelf);
+                    });
                 },
                 error: function(xhr, status, error) {
                     // Handle errors
                     $('#loading-spinner').html('<p>Error fetching game data. Please try again.</p>');
                 }
             });
+
         });
+
+        
     </script>
 
     <style>
