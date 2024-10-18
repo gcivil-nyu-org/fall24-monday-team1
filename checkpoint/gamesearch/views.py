@@ -113,11 +113,11 @@ def game_data_fetch_view(request, game_id):
         elif key == "cover":
             url = "https://api.igdb.com/v4/covers"
             payload = "fields url; where id=%d;" % (value)
-            print(payload)
             response = requests.request("POST", url, headers=headers, data=payload)
             data['cover'] = response.json()[0]["url"].split("//")[1]
         else:
             data[key] = value
 
+    print(data)
     # You can return HTML or JSON depending on how you want to populate the data
     return JsonResponse(data)
