@@ -18,12 +18,12 @@
                     {% if game.img_url %}
                     <img src="https://{{ game.img_url }}" alt="{{ game.name }}">
                     {% else %}
-                    <img src="{% static 'default-thumbnail.jpg' %}" alt="No image available">
+                    <container>
                     {% endif %}
                 </div>
                 <div class="game-info">
                     <h2>{{ game.name }} {% if game.release_date %}({{ game.release_date|slice:":4" }}){% endif %}</h2>
-                    <p>{{ game.genres|join:", " }}</p>
+                    {% comment %} <p>{{ game.genres|join:", " }}</p> {% endcomment %}
                 </div>
             </li>
             {% endfor %}
