@@ -1,0 +1,46 @@
+/* static/css/game_details.css */
+
+.mt-5 {
+    margin-top: 3rem !important;
+}
+
+.border {
+    border: 1px solid #ddd;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.text-start {
+    text-align: left !important;
+}
+
+/* Additional styling for the game details page */
+h2 {
+    font-weight: bold;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+body {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden; /* Prevent scrolling */
+}
