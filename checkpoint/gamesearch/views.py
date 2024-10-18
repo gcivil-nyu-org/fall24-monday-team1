@@ -7,7 +7,7 @@ from datetime import datetime
 
 def search_game(request):
     def authorize_igdb():
-        url = f"https://id.twitch.tv/oauth2/token?client_id={os.environ.get("client_id")}&client_secret={os.environ.get("client_secret")}&grant_type=client_credentials"
+        url = "https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&grant_type=client_credentials" % (os.environ['igdb_client_id'], os.environ['igdb_client_secret'])
 
         return requests.request("POST", url, headers={}, data={})
 
@@ -20,7 +20,7 @@ def search_game(request):
         
         payload = "search \"%s\"; fields name, first_release_date, cover, genres;\n" % (game_query)
         headers = {
-        'Client-ID': os.environ.get("client_id"),
+        'Client-ID': os.environ.get("igdb_client_id"),
         'Authorization': f'Bearer {auth.json()["access_token"]}',
         'Content-Type': 'text/plain',
         }
