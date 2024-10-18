@@ -3,9 +3,7 @@ from django.http import HttpResponse, JsonResponse
 
 import requests
 import os
-import json
 from datetime import datetime
-import time
 
 def authorize_igdb():
         url = "https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&grant_type=client_credentials" % (os.environ['igdb_client_id'], os.environ['igdb_client_secret'])
@@ -119,8 +117,4 @@ def game_data_fetch_view(request, game_id):
             data[key] = value
 
     # print(data)
-    # TODO: add following features to dataZ
-    # 4ougin
-    # openriub
-    # ;orbr
     return JsonResponse(data)

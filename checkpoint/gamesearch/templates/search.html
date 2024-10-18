@@ -26,7 +26,7 @@
     <!-- Game Search Container -->
     <div class="container">
         <h1>Search for a Game</h1>
-        <form method="POST" action="{% url 'search_game' %}">
+        <form method="POST" action="{% url 'gamesearch:search_game' %}">
             {% csrf_token %}
             <input type="text" name="game_query" placeholder="Enter game title" required>
             <button type="submit" id="search-btn" class="btn" onClick="showSpinner()">Search</button>

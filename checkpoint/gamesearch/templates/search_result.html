@@ -15,7 +15,7 @@
         <ul class="game-list">
             {% for game in games %}
             <li class="game-item">
-                <a href="{% url 'game-details' game.id %}">
+                <a href="{% url 'gamesearch:game-details' game.id %}">
                 <div class="game-thumbnail">
                     {% if game.img_url %}
                     <img src="https://{{ game.img_url }}" alt="{{ game.name }}">
