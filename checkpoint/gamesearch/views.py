@@ -98,7 +98,7 @@ def game_data_fetch_view(request, game_id):
 
     response = requests.request("POST", url, headers=headers, data=payload)
     data = {}
-    print(response.json())
+    # print(response.json())
     
     for key,value in response.json()[0].items():
         if key == 'genres' or key == 'platforms':
@@ -118,6 +118,9 @@ def game_data_fetch_view(request, game_id):
         else:
             data[key] = value
 
-    print(data)
-    # You can return HTML or JSON depending on how you want to populate the data
+    # print(data)
+    # TODO: add following features to dataZ
+    # 4ougin
+    # openriub
+    # ;orbr
     return JsonResponse(data)

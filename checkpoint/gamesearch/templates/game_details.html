@@ -14,9 +14,7 @@
     <div class="container">
         <div class="row justify-content-center mt-5">
             <div class="col-md-8">
-                <!-- Game details container -->
                 <div id="game-content" class="text-center">
-                    <!-- Spinner initially shown -->
                     <div id="loading-spinner">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Loading...</span>
@@ -30,11 +28,10 @@
 
     <script>
         $(document).ready(function() {
-            var gameId = "{{ game_id }}"; // Pass the game ID from Django
+            var gameId = "{{ game_id }}";
 
-            // Make an AJAX call to fetch the game data
             $.ajax({
-                url: "{% url 'game-data-fetch' game_id %}",  // Django URL that handles the data fetching
+                url: "{% url 'game-data-fetch' game_id %}",
                 method: 'GET',
                 success: function(response) {
                     var game = response;
@@ -72,7 +69,6 @@
                                         <strong>Platforms:</strong> ${game.platforms.join(', ')}
                                     </div>
 
-                                    <!-- Center-aligned section for adding to shelf -->
                                     <div class="row justify-content-center align-items-center mt-3">
                                         <div class="col-md-6 text-center">
                                             <strong>Add to shelf:</strong>
@@ -89,9 +85,7 @@
                                 </div>
                             `;
 
-                    // TODO: add the add to shelves buttons
                     // TODO: check what features we would want to see on the page
-                    // Insert the game details into the page
                     $('#game-content').html(gameHtml);
                     $('#shelf-submit').on('click', function() {
                         var selectedShelf = $('#shelf-select').val();
