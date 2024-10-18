@@ -23,13 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-mlg)s414krx#)ratx2&u_%9d=7y+^nx#$*zu2#wp4smioi=x6c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # USE THIS FOR PROD:
-ALLOWED_HOSTS = ['checkpoint.eba-4drvums3.us-east-1.elasticbeanstalk.com','172.31.16.114']
+# ALLOWED_HOSTS = ['checkpoint.eba-4drvums3.us-east-1.elasticbeanstalk.com','172.31.16.114']
 
 # USE THIS FOR DEV:
-# ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
+ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
 
 
 # Application definition
