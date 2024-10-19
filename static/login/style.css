@@ -1,0 +1,54 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    text-align: center;
+}
+
+.welcome-text {
+    font-size: 2.5rem;
+    animation: slideIn 1.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure the navbar stretches the full width and handles smaller windows */
+.navbar {
+    width: 100%;
+}
+
+.navbar-nav {
+    width: 100%;
+    justify-content: flex-end;
+}
+
+h1{
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .welcome-text {
+        font-size: 1.8rem;
+        color: white;
+    }
+}
