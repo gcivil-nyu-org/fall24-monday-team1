@@ -10,7 +10,7 @@ branches:
 
 install:
   - python -m pip install --upgrade setuptools==70.0.0
-  - python -m pip install -r requirements.txt
+  - python -m pip install -r checkpoint/requirements.txt
   - python -m pip install black flake8 coverage coveralls
 
 # Code formatting and linting checks
