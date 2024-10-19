@@ -19,7 +19,6 @@ before_script:
   - python -m flake8 .
   - python -m pip install urllib3==1.26.6
 
-# Run test suite and check coverage
 script:
   - coverage run -m pytest
   - coverage report
