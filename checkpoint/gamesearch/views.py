@@ -47,7 +47,8 @@ def search_game(request):
                     payload = "fields url; where id=%d;" % (game['cover'])
                     response = requests.request("POST", url, headers=headers, data=payload)
                     img_url = response.json()[0]["url"].split("//")[1]
-                except:
+                except Exception as e:
+                    print(e)
                     pass
             row["img_url"] = img_url
                 
