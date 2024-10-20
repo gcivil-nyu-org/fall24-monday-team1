@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from ..models import UserProfile
+import json
 
 def viewProfile(request, user_id):
     # Retrieve the user profile based on the user_id
@@ -20,7 +21,7 @@ def viewProfile(request, user_id):
     context = {
         'profile': profile,
         'viewable': viewable,
-        'gaming_usernames': profile.gaming_usernames,
+        'gaming_usernames': json.loads(profile.gaming_usernames),
         'own' : profile.user == request.user,
         'loginIn' : request.user.is_authenticated
     }
