@@ -1,4 +1,4 @@
 [flake8]
-max-line-length = 140
+max-line-length = 230
 extend-exclude = .venv,eb-virt,.ebextensions,.elasticbeanstalk
 ignore = F401,F841
