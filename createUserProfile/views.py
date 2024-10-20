@@ -1,14 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from userProfile.models import UserProfile
-<<<<<<< HEAD
-from .forms import UserProfileForm  # Import the form
-from django.contrib import messages
-=======
 from .forms import UserProfileForm
 from django.contrib import messages
 from django.core.mail import send_mail
->>>>>>> Dev-email
 import json
 
 @login_required
