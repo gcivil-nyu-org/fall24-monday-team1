@@ -1,0 +1,50 @@
+language: python
+python:
+  - "3.8"
+
+# Only run builds for main and dev branches
+branches:
+  only:
+    - main
+    - dev
+
+install:
+  - python -m pip install --upgrade setuptools==70.0.0
+  - python -m pip install -r requirements.txt
+  - python -m pip install black flake8 coverage coveralls
+
+# Code formatting and linting checks
+before_script:
+  - python -m black .
+  - python -m flake8 .
+  - python -m pip install urllib3==1.26.6
+
+script:
+  - coverage run -m pytest
+  - coverage report
+
+# Conditional deployment to Elastic Beanstalk
+deploy:
+  - provider: elasticbeanstalk
+    region: "us-east-1"
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket_name: "elasticbeanstalk-us-east-1-095179586850"
+    app: "checkpoint"
+    env: "checkpoint"               
+    on:
+      branch: main
+
+  - provider: elasticbeanstalk
+    region: "us-east-1"
+    access_key_id: $AWS_ACCESS_KEY_ID
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket_name: "elasticbeanstalk-us-east-1-095179586850"
+    app: "checkpoint"          
+    env: "chkpnt-env"                
+    on:
+      branch: dev
+
+# Code coverage report after tests
+after_success:
+  - coveralls
