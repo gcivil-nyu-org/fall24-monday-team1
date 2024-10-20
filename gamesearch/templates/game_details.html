@@ -88,10 +88,30 @@
                     // TODO: check what features we would want to see on the page
                     $('#game-content').html(gameHtml);
                     $('#shelf-submit').on('click', function() {
-                        var selectedShelf = $('#shelf-select').val();
-                        console.log('Game ID:', game.id);
-                        console.log('Selected Shelf:', selectedShelf);
+                    var selectedShelf = $('#shelf-select').val();
+                    var gameId = game.id;
+
+                    $.ajax({
+                        type: 'POST',
+                        url: 'gamesearch:save_to_shelf',  // Django view URL for saving to shelf
+                        data: {
+                            'game_id': gameId,
+                            'shelf_name': selectedShelf,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'  // Ensure CSRF token is included if CSRF is enabled
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                alert('Game successfully added to your shelf!');
+                            } else {
+                                alert('Error: ' + response.message);
+                            }
+                        },
+                        error: function(response) {
+                            alert('An error occurred while adding the game to your shelf.');
+                        }
                     });
+                });
+
                 },
                 error: function(xhr, status, error) {
                     // Handle errors

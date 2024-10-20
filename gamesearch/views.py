@@ -119,3 +119,70 @@ def game_data_fetch_view(request, game_id):
 
     # print(data)
     return JsonResponse(data)
+
+# gamesearch/views.py
+
+import boto3
+from django.conf import settings
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from botocore.exceptions import ClientError
+
+# Initialize the DynamoDB resource using boto3
+dynamodb = boto3.resource(
+    'dynamodb',
+    aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+    aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+    region_name='us-east-1'
+)
+
+# Reference the DynamoDB table
+table = dynamodb.Table('user-shelves')
+
+@csrf_exempt  # Disable CSRF protection for testing; handle securely in production
+@login_required  # Ensure the user is logged in
+def save_to_shelf(request):
+    if request.method == 'POST':
+        try:
+            # Get the logged-in user's username
+            username = request.user.username
+
+            # Get the game ID and selected shelf from the POST request
+            game_id = request.POST.get('game_id')
+            shelf_name = request.POST.get('shelf_name')
+
+            # Check if the user already has an entry in the DynamoDB table
+            response = table.get_item(Key={'user-id': username})
+
+            if 'Item' in response:
+                # User already exists, retrieve the user's shelf data
+                user_shelves = response['Item']
+            else:
+                # User does not exist, create a new record with empty shelves
+                user_shelves = {
+                    'user-id': username,
+                    'completed': [],
+                    'playing': [],
+                    'want-to-play': [],
+                    'abandoned': [],
+                    'paused': []
+                }
+
+            # Append the game ID to the correct shelf (if not already added)
+            if game_id not in user_shelves[shelf_name]:
+                user_shelves[shelf_name].append(game_id)
+
+            # Save the updated shelves back to DynamoDB
+            table.put_item(Item=user_shelves)
+
+            # Return a success response
+            return JsonResponse({'status': 'success'})
+
+        except ClientError as e:
+            # Handle errors, for example, if DynamoDB operation fails
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    # Return an error if the request method is not POST
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
