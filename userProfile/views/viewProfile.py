@@ -18,10 +18,17 @@ def viewProfile(request, user_id):
         pass
     
     # Prepare the context with the profile data
+    gaming_usernames = None
+    if profile.gaming_usernames:
+        try:
+            gaming_usernames = json.loads(profile.gaming_usernames)
+        except TypeError:
+            gaming_usernames = profile.gaming_usernames
+
     context = {
         'profile': profile,
         'viewable': viewable,
-        'gaming_usernames': json.loads(profile.gaming_usernames),
+        'gaming_usernames': gaming_usernames,
         'own' : profile.user == request.user,
         'loginIn' : request.user.is_authenticated
     }
