@@ -91,9 +91,12 @@
                     var selectedShelf = $('#shelf-select').val();
                     var gameId = game.id;
 
+                    console.log("selected shelf: ", selectedShelf);
+                    console.log("Game ID: ", gameId);
+
                     $.ajax({
                         type: 'POST',
-                        url: 'gamesearch:save_to_shelf',  // Django view URL for saving to shelf
+                        url: "{% url 'gamesearch:save_to_shelf' %}",
                         data: {
                             'game_id': gameId,
                             'shelf_name': selectedShelf,
