@@ -3,12 +3,21 @@ from django.http import HttpResponse, JsonResponse
 
 import requests
 import os
+import json
 from datetime import datetime
+import boto3
+
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from botocore.exceptions import ClientError
 
 def authorize_igdb():
         url = "https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&grant_type=client_credentials" % (os.environ['igdb_client_id'], os.environ['igdb_client_secret'])
         return requests.request("POST", url, headers={}, data={})
 
+@login_required
 def search_game(request):
     if request.method == 'POST':
         game_query = request.POST.get('game_query')
@@ -28,7 +37,7 @@ def search_game(request):
         
         search_result = response.json()
         
-        print(search_result)
+        # print(search_result)
         # clean data
         data = []
         # 1. get actual cover image URL
@@ -119,3 +128,59 @@ def game_data_fetch_view(request, game_id):
 
     # print(data)
     return JsonResponse(data)
+
+
+
+@csrf_exempt  # Disable CSRF protection for testing; handle securely in production
+@login_required  # Ensure the user is logged in
+def save_to_shelf(request):
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['aws_access_key_id'],
+        aws_secret_access_key=os.environ['aws_secret_access_key'],
+        region_name='us-east-1'
+    )
+    # Reference the DynamoDB table
+    table = dynamodb.Table('user-shelves')
+
+    if request.method == 'POST':
+        try:
+            username = request.user.username
+
+            game_id = request.POST.get('game_id')
+            shelf_name = request.POST.get('shelf_name')
+
+            response = table.get_item(Key={'user_id': username})
+            otherShelf = False
+            if 'Item' in response:
+                user_shelves = response['Item']
+                if game_id in user_shelves[shelf_name]:
+                    return JsonResponse({'status': 'alreadyExists'})
+                for shelf in user_shelves:
+                    if shelf!='user_id' and game_id in user_shelves[shelf]:
+                        user_shelves[shelf].remove(game_id)
+                        otherShelf = True
+                        break
+                
+            else:
+                user_shelves = {
+                    'user_id': username,
+                    'completed': [],
+                    'playing': [],
+                    'want-to-play': [],
+                    'abandoned': [],
+                    'paused': []
+                }
+            
+            user_shelves[shelf_name].append(game_id)
+            response = table.put_item(Item=user_shelves)
+        
+            if otherShelf:
+                return JsonResponse({'status': 'movedShelf'})
+            return JsonResponse({'status': 'success'})
+
+        except ClientError as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
