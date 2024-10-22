@@ -105,8 +105,10 @@
                         success: function(response) {
                             if (response.status === 'success') {
                                 alert('Game successfully added to your shelf!');
+                                window.location.assign("{% url 'userProfile:myProfile' %}")
                             }else if(response.status === 'movedShelf'){
                                 alert('Moved the shelf as this game already existed in another shelf');
+                                window.location.assign("{% url 'userProfile:myProfile' %}")
                             } else if(response.status === 'alreadyExists'){
                                 alert('The game was already in this shelf!');
                             }
