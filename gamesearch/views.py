@@ -151,9 +151,17 @@ def save_to_shelf(request):
             shelf_name = request.POST.get('shelf_name')
 
             response = table.get_item(Key={'user_id': username})
-
+            otherShelf = False
             if 'Item' in response:
                 user_shelves = response['Item']
+                if game_id in user_shelves[shelf_name]:
+                    return JsonResponse({'status': 'alreadyExists'})
+                for shelf in user_shelves:
+                    if shelf!='user_id' and game_id in user_shelves[shelf]:
+                        user_shelves[shelf].remove(game_id)
+                        otherShelf = True
+                        break
+                
             else:
                 user_shelves = {
                     'user_id': username,
@@ -163,16 +171,12 @@ def save_to_shelf(request):
                     'abandoned': [],
                     'paused': []
                 }
-
-            if game_id not in user_shelves[shelf_name]:
-                user_shelves[shelf_name].append(game_id)
-            ## TODO: handle the case where game id is in the shelf already
             
-            print("trying to put: ", user_shelves)
-
+            user_shelves[shelf_name].append(game_id)
             response = table.put_item(Item=user_shelves)
         
-
+            if otherShelf:
+                return JsonResponse({'status': 'movedShelf'})
             return JsonResponse({'status': 'success'})
 
         except ClientError as e:
