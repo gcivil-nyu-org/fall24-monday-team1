@@ -79,7 +79,7 @@ def search_game(request):
 
             data.append(row)
 
-        print(data)
+        # print(data)
         return render(request, 'search_result.html', {'games': data})
 
 
