@@ -24,7 +24,6 @@ class GameSearchWorkflowTest(TestCase):
 
 
         # Mock the IGDB Return value and make a mock API call
-        # TODO: make it not actually call IGDB
         
         mock_post.return_value.json.return_value = [{
             'id': 26192, 
