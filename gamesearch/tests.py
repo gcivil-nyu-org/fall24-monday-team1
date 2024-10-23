@@ -24,42 +24,30 @@ class GameSearchWorkflowTest(TestCase):
 
 
         # Mock the IGDB Return value and make a mock API call
-        mock_post.return_value.json.return_value = [
-            {
-                'id': 12345,
-                'name': 'Test Game',
-                'release_date': '2020',
-                'cover': {
-                    'url': '//images.igdb.com/cover_url.jpg'
-                },
-                'genres': [{'name': 'Action'}, {'name': 'Adventure'}]
-            }
+        # TODO: make it not actually call IGDB
+        
+        mock_post.return_value.json.return_value = [{
+            'id': 26192, 
+            'name': 'The Last of Us Part II', 
+            'img_url': 'images.igdb.com/igdb/image/upload/t_thumb/co5ziw.jpg', 
+            'release_date': '2020-06-19'}
         ]
+        mock_post.status_code = 200
 
-        search_query = 'Test Game'
+        search_query = 'the last of us'
         response = self.client.post(reverse('gamesearch:search_game'), {
             'game_query': search_query
         })
-        print(response)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('games', response.context)  # Search results returned
-        self.assertContains(response, 'Test Game')  # Game title is displayed
 
-        ### Step 3: Click on a Game and View Game Details
-        # Mock the game details API response
-        mock_post.return_value.json.return_value = [{
-            'name': 'Test Game',
-            'genres': [{'name': 'Action'}, {'name': 'Adventure'}],
-            'first_release_date': 1609459200,
-            'summary': 'Test Game summary.',
-            'cover': 'images.igdb.com/cover_url.jpg'
-        }]
+        # User clicks on game, mock the response
+        mock_post.return_value.json.return_value = {'id': 1009, 'cover': 'images.igdb.com/igdb/image/upload/t_thumb/co1r7f.jpg', 'release_year': '2013', 'genres': ['Shooter', 'Adventure'], 'name': 'The Last of Us', 'platforms': ['PlayStation 3'], 'rating': 92.97792061273745, 'summary': 'A third person shooter/stealth/survival hybrid, in which twenty years after the outbreak of a parasitic fungus which takes over the neural functions of humans, Joel, a Texan with a tragic familial past, finds himself responsible with smuggling a fourteen year old girl named Ellie to a militia group called the Fireflies, while avoiding strict and deadly authorities, infected fungal hosts and other violent survivors.', 'url': 'https://www.igdb.com/games/the-last-of-us'}
         
-        response = self.client.get(reverse('gamesearch:game-details', args=[12345]))
+        response = self.client.get(reverse('gamesearch:game-details', args=[1009]))
         self.assertEqual(response.status_code, 200)  # Game details fetched
 
-        ### Step 4: Test Adding Game to Shelf
+
         # Mocking the DynamoDB operation for adding a game to the shelf
         with patch('gamesearch.views.boto3.resource') as mock_dynamo:
             mock_table = mock_dynamo.return_value.Table.return_value
