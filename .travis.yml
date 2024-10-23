@@ -20,7 +20,7 @@ before_script:
   - python -m pip install urllib3==1.26.6
 
 script:
-  - coverage run -m pytest
+  - coverage run manage.py test
   - coverage report
 
 # Conditional deployment to Elastic Beanstalk
