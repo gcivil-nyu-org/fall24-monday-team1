@@ -41,7 +41,19 @@ class GameSearchWorkflowTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # User clicks on game, mock the response
-        mock_post.return_value.json.return_value = {'id': 1009, 'cover': 'images.igdb.com/igdb/image/upload/t_thumb/co1r7f.jpg', 'release_year': '2013', 'genres': ['Shooter', 'Adventure'], 'name': 'The Last of Us', 'platforms': ['PlayStation 3'], 'rating': 92.97792061273745, 'summary': 'A third person shooter/stealth/survival hybrid, in which twenty years after the outbreak of a parasitic fungus which takes over the neural functions of humans, Joel, a Texan with a tragic familial past, finds himself responsible with smuggling a fourteen year old girl named Ellie to a militia group called the Fireflies, while avoiding strict and deadly authorities, infected fungal hosts and other violent survivors.', 'url': 'https://www.igdb.com/games/the-last-of-us'}
+        mock_post.return_value.json.return_value = {
+            'id': 1009, 
+            'cover': 
+            'images.igdb.com/igdb/image/upload/t_thumb/co1r7f.jpg', 
+            'release_year': 
+            '2013', 
+            'genres': ['Shooter', 'Adventure'], 
+            'name': 'The Last of Us', 
+            'platforms': ['PlayStation 3'], 
+            'rating': 92.97792061273745, 
+            'summary': 'Sample Summary', 
+            'url': 'https://www.igdb.com/games/the-last-of-us'
+        }
         
         response = self.client.get(reverse('gamesearch:game-details', args=[1009]))
         self.assertEqual(response.status_code, 200)  # Game details fetched
