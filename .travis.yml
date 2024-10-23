@@ -1,6 +1,6 @@
+dist: xenial
 language: python
-python:
-  - "3.8"
+
 
 # Only run builds for main and dev branches
 branches:
