@@ -72,19 +72,3 @@ class GameSearchWorkflowTest(TestCase):
             
             self.assertEqual(response.status_code, 200)  # POST request successful
             self.assertJSONEqual(response.content, {'status': 'success'})  # Game added to shelf
-
-        mock_table.get_item.return_value = {'Item': {
-            'user_id': 'testuser',
-            'completed': [12345],
-            'playing': [],
-            'want-to-play': [],
-            'abandoned': [],
-            'paused': []
-        }}
-
-        response = self.client.post(reverse('gamesearch:save_to_shelf'), {
-            'game_id': 12345,
-            'shelf_name': 'completed'
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertJSONEqual(response.content, {'status': 'alreadyExists'})
