@@ -14,15 +14,20 @@ install:
   - python -m pip install black flake8 coverage coveralls
 
 # Code formatting and linting checks
-services:
-  - sqlite3
-
 before_script:
   - python -m black .
   - python -m flake8 .
   - python -m pip install urllib3==1.26.6
   - sudo apt-get upgrade
-  - sudo apt-get install sqlite3 libsqlite3-dev
+  - sudo apt-get remove sqlite3  # Remove the old SQLite version
+  - wget https://www.sqlite.org/2024/sqlite-autoconf-3410000.tar.gz  # Adjust this URL for the latest version
+  - tar xvfz sqlite-autoconf-3210000.tar.gz
+  - cd sqlite-autoconf-3210000
+  - ./configure --prefix=/usr
+  - make
+  - sudo make install  # Install SQLite 3.41 in /usr/bin
+  - cd ..
+  - sqlite3 --version  # Verify the new SQLite version
 
 script:
   - coverage run manage.py test
