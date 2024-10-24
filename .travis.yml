@@ -14,10 +14,15 @@ install:
   - python -m pip install black flake8 coverage coveralls
 
 # Code formatting and linting checks
+services:
+  - sqlite3
+
 before_script:
   - python -m black .
   - python -m flake8 .
   - python -m pip install urllib3==1.26.6
+  - sudo apt-get upgrade
+  - sudo apt-get install sqlite3 libsqlite3-dev
 
 script:
   - coverage run manage.py test
