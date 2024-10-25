@@ -149,5 +149,11 @@
             text-align: left !important;
         }
     </style>
+    {% load comment_tags %}
+    {% with game_detail="game-detail" %}
+      {% with game_id=game_id|stringformat:"s" %}
+          {% render_comment_board game_detail|add:game_id %}
+      {% endwith %}
+    {% endwith %}
 </body>
 </html>
