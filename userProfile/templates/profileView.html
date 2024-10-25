@@ -53,8 +53,8 @@
                 src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
                 {% endif %}
                 alt="avatar"
-                class="rounded-circle img-fluid"
-                style="width: 150px"
+                class="rounded-circle card-img"
+                style="width: 150px; height: 150px; object-fit: cover;"
               />
               <h5 class="my-3">{{ profile.display_name }}</h5>
               <p class="text-muted mb-1 cap-text">{{ profile.account_role }}</p>
@@ -215,5 +215,12 @@
         </div>
       </div>
     </div>
+    {% load comment_tags %}
+    {% with user_comment="user-comment" %}
+      {% with user_id=profile.user.pk|stringformat:"s" %}
+          {% render_comment_board user_comment|add:user_id %}
+      {% endwith %}
+    {% endwith %}
   </body>
+
 </html>

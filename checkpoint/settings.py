@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'userProfile',
     'createUserProfile',
     'gamesearch',
+    'comments',
 ]
 
 MIDDLEWARE = [

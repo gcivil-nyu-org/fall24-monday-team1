@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from ..models import UserProfile
 import json
 
@@ -30,7 +31,8 @@ def viewProfile(request, user_id):
         'viewable': viewable,
         'gaming_usernames': gaming_usernames,
         'own' : profile.user == request.user,
-        'loginIn' : request.user.is_authenticated
+        'loginIn' : request.user.is_authenticated,
+        'curPath' : reverse('userProfile:viewProfile', args=[profile.user.pk]),
     }
 
     return render(request, 'profileView.html', context)

@@ -1,0 +1,75 @@
+<!-- comment_item.html -->
+<li class="list-group-item">
+    <div class="d-flex align-items-center">
+        <!-- User Avatar -->
+        {% if comment.author.userprofile.profile_photo %}
+            <img src="{{ comment.author.userprofile.profile_photo.url }}" alt="{{ comment.author.userprofile.display_name }}'s avatar" class="rounded-circle" width="40" height="40">
+        {% endif %}
+        
+        <div class="flex-grow-1 ml-2 d-flex justify-content-between">
+            <strong>{{ comment.author.userprofile.display_name }}</strong>
+            <span class="text-muted"> <i class="fa-regular fa-clock"></i> - {{ comment.created_at }}</span>
+        </div>
+
+        {% if comment.edited_at %}
+            <span class="text-muted">(Edited on <i class="fa-regular fa-clock"></i> {{ comment.edited_at }})</span>
+        {% endif %}
+    </div>
+
+    <!-- Comment Content Wrapped in Bootstrap Card -->
+    <div class="card mt-2">
+        <div class="card-body">
+            <p class="card-text">{{ comment.content }}</p>
+        </div>
+    </div>
+
+    <!-- Voting buttons -->
+    <div class="d-flex align-items-center mb-2 mt-2">
+        <form action="{% url 'upvote_comment' comment.id %}" method="post" class="mr-2">
+            {% csrf_token %}
+            <input type="hidden" name="curPath" value="{{ curPath }}" />
+            <button type="submit" class="btn btn-link p-0" title="Upvote">
+                <i class="fa-regular fa-thumbs-up"></i>
+            </button>
+        </form>
+        <span class="mr-3">{{ comment.upvote.count }}</span>
+
+        <form action="{% url 'downvote_comment' comment.id %}" method="post" class="mr-2">
+            {% csrf_token %}
+            <input type="hidden" name="curPath" value="{{ curPath }}" />
+            <button type="submit" class="btn btn-link p-0" title="Downvote">
+                <i class="fa-regular fa-thumbs-down"></i>
+            </button>
+        </form>
+        <span>{{ comment.downvote.count }}</span>
+
+        <!-- Toggle reply form button -->
+        <button class="btn btn-link toggle-reply-form ml-2">
+            <i class="fa-regular fa-comment"></i>
+        </button>
+    </div>
+
+    <!-- Reply form -->
+    <form action="{% url 'create_reply' comment.id %}" method="post" class="reply-form mt-2" style="display: none;">
+        {% csrf_token %}
+        <div class="form-group">
+            <textarea name="content" class="form-control" placeholder="Reply..." required></textarea>
+        </div>
+        <input type="hidden" name="curPath" value="{{ curPath }}" />
+        <button type="submit" class="btn btn-primary">Reply</button>
+    </form>
+
+    {% if comment.replies.all %}
+    <!-- Toggle replies button -->
+    <div class="mt-2">
+        <button class="btn btn-link toggle-replies">
+            <i class="fa-solid fa-chevron-down"></i> Show {{ comment.replies.all.count }} replies
+        </button>
+    </div>
+    <ul class="list-group mt-3 replies" style="display: none;">
+        {% for reply in comment.replies.all %}
+            {% include 'comments/comment_item.html' with comment=reply curPath=curPath %}
+        {% endfor %}
+    </ul>
+    {% endif %}
+</li>
