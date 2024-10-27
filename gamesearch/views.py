@@ -181,11 +181,11 @@ def save_to_shelf(request):
                 return JsonResponse({'status': 'movedShelf'})
             if response:
                 return JsonResponse({'status': 'success'})
-            else:
-                return JsonResponse({'status': 'error'}, status=500)    
+            # else:
+            #     return JsonResponse({'status': 'error'}, status=500)    
 
         except ClientError as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Something went wrong!'}, status=400)
 
