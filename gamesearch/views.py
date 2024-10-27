@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 
+from django.urls import reverse
 import requests
 import os
 import json
@@ -88,7 +89,7 @@ def search_game(request):
 
 
 def game_details_view(request, game_id):
-    return render(request, 'game_details.html', {'game_id': game_id})
+    return render(request, 'game_details.html', {'game_id': game_id, 'curPath' : reverse('gamesearch:game-details', args=[game_id])})
 
 def game_data_fetch_view(request, game_id):
     auth = authorize_igdb()

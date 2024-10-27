@@ -1,0 +1,70 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <!-- <h1 class="mb-4">Comment Board for {{ root_comment.content }}</h1> -->
+
+            {% if root_comment %}
+            <!-- <div class="mb-4">
+                <h5 class="card-title">Posted by {{ root_comment.author.username }}</h5>
+                <p class="card-text">{{ root_comment.created_at }}</p>
+            </div> -->
+
+            <h3>Comments</h3>
+            <ul class="list-group mb-4">
+                {% for comment in comments %}
+                    {% include 'comments/comment_item.html' with comment=comment curPath=curPath %}
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No comments yet.</p>
+            {% endif %}
+
+            <h2>Add a Comment</h2>
+            <form action="{% url 'create_reply' root_comment.id %}" method="post" class="mb-4">
+                {% csrf_token %}
+                <input type="hidden" name="curPath" value="{{ curPath }}" />
+                <div class="form-group">
+                    <textarea name="content" class="form-control" placeholder="Your comment..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Add Comment</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.toggle-replies').forEach(button => {
+        button.addEventListener('click', function() {
+            const repliesList = this.closest('li').querySelector('.replies');
+            const icon = this.querySelector('i');
+
+            if (repliesList.style.display === 'none') {
+                repliesList.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                repliesList.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        });
+    });
+
+    document.querySelectorAll('.toggle-reply-form').forEach(button => {
+        button.addEventListener('click', function() {
+            const replyForm = this.closest('li').querySelector('.reply-form');
+            const icon = this.querySelector('i');
+
+            if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+                replyForm.style.display = 'block';
+                icon.classList.remove('fa-comment');
+                icon.classList.add('fa-comment-dots');  // Change icon when the form is visible
+            } else {
+                replyForm.style.display = 'none';
+                icon.classList.remove('fa-comment-dots');
+                icon.classList.add('fa-comment');  // Change icon when the form is hidden
+            }
+        });
+    });
+</script>
