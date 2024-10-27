@@ -115,4 +115,17 @@ class GameSearchWorkflowTest(TestCase):
             # self.assertEqual(response.status_code, 200)  # POST request successful
             # self.assertJSONEqual(response.content, {'status': 'movedShelf'})  # Game added to shelf
 
+    def test_game_details_workflow(self):
+        with patch('gamesearch.views.requests.post') as mock_post:
+            mock_post.return_value.json.return_value = {'id': 19560,
+             'cover': 'images.igdb.com/igdb/image/upload/t_thumb/co1tmu.jpg',
+             'release_year': '2018',
+             'genres': ['Role-playing (RPG)', "Hack and slash/Beat 'em up", 'Adventure'],
+             'name': 'God of War',
+             'platforms': ['PC (Microsoft Windows)', 'PlayStation 4'],
+             'rating': 92.8721133076585,
+             'summary': 'God of War is the sequel to God of War III as well as a continuation of the canon God of War chronology. Unlike previous installments, this game focuses on Norse mythology and follows an older and more seasoned Kratos and his son Atreus in the years since the third game. It is in this harsh, unforgiving world that he must fight to survive… and teach his son to do the same.',
+             'url': 'https://www.igdb.com/games/god-of-war--1'}
+            response = self.client.get(reverse('gamesearch:game-data-fetch', args=[19560]))
+            self.assertEqual(response.status_code, 200)
         
