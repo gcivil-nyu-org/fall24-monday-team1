@@ -215,12 +215,6 @@
         </div>
       </div>
     </div>
-    {% load comment_tags %}
-    {% with user_comment="user-comment" %}
-      {% with user_id=profile.user.pk|stringformat:"s" %}
-          {% render_comment_board user_comment|add:user_id %}
-      {% endwith %}
-    {% endwith %}
   </body>
 
 </html>
