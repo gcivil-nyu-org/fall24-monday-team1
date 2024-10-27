@@ -92,7 +92,7 @@
 
                     // TODO: check what features we would want to see on the page
                     $('#game-content').html(gameHtml);
-                    $('#comment_board').show(); // Show the command part after loading data
+                    document.getElementById('comment_board').style.display = 'block';
                     $('#shelf-submit').on('click', function() {
                     var selectedShelf = $('#shelf-select').val();
                     var gameId = game.id;
