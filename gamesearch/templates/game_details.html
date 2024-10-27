@@ -83,6 +83,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% load comment_tags %}
+                                {% with game_detail="game-detail" %}
+                                {% with game_id=game_id|stringformat:"s" %}
+                                    {% render_comment_board game_detail|add:game_id %}
+                                {% endwith %}
+                                {% endwith %}
                             `;
 
                     // TODO: check what features we would want to see on the page
@@ -149,11 +155,6 @@
             text-align: left !important;
         }
     </style>
-    {% load comment_tags %}
-    {% with game_detail="game-detail" %}
-      {% with game_id=game_id|stringformat:"s" %}
-          {% render_comment_board game_detail|add:game_id %}
-      {% endwith %}
-    {% endwith %}
+    
 </body>
 </html>
