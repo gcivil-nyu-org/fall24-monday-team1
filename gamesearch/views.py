@@ -154,7 +154,7 @@ def save_to_shelf(request):
             otherShelf = False
             if 'Item' in response:
                 user_shelves = response['Item']
-                if game_id in user_shelves[shelf_name]:
+                if shelf_name in user_shelves and game_id in user_shelves[shelf_name]:
                     return JsonResponse({'status': 'alreadyExists'})
                 for shelf in user_shelves:
                     if shelf!='user_id' and game_id in user_shelves[shelf]:
@@ -171,13 +171,18 @@ def save_to_shelf(request):
                     'abandoned': [],
                     'paused': []
                 }
-            
+            # print(user_shelves)
             user_shelves[shelf_name].append(game_id)
             response = table.put_item(Item=user_shelves)
-        
+
+            # print(response)
+            
             if otherShelf:
                 return JsonResponse({'status': 'movedShelf'})
-            return JsonResponse({'status': 'success'})
+            if response:
+                return JsonResponse({'status': 'success'})
+            else:
+                return JsonResponse({'status': 'error'}, status=500)    
 
         except ClientError as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
