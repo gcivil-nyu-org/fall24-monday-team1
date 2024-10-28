@@ -1,8 +1,8 @@
-from datetime import timezone
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Comment
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 # Create your views here.
 
