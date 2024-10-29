@@ -194,7 +194,17 @@
     document.getElementById("shelf-select").addEventListener("change", function(){
       var shelf = this.value;
       const gameIds = {{user_games|safe}}[shelf];
-      console.log(gameIds);
+      const gameListDiv = document.getElementById("game-list")
+      if(gameIds.length == 0){
+        gameListDiv.innerHTML = '<p class="text-muted"> Nothing to see here! </p>'
+        return;
+      }else{
+        const gameIdString = `(${gameIds.join(',')})`;
+        console.log(gameIdString);
+        console.log("fetching game info");
+        
+        
+      }
     });
   </script>
 
