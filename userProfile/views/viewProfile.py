@@ -61,8 +61,3 @@ def viewProfile(request, user_id):
 @login_required
 def viewMyProfile(request):
     return viewProfile(request, request.user.pk)
-
-
-def fetch_user_games(request, username):
-    if request.method == "GET":
-        print(username)

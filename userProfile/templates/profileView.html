@@ -13,7 +13,6 @@
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
     />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
   </head>
   <body>
@@ -170,11 +169,33 @@
             </div>
           </div>
           {% if viewable %}
-          
+              <div class="card mb-4">
+                <div class="form-group">
+                  <div class="card-body">
+                    <label for="shelf-select">Select Shelf:</label>
+                    <select id="shelf-select">
+                      <option value=""></option>
+                      {% for shelf in user_games%}
+                        <option value="{{shelf}}">{{shelf|title}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div id="game-list">
+                </div>
+              </div>
           {% endif %}
         </div>
       </div>
     </div>
   </body>
+
+  <script>
+    document.getElementById("shelf-select").addEventListener("change", function(){
+      var shelf = this.value;
+      const gameIds = {{user_games|safe}}[shelf];
+      console.log(gameIds);
+    });
+  </script>
 
 </html>
