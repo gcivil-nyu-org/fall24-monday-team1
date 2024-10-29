@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from ..models import UserProfile
 import json
+import boto3 
+import os
 
 def viewProfile(request, user_id):
     # Retrieve the user profile based on the user_id
@@ -35,8 +37,32 @@ def viewProfile(request, user_id):
         'curPath' : reverse('userProfile:viewProfile', args=[profile.user.pk]),
     }
 
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    # Reference the DynamoDB table
+    table = dynamodb.Table('user-shelves')
+    try:
+        response = table.get_item(Key={'user_id' : profile.user.username})
+        if 'Item' in response:
+            user_games = response['Item']
+            del user_games["user_id"]
+            context['user_games'] = user_games
+        else:
+            print("no games were found for this user!")
+    except Exception as e:
+        print(e)
+
     return render(request, 'profileView.html', context)
 
 @login_required
 def viewMyProfile(request):
     return viewProfile(request, request.user.pk)
+
+
+def fetch_user_games(request, username):
+    if request.method == "GET":
+        print(username)
