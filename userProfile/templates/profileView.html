@@ -214,8 +214,11 @@
                 <div class="game-grid">
                   ${gameDetails.map(game => `
                     <div class="game-item">
+                    <a href="${game.redirect_url}">
                       <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
-                    </div>
+                    </a>
+                      </div>
+                    
                   `).join('')}
                 </div>
                 <button id="view-all-button" class="view-all-btn">View all my games</button>

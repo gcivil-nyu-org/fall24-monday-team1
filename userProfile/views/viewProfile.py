@@ -98,6 +98,7 @@ def fetch_game_details(request):
         row["cover"] = img_url
         row["name"] = game["name"]
         row["id"] = game['id']
+        row["redirect_url"] = reverse('gamesearch:game-details', args=[int(game['id'])])
         data.append(row)
     
     return JsonResponse(data, safe=False)
