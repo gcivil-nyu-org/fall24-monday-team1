@@ -194,7 +194,8 @@
   <script>
     document.getElementById("shelf-select").addEventListener("change", function(){
       var shelf = this.value;
-      const gameIds = {{user_games|safe}}[shelf];
+      var gameIds = {{user_games|safe}}[shelf];
+      gameIds = gameIds.slice(0, 9);
       const gameListDiv = document.getElementById("game-list")
       if(gameIds.length == 0){
         gameListDiv.innerHTML = '<p class="text-muted"> Nothing to see here! </p>'
@@ -209,11 +210,16 @@
         .then(response => 
             response.json().then(gameDetails => {
               // Update HTML directly within this block
-              gameListDiv.innerHTML = gameDetails.map(game => `
-                <div class="game-item">
-                  <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
+              gameListDiv.innerHTML = `
+                <div class="game-grid">
+                  ${gameDetails.map(game => `
+                    <div class="game-item">
+                      <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
+                    </div>
+                  `).join('')}
                 </div>
-              `).join('');
+                <button id="view-all-button" class="view-all-btn">View all my games</button>
+              `;
             })
           )
         .catch(error => {
