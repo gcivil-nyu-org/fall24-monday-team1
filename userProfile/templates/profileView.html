@@ -13,6 +13,7 @@
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
     />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
   </head>
   <body>
@@ -200,9 +201,25 @@
         return;
       }else{
         const gameIdString = `(${gameIds.join(',')})`;
-        console.log(gameIdString);
-        console.log("fetching game info");
-        
+        console.log(gameIdString);  
+        fetch("{% url 'userProfile:fetch_game_details' %}", {
+          method: "POST",
+          body: new URLSearchParams({ 'gameIds[]': gameIds })
+        })
+        .then(response => 
+            response.json().then(gameDetails => {
+              // Update HTML directly within this block
+              gameListDiv.innerHTML = gameDetails.map(game => `
+                <div class="game-item">
+                  <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
+                </div>
+              `).join('');
+            })
+          )
+        .catch(error => {
+          console.error('Error fetching game data:', error);
+          gameListDiv.innerHTML = '<p class="text-danger">Error fetching game data.</p>';
+        });
         
       }
     });
