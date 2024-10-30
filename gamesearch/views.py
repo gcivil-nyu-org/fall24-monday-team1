@@ -137,8 +137,8 @@ def game_data_fetch_view(request, game_id):
 def save_to_shelf(request):
     dynamodb = boto3.resource(
         'dynamodb',
-        aws_access_key_id=os.environ['aws_access_key_id='],
-        aws_secret_access_key=os.environ['aws_secret_access_key='],
+        aws_access_key_id=os.environ['aws_access_key_id'],
+        aws_secret_access_key=os.environ['aws_secret_access_key'],
         region_name='us-east-1'
     )
     # Reference the DynamoDB table
