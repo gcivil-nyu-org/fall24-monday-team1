@@ -74,3 +74,41 @@ h1 {
 p.cap-text:first-letter {
     text-transform: uppercase;
 }
+
+
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 10px;
+  }
+  
+  .game-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .game-cover {
+    width: 100px;
+    height: 100px;
+    border: 2px solid black;
+    border-radius: 5px;
+  }
+  
+  .view-all-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .view-all-btn:hover {
+    background-color: #45a049;
+  }
