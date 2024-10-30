@@ -97,7 +97,7 @@ def game_data_fetch_view(request, game_id):
 
     url = "https://api.igdb.com/v4/games"
     
-    payload = "fields cover, genres, platforms, name, rating, first_release_date, summary, url; where id=%d;" % game_id
+    payload = "fields cover, genres, platforms, name, rating, first_release_date, summary, url; where id=%s;" % game_id
     headers = {
     'Client-ID': os.environ.get("igdb_client_id"),
     'Authorization': f'Bearer {auth.json()["access_token"]}',
