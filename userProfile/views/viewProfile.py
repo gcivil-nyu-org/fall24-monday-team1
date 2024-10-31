@@ -59,7 +59,7 @@ def viewProfile(request, user_id):
             del user_games["user_id"]
             context['user_games'] = user_games
         else:
-            print("no games were found for this user!")
+            # print("no games were found for this user!")
             context['user_games'] = {
                     'want-to-play': [],
                     'completed': [],
@@ -69,7 +69,7 @@ def viewProfile(request, user_id):
             }
     except Exception as e:
         print(e)
-    print(context)
+    # print(context)
     return render(request, 'profileView.html', context)
 
 @login_required
