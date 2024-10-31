@@ -29,6 +29,7 @@ urlpatterns = [
     path('create-profile/', include('createUserProfile.urls')),
     path('game-search/',include('gamesearch.urls')),
     path('comments/', include('comments.urls')),
+    path('events/', include('events.urls')),
     re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}), 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}), 
 ]
