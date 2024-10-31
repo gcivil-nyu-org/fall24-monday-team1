@@ -87,34 +87,36 @@ class EditProfileViewTest(TestCase):
 
 # #testcase for viewprofile
 
-# class UserProfileListViewTestCase(TestCase):
-#     def setUp(self):
-#         # Create a request factory
-#         self.factory = RequestFactory()
+class UserProfileListViewTestCase(TestCase):
+    def setUp(self):
+        # Create a request factory
+        self.factory = RequestFactory()
 
-#         # Create a user and some UserProfile instances with different settings
-#         self.user = User.objects.create(username='testuser')
-#         UserProfile.objects.create(user=self.user, display_name="John Doe", privacy_setting="public", account_role="admin")
-#         UserProfile.objects.create(user=self.user, display_name="Jane Smith", privacy_setting="private", account_role="user")
-#         UserProfile.objects.create(user=self.user, display_name="Alice", privacy_setting="public", account_role="guest")
+        # Create a user and some UserProfile instances with different settings
+        self.user1 = User.objects.create(username='testuser1', password='testpass', email='user1@dom.com')
+        self.user2 = User.objects.create(username='testuser2', password='testpass', email='user2@dom.com')
+        self.user3 = User.objects.create(username='testuser3', password='testpass', email='user3@dom.com')
+        UserProfile.objects.create(user=self.user1, display_name="John Doe", privacy_setting="public", account_role="gamer")
+        UserProfile.objects.create(user=self.user2, display_name="Jane Smith", privacy_setting="private", account_role="creator")
+        UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
-#     def test_user_profile_list_view_filters(self):
-#         # Create a GET request with query parameters for filtering
-#         request = self.factory.get('/userprofiles/', {
-#             'q': 'John',
-#             'privacy': 'public',
-#             'role': 'admin'
-#         })
+    def test_user_profile_list_view_filters(self):
+        # Create a GET request with query parameters for filtering
+        request = self.factory.get('/userprofiles/', {
+            'q': 'John',
+            'privacy': 'public',
+            'role': 'gamer'
+        })
 
-#         # Simulate a logged-in user
-#         request.user = self.user
+        # Simulate a logged-in user
+        request.user = self.user1
 
-#         # Get the response from the UserProfileListView
-#         response = UserProfileListView.as_view()(request)
-#         context_data = response.context_data['user_profiles']
+        # Get the response from the UserProfileListView
+        response = UserProfileListView.as_view()(request)
+        context_data = response.context_data['user_profiles']
 
-#         # Check if only the profile matching all filters is returned
-#         self.assertEqual(len(context_data), 1)
-#         self.assertEqual(context_data[0].display_name, "John Doe")
-#         self.assertEqual(context_data[0].privacy_setting, "public")
-#         self.assertEqual(context_data[0].account_role, "admin")
+        # Check if only the profile matching all filters is returned
+        self.assertEqual(len(context_data), 1)
+        self.assertEqual(context_data[0].display_name, "John Doe")
+        self.assertEqual(context_data[0].privacy_setting, "public")
+        self.assertEqual(context_data[0].account_role, "gamer")
