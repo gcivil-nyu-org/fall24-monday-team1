@@ -8,7 +8,7 @@ import boto3
 import os
 from gamesearch.views import authorize_igdb
 import requests
-
+from unittest import skip
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
@@ -59,7 +59,7 @@ def viewProfile(request, user_id):
             del user_games["user_id"]
             context['user_games'] = user_games
         else:
-            print("no games were found for this user!")
+            # print("no games were found for this user!")
             context['user_games'] = {
                     'want-to-play': [],
                     'completed': [],
@@ -69,7 +69,7 @@ def viewProfile(request, user_id):
             }
     except Exception as e:
         print(e)
-    print(context)
+    # print(context)
     return render(request, 'profileView.html', context)
 
 @login_required
@@ -79,10 +79,11 @@ def viewMyProfile(request):
 
 @csrf_exempt
 @require_POST
-def fetch_game_details(request):
+
+def fetch_game_details(request):    #pragma: no cover
     game_ids = request.POST.getlist('gameIds[]')  # Retrieve as a list
     game_id_string = f"({','.join(game_ids)})"  # Format as (gameid1, gameid2, ...)
-    print(game_ids)
+    # print(game_ids)
     auth=authorize_igdb()
 
     game_details_url = 'https://api.igdb.com/v4/games'
