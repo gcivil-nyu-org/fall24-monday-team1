@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.test import TestCase
 from django.urls import reverse
 from django.core import mail
 from userProfile.models import UserProfile
