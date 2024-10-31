@@ -1,80 +1,64 @@
-# from django.test import TestCase, Client, RequestFactory
-# from django.contrib.auth.models import User
-# from django.urls import reverse
-# from .models import UserProfile
-# from django.core.files.uploadedfile import SimpleUploadedFile
-# from .views import UserProfileListView
+from django.test import TestCase, Client, RequestFactory
+from django.urls import reverse
+from userProfile.models import UserProfile
+from django.core.files.uploadedfile import SimpleUploadedFile
+from .views import UserProfileListView
 
-# # testcase for editProfile
-# class EditProfileViewTest(TestCase):
-#     def setUp(self):
-#         # Create a test user and profile
-#         self.user = User.objects.create_user(username='testuser', password='testpassword')
-#         self.profile = UserProfile.objects.create(user=self.user)
-#         self.client = Client()
-#         self.client.login(username='testuser', password='testpassword')
-#         self.url = reverse('edit_profile')  # Update with actual URL pattern name if different
+from django.contrib.auth import get_user_model
 
-#     def test_get_request(self):
-#         # Test the GET request for the editProfile view
-#         response = self.client.get(self.url)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertTemplateUsed(response, 'editProfile.html')
-#         self.assertIn('profile', response.context)
+User = get_user_model()
 
-#     def test_post_update_profile_details(self):
-#         # Test updating the profile's display name, bio, privacy, and account role
-#         response = self.client.post(self.url, {
-#             'display_name': 'New Display Name',
-#             'bio': 'This is a new bio',
-#             'privacy_setting': 'public',
-#             'account_role': 'admin'
-#         })
-#         self.profile.refresh_from_db()
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(self.profile.display_name, 'New Display Name')
-#         self.assertEqual(self.profile.bio, 'This is a new bio')
-#         self.assertEqual(self.profile.privacy_setting, 'public')
-#         self.assertEqual(self.profile.account_role, 'admin')
+# testcase for editProfile
+class EditProfileViewTest(TestCase):
+    def setUp(self):
+        # Create a test user and profile
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.profile = UserProfile.objects.create(user=self.user)
+        self.profile.display_name = "john"
+        self.profile.save()
+        self.client.login(username='testuser', password='testpassword')
+        self.url = reverse('userProfile:editProfile')  # Update with actual URL pattern name if different
 
-#     def test_post_upload_profile_photo(self):
-#         # Test uploading a profile photo
-#         profile_photo = SimpleUploadedFile("profile.jpg", b"file_content", content_type="image/jpeg")
-#         response = self.client.post(self.url, {
-#             'profile_photo': profile_photo,
-#         })
-#         self.profile.refresh_from_db()
-#         self.assertEqual(response.status_code, 302)
-#         self.assertTrue(self.profile.profile_photo)
+    def test_get_request(self):
+        # Test the GET request for the editProfile view
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'editProfile.html')
+        self.assertIn('profile', response.context)
 
-#     def test_post_update_gaming_usernames(self):
-#         # Test updating gaming usernames with platform-based keys
-#         response = self.client.post(self.url, {
-#             'gaming_usernames[0]_platform': 'Steam',
-#             'gaming_usernames[0]_username': 'gamer123',
-#             'gaming_usernames[1]_platform': 'Xbox',
-#             'gaming_usernames[1]_username': 'xboxPlayer'
-#         })
-#         self.profile.refresh_from_db()
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(self.profile.gaming_usernames['Steam'], 'gamer123')
-#         self.assertEqual(self.profile.gaming_usernames['Xbox'], 'xboxPlayer')
+    def test_post_update_profile_details(self):
+        # Test updating the profile's display name, bio, privacy, and account role
+        response = self.client.post(self.url, {
+            'display_name': 'New Display Name',
+            'bio': 'This is a new bio',
+            'privacy_setting': 'public',
+            'account_role': 'gamer'
+        })
+        self.profile.refresh_from_db()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.profile.display_name, 'New Display Name')
+        self.assertEqual(self.profile.bio, 'This is a new bio')
+        self.assertEqual(self.profile.privacy_setting, 'public')
+        self.assertEqual(self.profile.account_role, 'gamer')
 
-#     def test_invalid_post_data(self):
-#         # Test submitting invalid data (e.g., empty fields or invalid format)
-#         response = self.client.post(self.url, {
-#             'display_name': '',  # Empty display name
-#             'privacy_setting': 'invalid_setting',  # Invalid privacy setting
-#         })
-#         self.assertEqual(response.status_code, 200)  # Should return the form with errors
-#         self.assertFormError(response, 'form', 'display_name', 'This field is required.')
-#         self.assertFormError(response, 'form', 'privacy_setting', 'Select a valid choice.')
 
-#     def test_redirect_if_not_logged_in(self):
-#         # Test that non-logged-in users are redirected to the login page
-#         self.client.logout()
-#         response = self.client.get(self.url)
-#         self.assertRedirects(response, f'/accounts/login/?next={self.url}')
+    def test_post_update_gaming_usernames(self):
+        # Test updating gaming usernames with platform-based keys
+        post_data = {
+            'display_name': 'John',
+            'bio': 'orihg',
+            'privacy_setting': 'private',
+            'account_role': 'gamer',
+            'gaming_usernames[xbox]': ['xboxPlayer'],
+            'gaming_usernames[steam]': ['gamer123'],
+        }
+        
+        response = self.client.post(reverse('userProfile:editProfile'), data=post_data)
+        profile = UserProfile.objects.get(user=self.user)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(profile.gaming_usernames['steam'], 'gamer123')
+        self.assertEqual(profile.gaming_usernames['xbox'], 'xboxPlayer')
+
 
 
 # #testcase for searchprofile
