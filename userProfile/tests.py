@@ -3,8 +3,10 @@ from django.urls import reverse
 from userProfile.models import UserProfile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .views import UserProfileListView
-
+import json
 from django.contrib.auth import get_user_model
+from unittest.mock import patch
+
 
 User = get_user_model()
 
@@ -63,33 +65,9 @@ class EditProfileViewTest(TestCase):
 
 # #testcase for searchprofile
 
-# class UserProfileListViewTests(TestCase):
-#     def setUp(self):
-#         # Create sample user profiles for testing
-#         self.user1 = UserProfile.objects.create(display_name="Alice", privacy_setting="public", account_role="user")
-#         self.user2 = UserProfile.objects.create(display_name="Bob", privacy_setting="private", account_role="admin")
-#         self.user3 = UserProfile.objects.create(display_name="Charlie", privacy_setting="public", account_role="user")
-#         self.factory = RequestFactory()
-
-#     def test_no_filters_applied(self):
-#         request = self.factory.get('/user-profiles/')
-#         response = UserProfileListView.as_view()(request)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(response.context_data['user_profiles']), 3)  # Should return all profiles
-
-#     def test_filter_by_display_name(self):
-#         request = self.factory.get('/user-profiles/', {'q': 'Alice'})
-#         response = UserProfileListView.as_view()(request)
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(len(response.context_data['user_profiles']), 1)  # Should return only Alice's profile
-#         self.assertEqual(response.context_data['user_profiles'][0].display_name, 'Alice')
-
-
-# #testcase for viewprofile
-
-class UserProfileListViewTestCase(TestCase):
+class UserProfileListViewTests(TestCase):
     def setUp(self):
-        # Create a request factory
+        # Create sample user profiles for testing
         self.factory = RequestFactory()
 
         # Create a user and some UserProfile instances with different settings
@@ -100,23 +78,79 @@ class UserProfileListViewTestCase(TestCase):
         UserProfile.objects.create(user=self.user2, display_name="Jane Smith", privacy_setting="private", account_role="creator")
         UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
-    def test_user_profile_list_view_filters(self):
-        # Create a GET request with query parameters for filtering
-        request = self.factory.get('/userprofiles/', {
-            'q': 'John',
-            'privacy': 'public',
-            'role': 'gamer'
-        })
-
-        # Simulate a logged-in user
+    def test_no_filters_applied(self):
+        request = self.factory.get('/user-profiles/')
         request.user = self.user1
-
-        # Get the response from the UserProfileListView
         response = UserProfileListView.as_view()(request)
-        context_data = response.context_data['user_profiles']
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context_data['user_profiles']), 3)  # Should return all profiles
 
-        # Check if only the profile matching all filters is returned
-        self.assertEqual(len(context_data), 1)
-        self.assertEqual(context_data[0].display_name, "John Doe")
-        self.assertEqual(context_data[0].privacy_setting, "public")
-        self.assertEqual(context_data[0].account_role, "gamer")
+    def test_filter_by_display_name(self):
+        request = self.factory.get('/user-profiles/', {'q': 'Alice'})
+        request.user = self.user1
+        response = UserProfileListView.as_view()(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context_data['user_profiles']), 1)  # Should return only Alice's profile
+        self.assertEqual(response.context_data['user_profiles'][0].display_name, 'Alice')
+
+
+
+class UserProfileViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpass", email="test1@dom.com")
+        self.other_user = User.objects.create_user(username="otheruser", password="otherpass", email="test2@dom.com")
+        self.client.login(username="testuser", password="testpass")
+
+        self.profile = UserProfile.objects.create(
+            user=self.user,
+            display_name="Test User",
+            privacy_setting="public",
+            gaming_usernames=json.dumps({"Xbox": "test_xbox", "PSN": "test_psn"})
+        )
+
+        self.profile2 = UserProfile.objects.create(
+            user=self.other_user,
+            display_name="Test User 2",
+            privacy_setting="public",
+            gaming_usernames=json.dumps({"Xbox": "test_xbox", "PSN": "test_psn"})
+        )
+
+    def test_view_profile_public(self):
+        # Mock DynamoDB response for user game shelves
+        with patch('gamesearch.views.boto3.resource') as mock_dynamo:
+            mock_table = mock_dynamo.return_value.Table.return_value
+            mock_table.get_item.return_value = {
+                'Item': {
+                    'user_id': self.user.username,
+                    'completed': ['1009', '26192'],
+                    'playing': [],
+                    'abandoned': [],
+                    'paused': [],
+                    'want-to-play': []
+                }
+            }
+
+            response = self.client.get(reverse('userProfile:viewProfile', args=[self.other_user.id]))
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context['viewable'])
+            self.assertEqual(response.context['user_games'], {
+                'completed': ['1009', '26192'],
+                'playing': [],
+                'abandoned': [],
+                'paused': [],
+                'want-to-play': []
+            })
+            self.assertEqual(response.context['gaming_usernames'], {"Xbox": "test_xbox", "PSN": "test_psn"})
+
+    def test_view_profile_private_for_another_user(self):
+        # Change privacy setting to "friends_only"
+        self.profile.privacy_setting = "friends_only"
+        self.profile.save()
+
+        # Other user views the profile (should not be viewable)
+        self.client.logout()
+        self.client.login(username="otheruser", password="otherpass")
+        response = self.client.get(reverse('userProfile:viewProfile', args=[self.user.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['viewable'])

@@ -2,9 +2,8 @@
 
 from django.test import TestCase, Client
 from django.urls import reverse
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from login.models import CheckpointUser
-import json
 
 class GameSearchWorkflowTest(TestCase):
 

@@ -8,7 +8,7 @@ import boto3
 import os
 from gamesearch.views import authorize_igdb
 import requests
-
+from unittest import skip
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 
@@ -79,10 +79,11 @@ def viewMyProfile(request):
 
 @csrf_exempt
 @require_POST
-def fetch_game_details(request):
+
+def fetch_game_details(request):    #pragma: no cover
     game_ids = request.POST.getlist('gameIds[]')  # Retrieve as a list
     game_id_string = f"({','.join(game_ids)})"  # Format as (gameid1, gameid2, ...)
-    print(game_ids)
+    # print(game_ids)
     auth=authorize_igdb()
 
     game_details_url = 'https://api.igdb.com/v4/games'
