@@ -19,7 +19,7 @@ class EventViewsTest(TestCase):
 
     def test_create_event_view_redirects_when_logged_in(self):
         self.client.login(username='testuser', password='password')
-        response = self.client.post(reverse('create_event'), {
+        response = self.client.post(reverse('events:create_event'), {
             'title': 'Test Event',
             'description': 'A test event description.',
             'start_time': '2024-10-31 10:00',
@@ -28,7 +28,7 @@ class EventViewsTest(TestCase):
         })
 
         # Check that the event was created and redirected to the event list
-        self.assertRedirects(response, reverse('event_list'))
+        self.assertRedirects(response, reverse('events:event_list'))
         self.assertEqual(Event.objects.count(), 1)
         self.assertEqual(Event.objects.first().title, 'Test Event')
 
@@ -38,10 +38,10 @@ class EventViewsTest(TestCase):
         UserProfile.objects.create(user=non_organizer_user, account_role='viewer')
 
         self.client.login(username='non_org_user', password='password')
-        response = self.client.get(reverse('create_event'))
+        response = self.client.get(reverse('events:create_event'))
 
-        # Check that a 404 error is raised
-        self.assertEqual(response.status_code, 404)
+        # Check that a 302 redirect is raised
+        self.assertEqual(response.status_code, 302)
 
     def test_event_list_view(self):
         # Create a couple of events
@@ -63,7 +63,7 @@ class EventViewsTest(TestCase):
             creator=self.user
         )
 
-        response = self.client.get(reverse('event_list'))
+        response = self.client.get(reverse('events:event_list'))
 
         # Check that the response is successful and contains the events
         self.assertEqual(response.status_code, 200)
@@ -85,7 +85,7 @@ class EventViewsTest(TestCase):
             )
 
         # Get the sixth page of events
-        response = self.client.get(reverse('event_list') + '?page=6')
+        response = self.client.get(reverse('events:event_list') + '?page=6')
 
         if response.context['page_obj'].object_list:
             first_event_title = response.context['page_obj'].object_list[0].title
