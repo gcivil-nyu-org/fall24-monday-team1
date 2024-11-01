@@ -38,7 +38,7 @@
 
     <div class="container mt-5">
         <h1 class="mb-4">Create Event</h1>
-        <form method="POST" action="{% url 'create_event' %}">
+        <form method="POST" action="{% url 'events:create_event' %}">
             {% csrf_token %}
             <div class="form-group">
                 <label for="eventTitle" class="form-label">Event Title</label>

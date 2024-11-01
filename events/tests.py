@@ -19,7 +19,7 @@ class EventViewsTest(TestCase):
 
     def test_create_event_view_redirects_when_logged_in(self):
         self.client.login(username='testuser', password='password')
-        response = self.client.post(reverse('create_event'), {
+        response = self.client.post(reverse('events:create_event'), {
             'title': 'Test Event',
             'description': 'A test event description.',
             'start_time': '2024-10-31 10:00',
@@ -38,7 +38,7 @@ class EventViewsTest(TestCase):
         UserProfile.objects.create(user=non_organizer_user, account_role='viewer')
 
         self.client.login(username='non_org_user', password='password')
-        response = self.client.get(reverse('create_event'))
+        response = self.client.get(reverse('events:create_event'))
 
         # Check that a 404 error is raised
         self.assertEqual(response.status_code, 404)
