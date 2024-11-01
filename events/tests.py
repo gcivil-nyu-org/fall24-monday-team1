@@ -40,8 +40,8 @@ class EventViewsTest(TestCase):
         self.client.login(username='non_org_user', password='password')
         response = self.client.get(reverse('events:create_event'))
 
-        # Check that a 404 error is raised
-        self.assertTemplateUsed(response, 'events/event_list.html')
+        # Check that a 302 redirect is raised
+        self.assertEqual(response.status_code, 302)
 
     def test_event_list_view(self):
         # Create a couple of events
