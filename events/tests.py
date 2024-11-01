@@ -41,7 +41,7 @@ class EventViewsTest(TestCase):
         response = self.client.get(reverse('events:create_event'))
 
         # Check that a 404 error is raised
-        self.assertEqual(response.status_code, 404)
+        self.assertTemplateUsed(response, 'events/event_list.html')
 
     def test_event_list_view(self):
         # Create a couple of events
