@@ -9,9 +9,12 @@ from .forms import EventForm
 
 @login_required
 def create_event(request):
-    # Check if the user has the required role
-    user_profile = get_object_or_404(UserProfile, user=request.user, account_role__in=["event_organizer", "creator"])
-
+    try:
+        # Check if the user has the required role
+        user_profile = get_object_or_404(UserProfile, user=request.user, account_role__in=["event_organizer", "creator"])
+    except Http404:
+        messages.error(request, "You must be a creator or event organizer to create event")
+        return redirect('event_list')
     if request.method == 'POST':
         # Retrieve data from the request
         title = request.POST.get('title')

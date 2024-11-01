@@ -30,6 +30,9 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'events:event_list' %}">Event List</a>
+            </li>
             {% else %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">Login</a>
