@@ -28,7 +28,7 @@ class EventViewsTest(TestCase):
         })
 
         # Check that the event was created and redirected to the event list
-        self.assertRedirects(response, reverse('event_list'))
+        self.assertRedirects(response, reverse('events:event_list'))
         self.assertEqual(Event.objects.count(), 1)
         self.assertEqual(Event.objects.first().title, 'Test Event')
 
@@ -63,7 +63,7 @@ class EventViewsTest(TestCase):
             creator=self.user
         )
 
-        response = self.client.get(reverse('event_list'))
+        response = self.client.get(reverse('events:event_list'))
 
         # Check that the response is successful and contains the events
         self.assertEqual(response.status_code, 200)
@@ -85,7 +85,7 @@ class EventViewsTest(TestCase):
             )
 
         # Get the sixth page of events
-        response = self.client.get(reverse('event_list') + '?page=6')
+        response = self.client.get(reverse('events:event_list') + '?page=6')
 
         if response.context['page_obj'].object_list:
             first_event_title = response.context['page_obj'].object_list[0].title

@@ -14,7 +14,7 @@ def create_event(request):
         user_profile = get_object_or_404(UserProfile, user=request.user, account_role__in=["event_organizer", "creator"])
     except Http404:
         messages.error(request, "You must be a creator or event organizer to create event")
-        return redirect('event_list')
+        return redirect('events:event_list')
     if request.method == 'POST':
         # Retrieve data from the request
         title = request.POST.get('title')
@@ -33,7 +33,7 @@ def create_event(request):
             creator=request.user  # Set creator to the logged-in user
         )
         print("Event created: " + str(Event.objects.count()))
-        return redirect('event_list')  # Redirect to the event list view
+        return redirect('events:event_list')  # Redirect to the event list view
 
     return render(request, 'events/create_event.html', {"loginIn": request.user.is_authenticated})  # Render the static template for GET request
 
