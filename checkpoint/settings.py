@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'gamesearch',
     'comments',
     'events',
+    'friends',
 ]
 
 MIDDLEWARE = [

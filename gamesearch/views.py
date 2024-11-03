@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from botocore.exceptions import ClientError
 
 def authorize_igdb():
+        print(os.environ)
         url = "https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&grant_type=client_credentials" % (os.environ['igdb_client_id'], os.environ['igdb_client_secret'])
         return requests.request("POST", url, headers={}, data={})
 

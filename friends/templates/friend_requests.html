@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Friend Requests</h2>
+    {% if pending_requests %}
+        <ul class="list-group">
+        {% for request in pending_requests %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ request.from_user }}
+                <div>
+                    <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                    </form>
+                    <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No pending friend requests.</p>
+    {% endif %}
+</div>
+{% endblock %}

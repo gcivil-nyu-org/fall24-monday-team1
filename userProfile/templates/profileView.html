@@ -30,6 +30,12 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'friends:pending_requests' %}">Friend Requests</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'friends:friend_list' %}">My Friends</a>
+            </li>
             {% else %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'login' %}">Login</a>
@@ -69,6 +75,13 @@
                   onclick="window.location.href='/profile/edit';"
                 >
                   Edit
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary ml-2"
+                  onclick="window.location.href='{% url 'friends:friend_requests' %}';"
+                >
+                  Friend Requests
                 </button>
                 {% else %}
                 <button
