@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from ..models import UserProfile
+from friends.models import FriendRequest
 import json
 import boto3 
 import os
@@ -70,6 +71,15 @@ def viewProfile(request, user_id):
     except Exception as e:
         print(e)
     # print(context)
+    # Add friends list to context
+    friends = []
+    if request.user.is_authenticated:
+        friends = FriendRequest.get_friends(request.user.username)
+
+    context.update({
+        'friends': friends,
+        'is_friend': profile.user.username in friends if friends else False,
+    })
     return render(request, 'profileView.html', context)
 
 @login_required

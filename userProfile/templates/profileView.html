@@ -31,7 +31,7 @@
               <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'friends:pending_requests' %}">Friend Requests</a>
+              <a class="nav-link" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'friends:friend_list' %}">My Friends</a>
@@ -76,13 +76,6 @@
                 >
                   Edit
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-secondary ml-2"
-                  onclick="window.location.href='{% url 'friends:friend_requests' %}';"
-                >
-                  Friend Requests
-                </button>
                 {% else %}
                 <button
                   type="button"
@@ -101,6 +94,18 @@
                   Message
                 </button>
                 {% endif %}
+                {% if loginIn and not own %}
+                  <div class="friend-request-section">
+                      {% if not is_friend %}
+                          <form method="post" action="{% url 'friends:send_request' profile.user.username %}" class="d-inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-primary">Send Friend Request</button>
+                          </form>
+                      {% else %}
+                          <button class="btn btn-success" disabled>Already Friends</button>
+                      {% endif %}
+                  </div>
+              {% endif %}
               </div>
               <!-- New button to link to search profiles -->
               <div class="d-flex justify-content-center mb-2">
@@ -244,6 +249,35 @@
         });
         
       }
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const friendForms = document.querySelectorAll('.friend-request-section form');
+        
+        friendForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const button = this.querySelector('button');
+                        button.className = 'btn btn-success';
+                        button.disabled = true;
+                        button.textContent = 'Friend Request Sent';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
     });
   </script>
 

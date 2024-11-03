@@ -2,11 +2,14 @@
 {% block content %}
 <div class="container">
     <h2>Friend Requests</h2>
-    {% if pending_requests %}
-        <ul class="list-group">
-        {% for request in pending_requests %}
+    
+    <!-- Received Requests -->
+    <h3>Received Requests</h3>
+    {% if received_requests %}
+        <ul class="list-group mb-4">
+        {% for request in received_requests %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ request.from_user }}
+                <a href="{% url 'userProfile:viewProfile' request.from_user %}">{{ request.from_user }}</a>
                 <div>
                     <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
                         {% csrf_token %}
@@ -22,6 +25,21 @@
         </ul>
     {% else %}
         <p>No pending friend requests.</p>
+    {% endif %}
+
+    <!-- Sent Requests -->
+    <h3>Sent Requests</h3>
+    {% if sent_requests %}
+        <ul class="list-group">
+        {% for request in sent_requests %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{% url 'userProfile:viewProfile' request.to_user %}">{{ request.to_user }}</a>
+                <span class="badge badge-primary">Pending</span>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No sent friend requests.</p>
     {% endif %}
 </div>
 {% endblock %}

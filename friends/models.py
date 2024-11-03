@@ -1,26 +1,43 @@
 from django.conf import settings
 import boto3
+import os
 from botocore.exceptions import ClientError
+from datetime import datetime
 
 class FriendRequest:
     @staticmethod
     def get_dynamodb_resource():
         return boto3.resource(
             'dynamodb',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
             region_name='us-east-1'
         )
 
     @staticmethod
+    def ensure_table_exists(table_name):
+        from .utils import create_dynamodb_tables
+        try:
+            dynamodb = FriendRequest.get_dynamodb_resource()
+            table = dynamodb.Table(table_name)
+            table.table_status  # This will raise an exception if table doesn't exist
+            return table
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                create_dynamodb_tables()
+                # Try again after creating tables
+                dynamodb = FriendRequest.get_dynamodb_resource()
+                return dynamodb.Table(table_name)
+            raise e
+        
+
+    @staticmethod
     def get_friend_requests_table():
-        dynamodb = FriendRequest.get_dynamodb_resource()
-        return dynamodb.Table('friend_requests')
+        return FriendRequest.ensure_table_exists('friend_requests')
 
     @staticmethod
     def get_friends_table():
-        dynamodb = FriendRequest.get_dynamodb_resource()
-        return dynamodb.Table('user_friends')
+        return FriendRequest.ensure_table_exists('user_friends')
 
     @staticmethod
     def send_request(from_user, to_user):
@@ -55,22 +72,37 @@ class FriendRequest:
 
     @staticmethod
     def accept_request(from_user, to_user):
-        request_table = FriendRequest.get_friend_requests_table()
-        friends_table = FriendRequest.get_friends_table()
         try:
-            # Update request status
-            request_table.update_item(
-                Key={'to_user': to_user, 'from_user': from_user},
-                UpdateExpression='SET #status = :status',
-                ExpressionAttributeNames={'#status': 'status'},
-                ExpressionAttributeValues={':status': 'accepted'}
+            # Delete the request
+            requests_table = FriendRequest.get_friend_requests_table()
+            requests_table.delete_item(
+                Key={'to_user': to_user, 'from_user': from_user}
             )
-            # Add to friends list for both users
-            friends_table.put_item(Item={'user': to_user, 'friend': from_user})
-            friends_table.put_item(Item={'user': from_user, 'friend': to_user})
+            
+            # Add both users to each other's friends list
+            friends_table = FriendRequest.get_friends_table()
+            timestamp = str(datetime.now())
+            
+            # Add to first user's friends
+            friends_table.put_item(
+                Item={
+                    'username': to_user,
+                    'friend': from_user,
+                    'created_at': timestamp
+                }
+            )
+            
+            # Add to second user's friends
+            friends_table.put_item(
+                Item={
+                    'username': from_user,
+                    'friend': to_user,
+                    'created_at': timestamp
+                }
+            )
             return True
         except ClientError as e:
-            print(e.response['Error']['Message'])
+            print(f"Error accepting friend request: {e.response['Error']['Message']}")
             return False
 
     @staticmethod
@@ -84,16 +116,19 @@ class FriendRequest:
             return False
 
     @staticmethod
-    def get_friends(user):
+    def get_friends(username):
         table = FriendRequest.get_friends_table()
         try:
+            # Updated query to use 'username' instead of 'user'
             response = table.query(
-                KeyConditionExpression='user = :user',
-                ExpressionAttributeValues={':user': user}
+                KeyConditionExpression='username = :username',
+                ExpressionAttributeValues={
+                    ':username': username
+                }
             )
-            return [item['friend'] for item in response['Items']]
+            return [item['friend'] for item in response.get('Items', [])]
         except ClientError as e:
-            print(e.response['Error']['Message'])
+            print(f"Error getting friends: {e.response['Error']['Message']}")
             return []
         
 
