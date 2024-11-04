@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-mlg)s414krx#)ratx2&u_%9d=7y+^nx#$*zu2#wp4smioi=x6c
 
 
 # USE THIS FOR PROD:
-ENV = os.getenv("ENV")
+ENV = os.getenv("ENV_NAME")
 
 if ENV == "PROD":
     DEBUG=False
