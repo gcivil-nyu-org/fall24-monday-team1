@@ -27,7 +27,7 @@
                             <p class="card-text">
                                 <small class="text-muted">{{ profile.account_role }}</small>
                             </p>
-                            <a href="{% url 'userProfile:viewProfile' profile.user.username %}" class="btn btn-primary">View Profile</a>
+                            <a href="{% url 'userProfile:viewProfile' profile.user.id %}" class="btn btn-primary">View Profile</a>
                         </div>
                     </div>
                 </div>

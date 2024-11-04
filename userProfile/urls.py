@@ -6,7 +6,7 @@ from .views.searchProfile import UserProfileListView
 app_name = 'userProfile'
 
 urlpatterns = [
-    path('view/<str:username>/', viewProfile, name='viewProfile'),
+    path('view/<int:user_id>/', viewProfile, name='viewProfile'),
     path('myProfile/', viewMyProfile, name='myProfile'),
     path('edit/', editProfile, name='editProfile'),
     path('search/', UserProfileListView.as_view(), name='searchProfile'),
