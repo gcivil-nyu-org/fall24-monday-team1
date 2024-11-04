@@ -13,6 +13,7 @@
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
     />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
   </head>
   <body>
@@ -28,6 +29,9 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'events:event_list' %}">Event List</a>
             </li>
             {% else %}
             <li class="nav-item">
@@ -169,52 +173,68 @@
             </div>
           </div>
           {% if viewable %}
-          <div class="row">
-            <div class="col-md-6">
-              <div class="card mb-4 mb-md-0">
-                <div class="card-body">
-                  <p class="mb-4">Game Status</p>
-                  <p class="mb-1" style="font-size: 0.77rem">Horizon Zero Dawn</p>
-                  <div class="progress rounded" style="height: 5px">
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      style="width: 80%"
-                      aria-valuenow="80"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    ></div>
-                  </div>
-                  <p class="mt-4 mb-1" style="font-size: 0.77rem">GTA V</p>
-                  <div class="progress rounded" style="height: 5px">
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      style="width: 72%"
-                      aria-valuenow="72"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    ></div>
-                  </div>
-                  <p class="mt-4 mb-1" style="font-size: 0.77rem">God of War</p>
-                  <div class="progress rounded" style="height: 5px">
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      style="width: 89%"
-                      aria-valuenow="89"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    ></div>
+              <div class="card mb-4">
+                <div class="form-group">
+                  <div class="card-body">
+                    <label for="shelf-select">Select Shelf:</label>
+                    <select id="shelf-select">
+                      <option value=""></option>
+                      {% for shelf in user_games%}
+                        <option value="{{shelf}}">{{shelf|title}}</option>
+                      {% endfor %}
+                    </select>
                   </div>
                 </div>
+                <div id="game-list">
+                </div>
               </div>
-            </div>
-          </div>
           {% endif %}
         </div>
       </div>
     </div>
   </body>
+
+  <script>
+    document.getElementById("shelf-select").addEventListener("change", function(){
+      var shelf = this.value;
+      var gameIds = {{user_games|safe}}[shelf];
+      gameIds = gameIds.slice(0, 9);
+      const gameListDiv = document.getElementById("game-list")
+      if(gameIds.length == 0){
+        gameListDiv.innerHTML = '<p class="text-muted"> Nothing to see here! </p>'
+        return;
+      }else{
+        const gameIdString = `(${gameIds.join(',')})`;
+        console.log(gameIdString);  
+        fetch("{% url 'userProfile:fetch_game_details' %}", {
+          method: "POST",
+          body: new URLSearchParams({ 'gameIds[]': gameIds })
+        })
+        .then(response => 
+            response.json().then(gameDetails => {
+              // Update HTML directly within this block
+              gameListDiv.innerHTML = `
+                <div class="game-grid">
+                  ${gameDetails.map(game => `
+                    <div class="game-item">
+                    <a href="${game.redirect_url}">
+                      <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
+                    </a>
+                      </div>
+                    
+                  `).join('')}
+                </div>
+                <button id="view-all-button" class="view-all-btn">View all my games</button>
+              `;
+            })
+          )
+        .catch(error => {
+          console.error('Error fetching game data:', error);
+          gameListDiv.innerHTML = '<p class="text-danger">Error fetching game data.</p>';
+        });
+        
+      }
+    });
+  </script>
 
 </html>
