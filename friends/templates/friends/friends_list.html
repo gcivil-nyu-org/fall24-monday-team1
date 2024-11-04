@@ -2,36 +2,47 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2>My Friends</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">My Friends</h2>
     
     {% if error_message %}
         <div class="alert alert-danger" role="alert">
             {{ error_message }}
         </div>
     {% endif %}
-    
+
     {% if friends %}
         <div class="row">
-        {% for friend in friends %}
-            <div class="col-md-4 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ friend }}</h5>
-                        <a href="{% url 'userProfile:viewProfile' friend %}" class="btn btn-primary">View Profile</a>
+            {% for friend in friends %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ friend }}</h5>
+                            <a href="{% url 'userProfile:viewProfile' friend %}" class="btn btn-primary">View Profile</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
         </div>
     {% else %}
         <div class="text-center mt-5">
-            <h4>You don't have any friends yet</h4>
-            <p class="text-muted">Start connecting with other users!</p>
-            <a href="{% url 'userProfile:searchProfile' %}" class="btn btn-primary mt-3">
-                <i class="fas fa-search mr-2"></i>Find Users
-            </a>
+            <div class="empty-state">
+                <i class="fas fa-users fa-3x mb-3 text-muted"></i>
+                <h4>You don't have any friends yet</h4>
+                <p class="text-muted">Start connecting with other users!</p>
+                <button onclick="handleFindUsers()" class="btn btn-primary mt-3">
+                    <i class="fas fa-search mr-2"></i>Find Users
+                </button>
+            </div>
         </div>
     {% endif %}
 </div>
+
+<script>
+    function handleFindUsers() {
+        if (confirm('Would you like to search for users to connect with?')) {
+            window.location.href = "{% url 'userProfile:searchProfile' %}";
+        }
+    }
+</script>
 {% endblock %}

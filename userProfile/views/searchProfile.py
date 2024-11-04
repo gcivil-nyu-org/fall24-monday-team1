@@ -1,15 +1,16 @@
 from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import UserProfile
 from django.db.models import Q
 
-class UserProfileListView(ListView):
+class UserProfileListView(LoginRequiredMixin, ListView):
     model = UserProfile
-    template_name = 'userprofile_list.html'
+    template_name = 'userProfile/search_profile.html'
     context_object_name = 'user_profiles'
-    paginate_by = 10  # Set pagination if needed
+    paginate_by = 10
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().exclude(user=self.request.user)
         query = self.request.GET.get('q')
         privacy = self.request.GET.get('privacy')
         role = self.request.GET.get('role')
@@ -27,6 +28,5 @@ class UserProfileListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Check if the user is logged in
-        context['loginIn'] = self.request.user.is_authenticated  # Pass login status to template
+        context['loginIn'] = True
         return context

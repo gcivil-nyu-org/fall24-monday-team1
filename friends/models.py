@@ -179,6 +179,7 @@ class FriendRequest:
 
     @staticmethod
     def get_friends(username):
+        print(f"Getting friends for {username}")  # Debug print
         table = FriendRequest.get_friends_table()
         if not table:
             print("Could not access friends table")
@@ -191,7 +192,9 @@ class FriendRequest:
                     ':username': username
                 }
             )
-            return [item['friend'] for item in response.get('Items', [])]
+            friends = [item['friend'] for item in response.get('Items', [])]
+            print(f"Found friends: {friends}")  # Debug print
+            return friends
         except Exception as e:
             print(f"Error getting friends: {e}")
             return []
