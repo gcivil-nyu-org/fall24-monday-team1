@@ -128,6 +128,7 @@ def game_data_fetch_view(request, game_id):
             data[key] = value
 
     # print(data)
+    data["yapi"] = os.getenv("YOUTUBE_API_KEY")
     return JsonResponse(data)
 
 
