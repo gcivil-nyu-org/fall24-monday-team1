@@ -7,37 +7,99 @@ from datetime import datetime
 class FriendRequest:
     @staticmethod
     def get_dynamodb_resource():
-        return boto3.resource(
-            'dynamodb',
-            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-            region_name='us-east-1'
-        )
+        try:
+            return boto3.resource(
+                'dynamodb',
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+                region_name='us-east-1'
+            )
+        except Exception as e:
+            print(f"Error connecting to DynamoDB: {e}")
+            return None
 
     @staticmethod
-    def ensure_table_exists(table_name):
-        from .utils import create_dynamodb_tables
+    def ensure_tables_exist():
         try:
-            dynamodb = FriendRequest.get_dynamodb_resource()
-            table = dynamodb.Table(table_name)
-            table.table_status  # This will raise an exception if table doesn't exist
-            return table
-        except ClientError as e:
-            if e.response['Error']['Code'] == 'ResourceNotFoundException':
-                create_dynamodb_tables()
-                # Try again after creating tables
-                dynamodb = FriendRequest.get_dynamodb_resource()
-                return dynamodb.Table(table_name)
-            raise e
-        
+            dynamodb = boto3.client(
+                'dynamodb',
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+                region_name='us-east-1'
+            )
+            
+            # Check and create friend_requests table
+            try:
+                dynamodb.describe_table(TableName='friend_requests')
+            except dynamodb.exceptions.ResourceNotFoundException:
+                dynamodb.create_table(
+                    TableName='friend_requests',
+                    KeySchema=[
+                        {'AttributeName': 'to_user', 'KeyType': 'HASH'},
+                        {'AttributeName': 'from_user', 'KeyType': 'RANGE'}
+                    ],
+                    AttributeDefinitions=[
+                        {'AttributeName': 'to_user', 'AttributeType': 'S'},
+                        {'AttributeName': 'from_user', 'AttributeType': 'S'}
+                    ],
+                    ProvisionedThroughput={
+                        'ReadCapacityUnits': 5,
+                        'WriteCapacityUnits': 5
+                    }
+                )
+                
+            # Check and create user_friends table
+            try:
+                dynamodb.describe_table(TableName='user_friends')
+            except dynamodb.exceptions.ResourceNotFoundException:
+                dynamodb.create_table(
+                    TableName='user_friends',
+                    KeySchema=[
+                        {'AttributeName': 'username', 'KeyType': 'HASH'},
+                        {'AttributeName': 'friend', 'KeyType': 'RANGE'}
+                    ],
+                    AttributeDefinitions=[
+                        {'AttributeName': 'username', 'AttributeType': 'S'},
+                        {'AttributeName': 'friend', 'AttributeType': 'S'}
+                    ],
+                    ProvisionedThroughput={
+                        'ReadCapacityUnits': 5,
+                        'WriteCapacityUnits': 5
+                    }
+                )
+            return True
+        except Exception as e:
+            print(f"Error ensuring tables exist: {e}")
+            return False
 
     @staticmethod
     def get_friend_requests_table():
-        return FriendRequest.ensure_table_exists('friend_requests')
+        FriendRequest.ensure_tables_exist()  # First ensure tables exist
+        dynamodb = FriendRequest.get_dynamodb_resource()
+        return dynamodb.Table('friend_requests')
 
     @staticmethod
     def get_friends_table():
-        return FriendRequest.ensure_table_exists('user_friends')
+        try:
+            dynamodb = FriendRequest.get_dynamodb_resource()
+            if not dynamodb:
+                raise Exception("Could not connect to DynamoDB")
+            
+            table = dynamodb.Table('user_friends')
+            # Test if table is accessible
+            table.table_status
+            return table
+        except Exception as e:
+            print(f"Error getting friends table: {e}")
+            # Try to create tables if they don't exist
+            from .utils import create_dynamodb_tables
+            create_dynamodb_tables()
+            # Try one more time
+            try:
+                return dynamodb.Table('user_friends')
+            except Exception as e:
+                print(f"Final error getting friends table: {e}")
+                return None
 
     @staticmethod
     def send_request(from_user, to_user):
@@ -118,8 +180,11 @@ class FriendRequest:
     @staticmethod
     def get_friends(username):
         table = FriendRequest.get_friends_table()
+        if not table:
+            print("Could not access friends table")
+            return []
+        
         try:
-            # Updated query to use 'username' instead of 'user'
             response = table.query(
                 KeyConditionExpression='username = :username',
                 ExpressionAttributeValues={
@@ -127,8 +192,8 @@ class FriendRequest:
                 }
             )
             return [item['friend'] for item in response.get('Items', [])]
-        except ClientError as e:
-            print(f"Error getting friends: {e.response['Error']['Message']}")
+        except Exception as e:
+            print(f"Error getting friends: {e}")
             return []
         
 

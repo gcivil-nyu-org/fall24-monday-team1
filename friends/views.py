@@ -20,14 +20,21 @@ def friend_requests(request):
     try:
         received_requests = FriendRequest.get_pending_requests(request.user.username)
         sent_requests = FriendRequest.get_sent_requests(request.user.username)
-        
+        print(received_requests)
+        print(sent_requests)
         return render(request, 'friends/friend_requests.html', {
             'received_requests': received_requests,
-            'sent_requests': sent_requests
+            'sent_requests': sent_requests,
+            'loginIn': True,
+            'error_message': None
         })
     except Exception as e:
-        messages.error(request, f"Error loading friend requests: {str(e)}")
-        return redirect('userProfile:myProfile')
+        return render(request, 'friends/friend_requests.html', {
+            'received_requests': [],
+            'sent_requests': [],
+            'loginIn': True,
+            'error_message': f"Error loading friend requests: {str(e)}"
+        })
 
 @login_required
 def send_friend_request(request, to_user):
@@ -66,8 +73,12 @@ def friend_list(request):
     try:
         friends = FriendRequest.get_friends(request.user.username)
         return render(request, 'friends/friends_list.html', {
-            'friends': friends
+            'friends': friends,
+            'loginIn': True
         })
     except Exception as e:
-        messages.error(request, f"Error loading friends list: {str(e)}")
-        return redirect('userProfile:myProfile')
+        return render(request, 'friends/friends_list.html', {
+            'friends': [],
+            'loginIn': True,
+            'error_message': f"Error loading friends list: {str(e)}"
+        })

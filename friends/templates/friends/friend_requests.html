@@ -1,45 +1,59 @@
-{% extends "base.html" %}
+{% extends "userprofile_list.html" %}
+{% load static %}
+
 {% block content %}
 <div class="container">
     <h2>Friend Requests</h2>
     
-    <!-- Received Requests -->
-    <h3>Received Requests</h3>
-    {% if received_requests %}
-        <ul class="list-group mb-4">
-        {% for request in received_requests %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{% url 'userProfile:viewProfile' request.from_user %}">{{ request.from_user }}</a>
-                <div>
-                    <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                    </form>
-                    <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                    </form>
-                </div>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No pending friend requests.</p>
+    {% if error_message %}
+        <div class="alert alert-danger" role="alert">
+            {{ error_message }}
+        </div>
     {% endif %}
 
-    <!-- Sent Requests -->
-    <h3>Sent Requests</h3>
-    {% if sent_requests %}
-        <ul class="list-group">
-        {% for request in sent_requests %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{% url 'userProfile:viewProfile' request.to_user %}">{{ request.to_user }}</a>
-                <span class="badge badge-primary">Pending</span>
-            </li>
-        {% endfor %}
-        </ul>
+    {% if not received_requests and not sent_requests %}
+        <div class="text-center mt-5">
+            <h4>You're All Caught Up!</h4>
+            <p class="text-muted">No pending friend requests at the moment</p>
+            <a href="{% url 'userProfile:searchProfile' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-search mr-2"></i>Find Users
+            </a>
+        </div>
     {% else %}
-        <p>No sent friend requests.</p>
+        <!-- Received Requests Section -->
+        {% if received_requests %}
+            <h3>Received Requests</h3>
+            <ul class="list-group mb-4">
+            {% for request in received_requests %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'userProfile:viewProfile' request.from_user %}">{{ request.from_user }}</a>
+                    <div>
+                        <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                        </form>
+                        <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <!-- Sent Requests Section -->
+        {% if sent_requests %}
+            <h3>Sent Requests</h3>
+            <ul class="list-group">
+            {% for request in sent_requests %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'userProfile:viewProfile' request.to_user %}">{{ request.to_user }}</a>
+                    <span class="badge badge-primary">Pending</span>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
     {% endif %}
 </div>
 {% endblock %}
