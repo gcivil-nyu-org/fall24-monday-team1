@@ -223,7 +223,7 @@
                 <div class="game-grid">
                   ${gameDetails.map(game => `
                     <div class="game-item">
-                    <a href="${game.redirect_url}">
+                    <a href="${game.redirect_url}?shelf=${shelf}&own={{own}}">
                       <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
                     </a>
                       </div>
