@@ -36,8 +36,16 @@ def editProfile(request):
         profile.save()
         return redirect('/profile/')  # Redirect to the profile view
 
+    gaming_usernames = None
+    if profile.gaming_usernames:
+        try:
+            gaming_usernames = json.loads(profile.gaming_usernames)
+        except TypeError:
+            gaming_usernames = profile.gaming_usernames
+            
     context = {
-        'profile': profile
+        'profile': profile,
+        'gaming_usernames': gaming_usernames,
     }
     
     return render(request, 'editProfile.html', context)

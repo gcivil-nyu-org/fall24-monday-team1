@@ -83,7 +83,7 @@
                     <div class="form-group">
                         <label>Gaming Usernames:</label>
                         <div id="gaming_usernames_container">
-                            {% for platform, username in profile.gaming_usernames.items %}
+                            {% for platform, username in gaming_usernames.items %}
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" name="gaming_usernames[{{ platform }}]" placeholder="Username" value="{{ username }}" required>
                                 <div class="input-group-append">
