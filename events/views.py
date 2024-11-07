@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from userProfile.models import UserProfile
 from .models import Event
-from .forms import EventForm
 
 
 
