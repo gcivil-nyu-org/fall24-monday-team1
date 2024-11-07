@@ -2,7 +2,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from userProfile.models import UserProfile
-from .models import Event
+import boto3
+import os
+
 User = get_user_model()
 
 class EventViewsTest(TestCase):
@@ -12,10 +14,29 @@ class EventViewsTest(TestCase):
         self.user = User.objects.create_user(username='testuser', password='password', email='testuser@events.com')
         self.user_profile = UserProfile.objects.create(user=self.user, account_role='event_organizer')
 
+        # Initialize DynamoDB resource
+        self.dynamodb = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name='us-east-1'
+        )
+        self.table = self.dynamodb.Table('Events')  # Replace with your DynamoDB table name
+
     def tearDown(self):
-        # Optionally delete objects created in setUp if needed
-        self.user.delete()
-        self.user_profile.delete()
+        # Clear the Events table after each test
+        self.table.delete_item(Key={'creator': self.user.id})  # Adjust according to your table's primary key schema
+
+    def create_event(self, title, description, start_time, end_time, location):
+        event = {
+            'title': title,
+            'description': description,
+            'start_time': start_time,
+            'end_time': end_time,
+            'location': location,
+            'creator': self.user.id  # Store creator as user ID
+        }
+        self.table.put_item(Item=event)
 
     def test_create_event_view_redirects_when_logged_in(self):
         self.client.login(username='testuser', password='password')
@@ -29,8 +50,11 @@ class EventViewsTest(TestCase):
 
         # Check that the event was created and redirected to the event list
         self.assertRedirects(response, reverse('events:event_list'))
-        self.assertEqual(Event.objects.count(), 1)
-        self.assertEqual(Event.objects.first().title, 'Test Event')
+
+        # Assert that the event exists in DynamoDB
+        response = self.table.scan()
+        self.assertEqual(len(response['Items']), 1)
+        self.assertEqual(response['Items'][0]['title'], 'Test Event')
 
     def test_create_event_view_forbidden_for_non_event_organizers(self):
         # Create a user with a different role
@@ -44,23 +68,22 @@ class EventViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_event_list_view(self):
-        # Create a couple of events
         self.client.login(username='testuser', password='password')
-        Event.objects.create(
+
+        # Create a couple of events
+        self.create_event(
             title='Event 1',
             description='Description 1',
             start_time='2024-10-31 10:00',
             end_time='2024-10-31 12:00',
-            location='Location 1',
-            creator=self.user
+            location='Location 1'
         )
-        Event.objects.create(
+        self.create_event(
             title='Event 2',
             description='Description 2',
             start_time='2024-10-31 13:00',
             end_time='2024-10-31 15:00',
-            location='Location 2',
-            creator=self.user
+            location='Location 2'
         )
 
         response = self.client.get(reverse('events:event_list'))
@@ -75,25 +98,24 @@ class EventViewsTest(TestCase):
         self.client.login(username='testuser', password='password')
         # Create 30 events for pagination testing
         for i in range(30):
-            Event.objects.create(
+            self.create_event(
                 title=f'Event {i + 1}',
                 description='Description',
                 start_time='2024-10-31 10:00',
                 end_time='2024-10-31 12:00',
-                location='Location',
-                creator=self.user
+                location='Location'
             )
 
         # Get the sixth page of events
         response = self.client.get(reverse('events:event_list') + '?page=6')
 
         if response.context['page_obj'].object_list:
-            first_event_title = response.context['page_obj'].object_list[0].title
-            last_event_title = response.context['page_obj'].object_list[-1].title
+            first_event_title = response.context['page_obj'].object_list[0]['title']
+            last_event_title = response.context['page_obj'].object_list[-1]['title']
             
             print("First event on page 6:", first_event_title)
             print("Last event on page 6:", last_event_title)
 
             # Assert the titles
             self.assertEqual(first_event_title, 'Event 26')  
-            self.assertEqual(last_event_title, 'Event 30')   
+            self.assertEqual(last_event_title, 'Event 30')
