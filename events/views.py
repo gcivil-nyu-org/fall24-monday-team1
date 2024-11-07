@@ -16,8 +16,9 @@ def create_event(request):
         # Check if the user has the required role
         user_profile = get_object_or_404(UserProfile, user=request.user, account_role__in=["event_organizer", "creator"])
     except Http404:
-        messages.error(request, "You must be a creator or event organizer to create event")
+        messages.error(request, "You must be a creator or event organizer to create an event")
         return redirect('events:event_list')
+
     if request.method == 'POST':
         # Retrieve data from the request
         title = request.POST.get('title')
@@ -27,15 +28,17 @@ def create_event(request):
         location = request.POST.get('location')
 
         # Create the event instance
-        Event.objects.create(
+        event = Event(
             title=title,
             description=description,
             start_time=start_time,
             end_time=end_time,
             location=location,
-            creator=request.user  # Set creator to the logged-in user
+            creator=request.user.id  # Store creator as user ID
         )
-        print("Event created: " + str(Event.objects.count()))
+        event.save()  # Save to DynamoDB
+
+        print("Event created")
         return redirect('events:event_list')  # Redirect to the event list view
 
     return render(request, 'events/create_event.html', {"loginIn": request.user.is_authenticated})  # Render the static template for GET request
