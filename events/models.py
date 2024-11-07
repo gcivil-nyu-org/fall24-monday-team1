@@ -1,17 +1,27 @@
-from django.db import models
-from django.contrib.auth import get_user_model
+import boto3
+import os
+from botocore.exceptions import ClientError
 
-User = get_user_model()
 
-class Event(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    location = models.CharField(max_length=255, blank=True)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='events')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.title
+class Event:
+    def __init__(self, title, description, start_time, end_time, location, creator):
+        self.title = title
+        self.description = description
+        self.start_time = start_time
+        self.end_time = end_time
+        self.location = location
+        self.creator = creator
+
+    def save(self):
+        dynamodb = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name='us-east-1'
+        )
+        table = dynamodb.Table('Events')  # Replace with your DynamoDB table name
+        try:
+            table.put_item(Item=self.__dict__)
+        except ClientError as e:
+            print("Error saving event:", e.response['Error']['Message'])

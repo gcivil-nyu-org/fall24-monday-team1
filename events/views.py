@@ -1,3 +1,5 @@
+import os
+import boto3
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
@@ -6,6 +8,8 @@ from django.core.paginator import Paginator
 from userProfile.models import UserProfile
 from .models import Event
 from .forms import EventForm
+
+
 
 @login_required
 def create_event(request):
@@ -37,9 +41,19 @@ def create_event(request):
 
     return render(request, 'events/create_event.html', {"loginIn": request.user.is_authenticated})  # Render the static template for GET request
 
-def event_list(request):
-    events = Event.objects.all()
+def get_all_events():
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('Events')  # Replace with your DynamoDB table name
+    response = table.scan()
+    return response.get('Items', [])
 
+def event_list(request):
+    events = get_all_events()
     # Setup pagination
     paginator = Paginator(events, 5)  # Show 5 events per page
     page_number = request.GET.get('page')
