@@ -69,7 +69,7 @@ def viewProfile(request, user_id):
             }
     except Exception as e:
         print(e)
-    # print(context)
+
     return render(request, 'profileView.html', context)
 
 @login_required
