@@ -75,6 +75,7 @@ class EventViewsTest(TestCase):
         event.save()
 
     def test_create_event_view_redirects_when_logged_in(self):
+        original_len = len(self.table.scan())
         self.client.login(username='testuser', password='password')
         response = self.client.post(reverse('events:create_event'), {
             'title': 'Test Event',
@@ -89,7 +90,7 @@ class EventViewsTest(TestCase):
 
         # Assert that the event exists in DynamoDB
         response = self.table.scan()
-        self.assertEqual(len(response['Items']), 1)
+        self.assertEqual(len(response['Items']), original_len + 1)
         self.assertEqual(response['Items'][0]['title'], 'Test Event')
 
     def test_create_event_view_forbidden_for_non_event_organizers(self):
