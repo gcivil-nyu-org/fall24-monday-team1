@@ -62,8 +62,9 @@ def event_list(request):
     # Sort events by start_time (or any other attribute)
     sorted_events = sorted(events, key=lambda x: x['start_time'])
     for event in sorted_events:
-        event['creator_user'] = User.objects.get(id=event['creator'])  # Assuming 'creator' is the user ID
-    
+        print(f"user id: {event['creator']}")
+        event['creator_user'] = User.objects.get(pk=event['creator'])  # Assuming 'creator' is the user ID
+        
     # Setup pagination
     paginator = Paginator(sorted_events, 5)  # Show 5 events per page
     page_number = request.GET.get('page')
