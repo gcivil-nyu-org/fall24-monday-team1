@@ -27,7 +27,6 @@ def test_comment_board(request):
 @login_required
 def create_reply(request, parent_id):
     parent_comment = get_object_or_404(Comment, id=parent_id)
-
     if request.method == 'POST':
         content = request.POST.get('content')
         curPath = request.POST.get('curPath')  # Get curPath from the form data
