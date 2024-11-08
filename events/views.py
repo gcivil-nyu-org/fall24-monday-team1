@@ -62,10 +62,10 @@ def event_list(request):
     # Sort events by start_time (or any other attribute)
     sorted_events = sorted(events, key=lambda x: x['start_time'])
     for event in sorted_events:
-        assert(type(event['creator']) is type(User.objects.all()[0].id))
+        # assert(type(event['creator']) is type(User.objects.all()[0].id))
         try:
             # Assuming 'creator' is the user ID
-            event['creator_user'] = User.objects.get(id=event['creator'])
+            event['creator_user'] = User.objects.get(id=int(event['creator']))
         except User.DoesNotExist:
             event['creator_user'] = None  # Or handle it as needed
             
