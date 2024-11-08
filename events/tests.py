@@ -5,6 +5,7 @@ from userProfile.models import UserProfile
 import boto3
 import os
 from botocore.exceptions import ClientError
+from models import Event
 
 User = get_user_model()
 
@@ -70,15 +71,8 @@ class EventViewsTest(TestCase):
                 self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
     
     def create_event(self, title, description, start_time, end_time, location):
-        event = {
-            'title': title,
-            'description': description,
-            'start_time': start_time,
-            'end_time': end_time,
-            'location': location,
-            'creator': self.user.id  # Store creator as user ID
-        }
-        self.table.put_item(Item=event)
+        event = Event(title, description, start_time, end_time, location)
+        event.save()
 
     def test_create_event_view_redirects_when_logged_in(self):
         self.client.login(username='testuser', password='password')
