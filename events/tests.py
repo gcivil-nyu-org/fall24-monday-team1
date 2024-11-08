@@ -67,7 +67,8 @@ class EventViewsTest(TestCase):
     def tearDown(self):
         response = self.table.scan()  # Scan to get all items
         for item in response.get('Items', []):
-            if item['creator'] == self.user.id:  # Check if the item was created by the test user
+            creator_user = User.objects.get(id=int(item['creator']))
+            if creator_user.username == 'testuser':  # Check if the item was created by the test user
                 self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
     
     def create_event(self, title, description, start_time, end_time, location, creator_id):
