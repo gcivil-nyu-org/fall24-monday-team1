@@ -6,6 +6,44 @@ import boto3
 import os
 
 User = get_user_model()
+from botocore.exceptions import ClientError
+
+def create_table_if_not_exists(dynamodb):
+    table_name = 'Events'  
+
+    # Check if the table exists
+    existing_tables = dynamodb.tables.all()
+    if table_name in [table.name for table in existing_tables]:
+        print(f"Table '{table_name}' already exists.")
+        return
+
+    # Create the table
+    try:
+        table = dynamodb.create_table(
+            TableName=table_name,
+            KeySchema=[
+                {
+                    'AttributeName': 'eventId',
+                    'KeyType': 'HASH'  # Partition key
+                }
+            ],
+            AttributeDefinitions=[
+                {
+                    'AttributeName': 'eventId',
+                    'AttributeType': 'S'  # String
+                }
+            ],
+            ProvisionedThroughput={
+                'ReadCapacityUnits': 5,
+                'WriteCapacityUnits': 5
+            }
+        )
+        
+        # Wait until the table exists
+        table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+        print(f"Table '{table_name}' created successfully!")
+    except ClientError as e:
+        print(f"Failed to create table: {e.response['Error']['Message']}")
 
 class EventViewsTest(TestCase):
 
@@ -21,6 +59,7 @@ class EventViewsTest(TestCase):
             aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
             region_name='us-east-1'
         )
+        create_table_if_not_exists(self.dynamodb)
         self.table = self.dynamodb.Table('Events')  # Replace with your DynamoDB table name
 
     def tearDown(self):
