@@ -56,8 +56,12 @@ def get_all_events():
 
 def event_list(request):
     events = get_all_events()
+    
+    # Sort events by start_time (or any other attribute)
+    sorted_events = sorted(events, key=lambda x: x['start_time'])
+
     # Setup pagination
-    paginator = Paginator(events, 5)  # Show 5 events per page
+    paginator = Paginator(sorted_events, 5)  # Show 5 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

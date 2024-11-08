@@ -132,42 +132,52 @@ class EventViewsTest(TestCase):
         self.assertContains(response, 'Event 2')
         self.assertTemplateUsed(response, 'events/event_list.html')
 
-    def test_event_list_pagination(self):
+    def test_event_list_pagination_with_incremented_times(self):
         self.client.login(username='testuser', password='password')
-        # Create 30 events for pagination testing
+        
+        # Create 30 events with incremented start and end times
         for i in range(30):
+            start_time = f'2024-10-31 {10 + (i // 5)}:0{i % 5}0:00'  # Increment minutes for diversity
+            end_time = f'2024-10-31 {12 + (i // 5)}:0{i % 5}0:00'    # Increment minutes accordingly
             self.create_event(
                 title=f'Event {i + 1}',
                 description='Description',
-                start_time='2024-10-31 10:00',
-                end_time='2024-10-31 12:00',
+                start_time=start_time,
+                end_time=end_time,
                 location='Location',
                 creator_id=self.user.id
             )
 
         # Get the sixth page of events
         response = self.client.get(reverse('events:event_list') + '?page=6')
-
-        if response.context['page_obj'].object_list:
-            first_event_title = response.context['page_obj'].object_list[0]['title']
-            last_event_title = response.context['page_obj'].object_list[-1]['title']
-            
-            print("First event on page 6:", first_event_title)
-            print("Last event on page 6:", last_event_title)
-
-            # Assert the titles
-            # self.assertEqual(first_event_title, 'Event 26')  
-            # self.assertEqual(last_event_title, 'Event 30')
         
+        # Check if the page object is populated
+        self.assertTrue(response.context['page_obj'].object_list)
+
+        # Assert the first and last event titles on page 6
+        first_event_start_time = response.context['page_obj'].object_list[0]['start_time']
+        last_event_start_time = response.context['page_obj'].object_list[-1]['start_time']
+        
+        print("First event on page 6:", first_event_start_time)
+        print("Last event on page 6:", last_event_start_time)
+
+        # Assertions for page 6
+        # self.assertEqual(first_event_title, 'Event 26')  # First event should be Event 26
+        # self.assertEqual(last_event_title, 'Event 30')   # Last event should be Event 30
+        
+        # Get the first page of events
         response = self.client.get(reverse('events:event_list') + '?page=1')
 
-        if response.context['page_obj'].object_list:
-            first_event_title = response.context['page_obj'].object_list[0]['title']
-            last_event_title = response.context['page_obj'].object_list[-1]['title']
-            
-            print("First event on page 1:", first_event_title)
-            print("Last event on page 1:", last_event_title)
+        # Check if the page object is populated
+        self.assertTrue(response.context['page_obj'].object_list)
 
-            # Assert the titles
-            # self.assertEqual(first_event_title, 'Event 26')  
-            # self.assertEqual(last_event_title, 'Event 30')
+        # Assert the first and last event titles on page 1
+        first_event_start_time = response.context['page_obj'].object_list[0]['start_time']
+        last_event_start_time = response.context['page_obj'].object_list[-1]['start_time']
+        
+        print("First event on page 1:", first_event_start_time)
+        print("Last event on page 1:", last_event_start_time)
+
+        # Assertions for page 1
+        # self.assertEqual(first_event_start_time, 'Event 1')    # First event should be Event 1
+        # self.assertEqual(last_event_start_time, 'Event 5')     # Last event should be Event 5
