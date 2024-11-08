@@ -162,8 +162,8 @@ class EventViewsTest(TestCase):
         print("Last event on page 6:", last_event_start_time)
 
         # Assertions for page 6
-        # self.assertEqual(first_event_title, 'Event 26')  # First event should be Event 26
-        # self.assertEqual(last_event_title, 'Event 30')   # Last event should be Event 30
+        self.assertEqual(first_event_start_time, '2024-10-31 15:000:00')  # First event should be Event 26
+        self.assertEqual(last_event_start_time, '2024-10-31 15:040:00')   # Last event should be Event 30
         
         # Get the first page of events
         response = self.client.get(reverse('events:event_list') + '?page=1')
@@ -179,5 +179,5 @@ class EventViewsTest(TestCase):
         print("Last event on page 1:", last_event_start_time)
 
         # Assertions for page 1
-        # self.assertEqual(first_event_start_time, 'Event 1')    # First event should be Event 1
-        # self.assertEqual(last_event_start_time, 'Event 5')     # Last event should be Event 5
+        self.assertEqual(first_event_start_time, '2024-10-31 10:000:00')    # First event should be Event 1
+        self.assertEqual(last_event_start_time, '2024-10-31 10:040:00')     # Last event should be Event 5
