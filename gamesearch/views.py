@@ -95,7 +95,8 @@ def game_details_view(request, game_id):
         own = request.GET.get('own').replace("$",'')
         showReviewBox = shelf=="completed" and own=="True"
         return render(request, 'game_details.html', {'game_id': game_id, 'showReviewBox': showReviewBox ,'curPath' : reverse('gamesearch:game-details', args=[game_id])})
-    except:
+    except Exception as e:
+        print(e)
         return render(request, 'game_details.html', {'game_id': game_id, 'curPath' : reverse('gamesearch:game-details', args=[game_id])})
     
 

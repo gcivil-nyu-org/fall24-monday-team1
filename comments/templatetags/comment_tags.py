@@ -23,5 +23,5 @@ def render_review_board(context, identifier):
         'root_comment': root_comment,
         'comments': comments,
         'request': context['request'],
-        'curPath': context['curPath']+f"?shelf=completed&own=True",
+        'curPath': context['curPath']+"?shelf=completed&own=True",
     }
