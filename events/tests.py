@@ -5,7 +5,7 @@ from userProfile.models import UserProfile
 import boto3
 import os
 from botocore.exceptions import ClientError
-from models import Event
+from .models import Event
 
 User = get_user_model()
 
