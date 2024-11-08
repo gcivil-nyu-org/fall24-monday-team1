@@ -1,11 +1,11 @@
 import boto3
 import os
+import uuid
 from botocore.exceptions import ClientError
-
-
 
 class Event:
     def __init__(self, title, description, start_time, end_time, location, creator):
+        self.eventId = str(uuid.uuid4())  # Generate a unique event ID
         self.title = title
         self.description = description
         self.start_time = start_time
