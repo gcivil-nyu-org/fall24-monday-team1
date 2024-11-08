@@ -7,8 +7,10 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from userProfile.models import UserProfile
 from .models import Event
+from django.contrib.auth import get_user_model
 
 
+User = get_user_model()
 
 @login_required
 def create_event(request):
@@ -59,10 +61,15 @@ def event_list(request):
     
     # Sort events by start_time (or any other attribute)
     sorted_events = sorted(events, key=lambda x: x['start_time'])
-
+    for event in sorted_events:
+        event['creator_user'] = User.objects.get(id=event['creator'])  # Assuming 'creator' is the user ID
+    
     # Setup pagination
     paginator = Paginator(sorted_events, 5)  # Show 5 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    
+    # populate user here
+    page_obj
 
     return render(request, 'events/event_list.html', {'page_obj': page_obj, "loginIn": request.user.is_authenticated})
