@@ -70,8 +70,8 @@ class EventViewsTest(TestCase):
             if item['creator'] == self.user.id:  # Check if the item was created by the test user
                 self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
     
-    def create_event(self, title, description, start_time, end_time, location):
-        event = Event(title, description, start_time, end_time, location)
+    def create_event(self, title, description, start_time, end_time, location, creator_id):
+        event = Event(title, description, start_time, end_time, location, creator_id)
         event.save()
 
     def test_create_event_view_redirects_when_logged_in(self):
@@ -112,14 +112,16 @@ class EventViewsTest(TestCase):
             description='Description 1',
             start_time='2024-10-31 10:00',
             end_time='2024-10-31 12:00',
-            location='Location 1'
+            location='Location 1',
+            creator_id=self.user.id,
         )
         self.create_event(
             title='Event 2',
             description='Description 2',
             start_time='2024-10-31 13:00',
             end_time='2024-10-31 15:00',
-            location='Location 2'
+            location='Location 2',
+            creator_id=self.user.id
         )
 
         response = self.client.get(reverse('events:event_list'))
@@ -139,7 +141,8 @@ class EventViewsTest(TestCase):
                 description='Description',
                 start_time='2024-10-31 10:00',
                 end_time='2024-10-31 12:00',
-                location='Location'
+                location='Location',
+                creator_id=self.user.id
             )
 
         # Get the sixth page of events
