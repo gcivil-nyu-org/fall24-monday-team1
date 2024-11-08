@@ -4,9 +4,10 @@ from django.contrib.auth import get_user_model
 from userProfile.models import UserProfile
 import boto3
 import os
+from botocore.exceptions import ClientError
 
 User = get_user_model()
-from botocore.exceptions import ClientError
+
 
 def create_table_if_not_exists(dynamodb):
     table_name = 'Events'  
