@@ -64,9 +64,11 @@ class EventViewsTest(TestCase):
         self.table = self.dynamodb.Table('Events')  # Replace with your DynamoDB table name
 
     def tearDown(self):
-        # Clear the Events table after each test
-        self.table.delete_item(Key={'creator': self.user.id})  # Adjust according to your table's primary key schema
-
+        response = self.table.scan()  # Scan to get all items
+        for item in response.get('Items', []):
+            if item['creator'] == self.user.id:  # Check if the item was created by the test user
+                self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
+    
     def create_event(self, title, description, start_time, end_time, location):
         event = {
             'title': title,
