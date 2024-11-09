@@ -98,7 +98,6 @@ def get_lists(request):
     page = int(request.GET.get('page', 1))
     page_size = 10
 
-    print(tab)
     if tab == 'my':
         filter_expression = Attr('username').eq(request.user.username)
     elif tab == 'discover':
@@ -109,11 +108,9 @@ def get_lists(request):
         FilterExpression=filter_expression,
         Limit=page_size,
     )
-
-
+    # TODO: Need to fix pagination!
     
     lists = response.get('Items', [])
-    print(lists)
     has_more = 'LastEvaluatedKey' in response
 
     data = {
@@ -128,6 +125,5 @@ def get_lists(request):
         ],
         'has_more': has_more
     }
-    print(data)
     
     return JsonResponse(data)

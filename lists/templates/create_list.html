@@ -168,9 +168,7 @@
               .then(data => {
                 if (data.status === 'success') {
                     alert("List created successfully!"); 
-                    window.location.assign("{% url 'userProfile:myProfile' %}");
-                    {% comment %} TODO: change the redirect to user Lists page {% endcomment %}
-
+                    window.location.assign("{% url 'lists:view_lists' %}");
                 }else{
                     alert("List creation failed, something went wrong! Try again."); 
                 }

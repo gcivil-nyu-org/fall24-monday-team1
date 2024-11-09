@@ -33,6 +33,7 @@
         <div class="tabs mt-5">
             <button id="myListsTab" class="btn btn-primary tab-button active" onclick="fetchLists('my')">My Lists</button>
             <button id="discoverListsTab" class="btn btn-primary tab-button ml-2" onclick="fetchLists('discover')">Discover Lists</button>
+            <a href="{% url 'lists:create_list'%}" class="btn btn-primary tab-button ml-2">Make a new Game List</a>
         </div>
 
         <div id="listContainer" class="list-container mt-4">
