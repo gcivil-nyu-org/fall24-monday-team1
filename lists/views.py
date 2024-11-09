@@ -7,7 +7,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import boto3
 import uuid
-import urllib
+from django.core.paginator import Paginator
+from boto3.dynamodb.conditions import Attr
+
 
 @login_required
 def create_list(request):
@@ -58,6 +60,12 @@ def save_list(request):
                 'visibility': data['visibility'],
                 'games': data['games[]']
             }
+            g = []
+            for games in item['games']:
+                gids = games.split(',')
+                g.extend(gids)
+            
+            item['games'] = g
             
             try:
                 table.put_item(Item=item)
@@ -70,3 +78,55 @@ def save_list(request):
         
         except Exception as e:
             return JsonResponse({"status": "error"})
+
+@login_required
+def view_lists(request):
+    return render(request, 'view_lists.html')
+
+
+@login_required
+def get_lists(request):
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('lists')
+    tab = request.GET.get('tab', 'my')
+    
+    page = int(request.GET.get('page', 1))
+    page_size = 10
+
+    if tab == 'my':
+        filter_expression = Attr('username').eq(request.user.username)
+    elif tab == 'discover':
+        filter_expression = Attr('visbility').eq('public') & Attr('username').ne(request.user.username)
+
+
+    response = table.scan(
+        FilterExpression=filter_expression,
+        Limit=page_size,
+        ExclusiveStartKey={'listId': page - 1} if page > 1 else None
+    )
+
+
+    
+    lists = response.get('Items', [])
+    has_more = 'LastEvaluatedKey' in response
+
+    data = {
+        'lists': [
+            {
+                'name': item['name'],
+                'description': item['description'],
+                'creator': item['username'],
+                'games_count': len(item['games'])
+            }
+            for item in lists
+        ],
+        'has_more': has_more
+    }
+    print(data)
+    
+    return JsonResponse(data)
