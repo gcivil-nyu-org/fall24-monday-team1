@@ -93,3 +93,36 @@ textarea.form-control {
 .btn-success {
     margin-top: 15px;
 }
+
+
+/* Container for selected games */
+.selected-games-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+/* Individual selected game styling */
+.selected-game {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 5px;
+    position: relative;
+}
+
+/* Remove icon styling */
+.remove-icon {
+    margin-left: 10px;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+.remove-icon:hover {
+    color: #c82333;
+}
+
+

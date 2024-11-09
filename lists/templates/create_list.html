@@ -71,7 +71,7 @@
 
     <!-- JavaScript for Search and Selection -->
     <script>
-        const tmpList = [];
+        var tmpList = [];
 
         async function fetchGameSuggestions() {
             const query = document.getElementById('gameSearch').value;
@@ -91,36 +91,58 @@
                             option.className = 'search-result';
                             option.textContent = game.name;
                             dropdown.appendChild(option);
-                option.onclick = () => addGameToTmpList(game);
-                option.onclick = () => addGameToTmpList(game);
-                dropdown.appendChild(option);
                             option.onclick = () => addGameToTmpList(game);
-                dropdown.appendChild(option);
                         });
                         dropdown.style.display = 'block';
-                  }))
-            .catch(error => {
-                    console.error('Error fetching game data:', error);
-            });
+                }))
+                .catch(error => {
+                        console.error('Error fetching game data:', error);
+                });
+                updateSelectedGames();
             
         }
 
         function addGameToTmpList(game) {
-            console.log(game);
-            tmpList.push(game);
+            if (!tmpList.some(g => g.id === game.id)) {
+                tmpList.push(game);
+                
+                const gameItem = document.createElement('div');
+                gameItem.className = 'selected-game';
+                
+                gameItem.innerHTML = `
+                    <span>${game.name}</span>
+                    <i class="fas fa-times remove-icon" title="Remove" onclick="removeGameFromTmpList(${game.id})"></i>
+                `;
+        
+                document.getElementById('selectedGamesContainer').appendChild(gameItem);
+                const dropdown = document.getElementById('gameDropdown');
+                dropdown.innerHTML = '';
+                document.getElementById('gameSearch').value = '';
+                updateSelectedGames();
+            }
+        }
+
+        function removeGameFromTmpList(gameId) {
+            tmpList = tmpList.filter(game => game.id !== gameId);
+        
+            const gameItem = document.querySelector(`#selectedGamesContainer .selected-game[data-id="${gameId}"]`);
+            if (gameItem) {
+                gameItem.remove();
+            }
             updateSelectedGames();
-            document.getElementById('gameDropdown').style.display = 'none';
-            document.getElementById('gameSearch').value = '';
         }
 
         function updateSelectedGames() {
             const container = document.getElementById('selectedGamesContainer');
             container.innerHTML = '';
             tmpList.forEach(game => {
-                const item = document.createElement('div');
-                item.className = 'selected-game-item';
-                item.textContent = game.name;
-                container.appendChild(item);
+                const gameItem = document.createElement('div');
+                gameItem.className = 'selected-game';
+                gameItem.innerHTML = `
+                    <span>${game.name}</span>
+                    <i class="fas fa-times remove-icon" title="Remove" onclick="removeGameFromTmpList(${game.id})"></i>
+                `;
+                container.appendChild(gameItem);
             });
         }
 
