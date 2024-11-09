@@ -7,6 +7,7 @@
     <title>Create List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'lists/styles.css' %}">
 </head>
 <body>
@@ -52,17 +53,17 @@
         <div class="form-group">
             <label for="gameSearch">Add Game to List</label>
             <div style="position: relative;">
-                <input type="text" id="gameSearch" class="form-control" placeholder="Search for a game" oninput="fetchGameSuggestions()">
+                <input type="text" id="gameSearch" class="form-control" placeholder="Search for a game">
                 <i class="fas fa-check" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="fetchGameSuggestions()"></i>
                 <div id="gameDropdown" style="position: absolute; width: 100%; background: white; border: 1px solid #ddd; display: none; max-height: 150px; overflow-y: auto;"></div>
             </div>
         </div>
 
-        {% comment %} <!-- Temporary Selected Games List -->
+        
         <div class="selected-games">
             <h4>Selected Games</h4>
             <div id="selectedGamesContainer"></div>
-        </div> {% endcomment %}
+        </div>
 
         <!-- Submit Button -->
         <button onclick="submitList()" class="btn btn-primary">Submit</button>
@@ -74,33 +75,38 @@
 
         async function fetchGameSuggestions() {
             const query = document.getElementById('gameSearch').value;
+            console.log(query);
             if (!query) return;
-
-            const response = await fetch('https://api.igdb.com/v4/games', {
-                method: 'POST',
-                headers: {
-                    'Client-ID': 'your-client-id',  // Replace with your actual IGDB client ID
-                    'Authorization': 'Bearer your-access-token',  // Replace with your actual access token
-                    'Content-Type': 'text/plain'
-                },
-                body: `search "${query}"; fields name;`
-            });
-            const games = await response.json();
-            
-            // Display results
-            const dropdown = document.getElementById('gameDropdown');
-            dropdown.innerHTML = '';
-            games.slice(0, 5).forEach(game => {
-                const option = document.createElement('div');
-                option.className = 'search-result';
-                option.textContent = game.name;
+            fetch("{% url 'lists:search_igdb_games' %}", {
+                method: "POST",
+                body: new URLSearchParams({ 'query': query })
+              })
+              .then(response => 
+                  response.json().then(games => {
+                        const dropdown = document.getElementById('gameDropdown');
+                        console.log(dropdown);
+                        dropdown.innerHTML = '';
+                        games.forEach(game => {
+                            const option = document.createElement('div');
+                            option.className = 'search-result';
+                            option.textContent = game.name;
+                            dropdown.appendChild(option);
+                option.onclick = () => addGameToTmpList(game);
                 option.onclick = () => addGameToTmpList(game);
                 dropdown.appendChild(option);
+                            option.onclick = () => addGameToTmpList(game);
+                dropdown.appendChild(option);
+                        });
+                        dropdown.style.display = 'block';
+                  }))
+            .catch(error => {
+                    console.error('Error fetching game data:', error);
             });
-            dropdown.style.display = 'block';
+            
         }
 
         function addGameToTmpList(game) {
+            console.log(game);
             tmpList.push(game);
             updateSelectedGames();
             document.getElementById('gameDropdown').style.display = 'none';
