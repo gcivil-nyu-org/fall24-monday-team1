@@ -1,7 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 import json
 import boto3
@@ -9,6 +8,7 @@ from botocore.stub import Stubber
 import uuid
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
 
 class ListViewsTestCase(TestCase):
     def setUp(self):
