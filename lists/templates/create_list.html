@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Create List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'lists/styles.css' %}">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkpoint</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'userProfile:myProfile' %}">My Profile</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Create List Form -->
+    <div class="card">
+        <h2>Create New List</h2>
+        <div class="form-group">
+            <label for="listName">List Name</label>
+            <input type="text" id="listName" class="form-control" placeholder="Enter the name of the list">
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" class="form-control" placeholder="Enter description here"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="visibility">Visibility</label>
+            <select class="form-control" id="visibility">
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+                <option value="friends_only">Friends Only</option>
+            </select>
+        </div>
+
+        <!-- Game Search Field -->
+        <div class="form-group">
+            <label for="gameSearch">Add Game to List</label>
+            <div style="position: relative;">
+                <input type="text" id="gameSearch" class="form-control" placeholder="Search for a game">
+                <i class="fas fa-check" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="fetchGameSuggestions()"></i>
+                <div id="gameDropdown" style="position: absolute; width: 100%; background: white; border: 1px solid #ddd; display: none; max-height: 150px; overflow-y: auto;"></div>
+            </div>
+        </div>
+
+        
+        <div class="selected-games">
+            <h4>Selected Games</h4>
+            <div id="selectedGamesContainer"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <button onclick="submitList()" class="btn btn-primary">Submit</button>
+    </div>
+
+    <!-- JavaScript for Search and Selection -->
+    <script>
+        var gameList = [];
+
+        async function fetchGameSuggestions() {
+            const query = document.getElementById('gameSearch').value;
+            console.log(query);
+            if (!query) return;
+            fetch("{% url 'lists:search_igdb_games' %}", {
+                method: "POST",
+                body: new URLSearchParams({ 'query': query })
+              })
+              .then(response => 
+                  response.json().then(games => {
+                        const dropdown = document.getElementById('gameDropdown');
+                        console.log(dropdown);
+                        dropdown.innerHTML = '';
+                        games.forEach(game => {
+                            const option = document.createElement('div');
+                            option.className = 'search-result';
+                            option.textContent = game.name;
+                            dropdown.appendChild(option);
+                            option.onclick = () => addGameToTmpList(game);
+                        });
+                        dropdown.style.display = 'block';
+                }))
+                .catch(error => {
+                        console.error('Error fetching game data:', error);
+                });
+                updateSelectedGames();
+            
+        }
+
+        function addGameToTmpList(game) {
+            if (!gameList.some(g => g.id === game.id)) {
+                gameList.push(game);
+                
+                const gameItem = document.createElement('div');
+                gameItem.className = 'selected-game';
+                
+                gameItem.innerHTML = `
+                    <span>${game.name}</span>
+                    <i class="fas fa-times remove-icon" title="Remove" onclick="removeGameFromTmpList(${game.id})"></i>
+                `;
+        
+                document.getElementById('selectedGamesContainer').appendChild(gameItem);
+                const dropdown = document.getElementById('gameDropdown');
+                dropdown.innerHTML = '';
+                document.getElementById('gameSearch').value = '';
+                updateSelectedGames();
+            }
+        }
+
+        function removeGameFromTmpList(gameId) {
+            gameList = gameList.filter(game => game.id !== gameId);
+        
+            const gameItem = document.querySelector(`#selectedGamesContainer .selected-game[data-id="${gameId}"]`);
+            if (gameItem) {
+                gameItem.remove();
+            }
+            updateSelectedGames();
+        }
+
+        function updateSelectedGames() {
+            const container = document.getElementById('selectedGamesContainer');
+            container.innerHTML = '';
+            gameList.forEach(game => {
+                const gameItem = document.createElement('div');
+                gameItem.className = 'selected-game';
+                gameItem.innerHTML = `
+                    <span>${game.name}</span>
+                    <i class="fas fa-times remove-icon" title="Remove" onclick="removeGameFromTmpList(${game.id})"></i>
+                `;
+                container.appendChild(gameItem);
+            });
+        }
+
+        function submitList() {
+            const name = document.getElementById('listName').value;
+            const description = document.getElementById('description').value;
+            const visibility = document.getElementById('visibility').value;
+            // Display data in console for debugging
+            var gameIds=[];
+            gameList.forEach(game=> {
+                gameIds.push(game.id);
+            });
+
+            fetch("{% url 'lists:save_list' %}", {
+                method: "POST",
+                body: new URLSearchParams({ 
+                    'name': name,
+                    'description': description,
+                    'visibility': visibility,
+                    'games[]': gameIds })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.status === 'success') {
+                    alert("List created successfully!"); 
+                    window.location.assign("{% url 'userProfile:myProfile' %}");
+                    {% comment %} TODO: change the redirect to user Lists page {% endcomment %}
+
+                }else{
+                    alert("List creation failed, something went wrong! Try again."); 
+                }
+                });
+              
+            
+        }
+    </script>
+
+</body>
+</html>

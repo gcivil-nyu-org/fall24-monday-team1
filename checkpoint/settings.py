@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'gamesearch',
     'comments',
     'events',
+    'lists'
 ]
 
 MIDDLEWARE = [
