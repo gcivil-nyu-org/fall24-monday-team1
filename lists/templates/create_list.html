@@ -164,11 +164,19 @@
                     'visibility': visibility,
                     'games[]': gameIds })
               })
-              .then(response => {
-                console.log(response);
-              });
+              .then(response => response.json())
+              .then(data => {
+                if (data.status === 'success') {
+                    alert("List created successfully!"); 
+                    window.location.assign("{% url 'userProfile:myProfile' %}");
+                    {% comment %} TODO: change the redirect to user Lists page {% endcomment %}
+
+                }else{
+                    alert("List creation failed, something went wrong! Try again."); 
+                }
+                });
+              
             
-            {% comment %} alert("List created successfully!"); {% endcomment %}
         }
     </script>
 

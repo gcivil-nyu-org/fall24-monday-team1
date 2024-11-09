@@ -1,4 +1,3 @@
-import urllib.parse
 from django.shortcuts import render
 import requests
 from django.http import JsonResponse
@@ -6,8 +5,8 @@ import os
 from gamesearch.views import authorize_igdb
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-import json
 import boto3
+import uuid
 import urllib
 
 @login_required
@@ -52,6 +51,7 @@ def save_list(request):
 
             # Prepare the item to be saved in DynamoDB
             item = {
+                'listId': str(uuid.uuid4()),
                 'username': username,
                 'name': data['name'],
                 'description': data['description'],
@@ -63,10 +63,12 @@ def save_list(request):
                 table.put_item(Item=item)
             except Exception as e:
                 print(e)
+                return JsonResponse({'status': 'failedToPutToDynamo'})
 
-            return JsonResponse({"message": "List saved successfully!"}, status=200)
+
+            return JsonResponse({'status': 'success'})
         
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse({"status": "error"})
     else:
-        return JsonResponse({"error": "Invalid request method."}, status=400)
+        return JsonResponse({"status": "error"})
