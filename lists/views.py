@@ -55,9 +55,9 @@ def save_list(request):
             item = {
                 'listId': str(uuid.uuid4()),
                 'username': username,
-                'name': data['name'],
-                'description': data['description'],
-                'visibility': data['visibility'],
+                'name': data['name'][0],
+                'description': data['description'][0],
+                'visibility': data['visibility'][0],
                 'games': data['games[]']
             }
             g = []
@@ -98,21 +98,22 @@ def get_lists(request):
     page = int(request.GET.get('page', 1))
     page_size = 10
 
+    print(tab)
     if tab == 'my':
         filter_expression = Attr('username').eq(request.user.username)
     elif tab == 'discover':
-        filter_expression = Attr('visbility').eq('public') & Attr('username').ne(request.user.username)
+        filter_expression = Attr('visibility').eq('public')
 
 
     response = table.scan(
         FilterExpression=filter_expression,
         Limit=page_size,
-        ExclusiveStartKey={'listId': page - 1} if page > 1 else None
     )
 
 
     
     lists = response.get('Items', [])
+    print(lists)
     has_more = 'LastEvaluatedKey' in response
 
     data = {
