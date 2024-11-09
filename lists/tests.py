@@ -1,13 +1,12 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory 
 from django.urls import reverse
-from unittest.mock import patch, MagicMock
-from django.http import JsonResponse
+from unittest.mock import patch
 import json
-import boto3
-from botocore.stub import Stubber
-import uuid
 from django.contrib.auth import get_user_model
 from lists.views import get_lists
+
+
+
 User = get_user_model()
 
 
@@ -77,7 +76,6 @@ class ListViewsTestCase(TestCase):
             self.assertEqual(response.json().get('status'), 'error')
 
 
-from django.test import TestCase, RequestFactory
 
 class GetListsTestCase(TestCase):
     @classmethod
