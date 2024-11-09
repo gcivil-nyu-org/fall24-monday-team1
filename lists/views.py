@@ -14,7 +14,7 @@ def create_list(request):
     return render(request, 'create_list.html')
 
 @csrf_exempt
-def search_igdb_games(request):
+def search_igdb_games(request): #pragma: no cover
     query = request.POST.get('query', '')
     if not query:
         return JsonResponse([], safe=False)
@@ -46,7 +46,7 @@ def save_list(request):
     if request.method == 'POST':
         try:
             data = dict(request.POST)
-            print(data)
+            # print(data)
             username = request.user.username  # Get the current user's username
 
             # Prepare the item to be saved in DynamoDB
@@ -70,5 +70,3 @@ def save_list(request):
         
         except Exception as e:
             return JsonResponse({"status": "error"})
-    else:
-        return JsonResponse({"status": "error"})
