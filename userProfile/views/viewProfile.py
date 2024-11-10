@@ -16,19 +16,38 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 def viewProfile(request, user_id):
-    # Retrieve the user profile based on the user_id
-    profile = get_object_or_404(UserProfile, user__id=user_id)
-
-    viewable = False
-
-    if (profile.user == request.user):
-        viewable = True
-    if (profile.privacy_setting == "public"):
-        viewable = True
-    if (profile.privacy_setting == "friends_only"):
-        pass
+    profile = get_object_or_404(UserProfile, user_id=user_id)
     
-    # Prepare the context with the profile data
+    # Initialize variables
+    is_own_profile = request.user.id == user_id
+    is_friend = False
+    has_sent_request = False
+    has_received_request = False
+    viewable = False
+    friends = []
+
+    if request.user.is_authenticated:
+        friends = FriendRequest.get_friends(request.user.username)
+        
+        if not is_own_profile:
+            # Check friendship status
+            is_friend = any(friend['username'] == profile.user.username for friend in friends)
+            
+            # Check for sent requests
+            sent_requests = FriendRequest.get_sent_requests(request.user.username)
+            has_sent_request = any(req['to_user'] == profile.user.username for req in sent_requests)
+            
+            # Check for received requests
+            received_requests = FriendRequest.get_pending_requests(request.user.username)
+            has_received_request = any(req['from_user'] == profile.user.username for req in received_requests)
+
+    # Check profile visibility
+    if is_own_profile or profile.privacy_setting == "public":
+        viewable = True
+    elif profile.privacy_setting == "friends_only" and is_friend:
+        viewable = True
+
+    # Prepare gaming usernames
     gaming_usernames = None
     if profile.gaming_usernames:
         try:
@@ -36,50 +55,46 @@ def viewProfile(request, user_id):
         except TypeError:
             gaming_usernames = profile.gaming_usernames
 
+    # Create context with all necessary data
     context = {
         'profile': profile,
         'viewable': viewable,
         'gaming_usernames': gaming_usernames,
-        'own' : profile.user == request.user,
-        'loginIn' : request.user.is_authenticated,
-        'curPath' : reverse('userProfile:viewProfile', args=[profile.user.pk]),
+        'own': is_own_profile,
+        'is_own_profile': is_own_profile,
+        'is_friend': is_friend,
+        'has_sent_request': has_sent_request,
+        'has_received_request': has_received_request,
+        'loginIn': request.user.is_authenticated,
+        'friends': friends,
+        'curPath': reverse('userProfile:viewProfile', args=[profile.user.pk]),
     }
 
-    dynamodb = boto3.resource(
-        'dynamodb',
-        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-        region_name='us-east-1'
-    )
-    # Reference the DynamoDB table
-    table = dynamodb.Table('user-shelves')
+    # Add user games to context
     try:
-        response = table.get_item(Key={'user_id' : profile.user.username})
+        dynamodb = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name='us-east-1'
+        )
+        table = dynamodb.Table('user-shelves')
+        response = table.get_item(Key={'user_id': profile.user.username})
         if 'Item' in response:
             user_games = response['Item']
             del user_games["user_id"]
             context['user_games'] = user_games
         else:
-            # print("no games were found for this user!")
             context['user_games'] = {
-                    'want-to-play': [],
-                    'completed': [],
-                    "abandoned": [],
-                    "playing": [],
-                    "paused": []
+                'want-to-play': [],
+                'completed': [],
+                "abandoned": [],
+                "playing": [],
+                "paused": []
             }
     except Exception as e:
         print(e)
-    # print(context)
-    # Add friends list to context
-    friends = []
-    if request.user.is_authenticated:
-        friends = FriendRequest.get_friends(request.user.username)
 
-    context.update({
-        'friends': friends,
-        'is_friend': profile.user.username in friends if friends else False,
-    })
     return render(request, 'profileView.html', context)
 
 @login_required

@@ -3,6 +3,7 @@ import boto3
 import os
 from botocore.exceptions import ClientError
 from datetime import datetime
+from django.contrib.auth import get_user_model
 
 class FriendRequest:
     @staticmethod
@@ -41,6 +42,21 @@ class FriendRequest:
                     AttributeDefinitions=[
                         {'AttributeName': 'to_user', 'AttributeType': 'S'},
                         {'AttributeName': 'from_user', 'AttributeType': 'S'}
+                    ],
+                    GlobalSecondaryIndexes=[
+                        {
+                            'IndexName': 'from_user-index',
+                            'KeySchema': [
+                                {'AttributeName': 'from_user', 'KeyType': 'HASH'},
+                            ],
+                            'Projection': {
+                                'ProjectionType': 'ALL'
+                            },
+                            'ProvisionedThroughput': {
+                                'ReadCapacityUnits': 5,
+                                'WriteCapacityUnits': 5
+                            }
+                        }
                     ],
                     ProvisionedThroughput={
                         'ReadCapacityUnits': 5,
@@ -118,18 +134,24 @@ class FriendRequest:
             return False
 
     @staticmethod
-    def get_pending_requests(user):
+    def get_pending_requests(username):
         table = FriendRequest.get_friend_requests_table()
         try:
             response = table.query(
                 KeyConditionExpression='to_user = :user',
                 FilterExpression='#status = :status',
                 ExpressionAttributeNames={'#status': 'status'},
-                ExpressionAttributeValues={':user': user, ':status': 'pending'}
+                ExpressionAttributeValues={':user': username, ':status': 'pending'}
             )
-            return response['Items']
-        except ClientError as e:
-            print(e.response['Error']['Message'])
+            requests = response.get('Items', [])
+            # Enhance each request with user info
+            for request in requests:
+                user_info = FriendRequest.get_user_info(request['from_user'])
+                if user_info:
+                    request['from_user_id'] = user_info['id']
+            return requests
+        except Exception as e:
+            print(f"Error getting pending requests: {e}")
             return []
 
     @staticmethod
@@ -192,26 +214,68 @@ class FriendRequest:
                     ':username': username
                 }
             )
-            friends = [item['friend'] for item in response.get('Items', [])]
-            print(f"Found friends: {friends}")  # Debug print
-            return friends
+            # Get friend usernames
+            friend_usernames = [item['friend'] for item in response.get('Items', [])]
+            
+            # Get user IDs for each friend
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            friends_with_ids = []
+            for friend_username in friend_usernames:
+                try:
+                    friend = User.objects.get(username=friend_username)
+                    friends_with_ids.append({
+                        'username': friend_username,
+                        'id': friend.id
+                    })
+                except User.DoesNotExist:
+                    continue
+            
+            return friends_with_ids
         except Exception as e:
             print(f"Error getting friends: {e}")
             return []
         
 
     @staticmethod
-    def get_sent_requests(user):
+    def get_sent_requests(username):
         table = FriendRequest.get_friend_requests_table()
         try:
             response = table.query(
-                IndexName='from_user-index',
+                IndexName='from_user-index',  # You'll need to create this index
                 KeyConditionExpression='from_user = :user',
                 FilterExpression='#status = :status',
                 ExpressionAttributeNames={'#status': 'status'},
-                ExpressionAttributeValues={':user': user, ':status': 'pending'}
+                ExpressionAttributeValues={':user': username, ':status': 'pending'}
             )
-            return response['Items']
-        except ClientError as e:
-            print(e.response['Error']['Message'])
+            return response.get('Items', [])
+        except Exception as e:
+            print(f"Error getting sent requests: {e}")
             return []
+
+    @staticmethod
+    def get_user_info(username):
+        User = get_user_model()
+        try:
+            user = User.objects.get(username=username)
+            return {
+                'id': user.id,
+                'username': user.username
+            }
+        except User.DoesNotExist:
+            return None
+
+    @staticmethod
+    def cancel_request(from_user, to_user):
+        table = FriendRequest.get_friend_requests_table()
+        try:
+            table.delete_item(
+                Key={
+                    'from_user': from_user,
+                    'to_user': to_user
+                }
+            )
+            return True
+        except ClientError as e:
+            print(f"Error cancelling friend request: {e.response['Error']['Message']}")
+            return False

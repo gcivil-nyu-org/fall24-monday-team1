@@ -2,12 +2,39 @@
 {% load static %}
 
 {% block content %}
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 100%;
+    }
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        flex-grow: 1;
+    }
+    .card-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin: 0 auto 15px;
+    }
+</style>
+
 <div class="container mt-4">
     <h2>Search Users</h2>
     
     <form method="GET" action="{% url 'userProfile:searchProfile' %}" class="mb-4">
         <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search by name or username..." value="{{ query }}">
+            <input type="text" name="q" class="form-form-control mr-2" placeholder="Search by name or username..." value="{{ query }}">
+            <select name="role" class="form-form-control mr-2">
+                <option value="">All Roles</option>
+                <option value="gamer" {% if request.GET.role == 'gamer' %}selected{% endif %}>Gamer</option>
+                <option value="creator" {% if request.GET.role == 'creator' %}selected{% endif %}>Creator</option>
+                <option value="event_organizer" {% if request.GET.role == 'event_organizer' %}selected{% endif %}>Event Organizer</option>
+            </select>
             <div class="input-group-append">
                 <button class="btn btn-primary" type="submit">
                     <i class="fas fa-search"></i> Search
@@ -19,15 +46,21 @@
     {% if user_profiles %}
         <div class="row">
             {% for profile in user_profiles %}
-                <div class="col-md-4 mb-3">
+                <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ profile.display_name }}</h5>
-                            <p class="text-muted">@{{ profile.user.username }}</p>
-                            <p class="card-text">
-                                <small class="text-muted">{{ profile.account_role }}</small>
-                            </p>
-                            <a href="{% url 'userProfile:viewProfile' profile.user.id %}" class="btn btn-primary">View Profile</a>
+                        <div class="card-body text-center">
+                            <img
+                                {% if profile.profile_photo %}
+                                src="{{ profile.profile_photo.url }}"
+                                {% else %}
+                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                {% endif %}
+                                alt="avatar"
+                                class="rounded-circle card-img"
+                            />
+                            <h5 class="my-3">{{ profile.display_name }}</h5>
+                            <p class="text-muted mb-1 cap-text">{{ profile.account_role }}</p>
+                            <a href="{% url 'userProfile:viewProfile' profile.user.id %}" class="btn btn-primary mt-2">View Profile</a>
                         </div>
                     </div>
                 </div>

@@ -9,4 +9,5 @@ urlpatterns = [
     path('send-request/<str:to_user>/', views.send_friend_request, name='send_request'),
     path('accept-request/<str:from_user>/', views.accept_friend_request, name='accept_request'),
     path('reject-request/<str:from_user>/', views.reject_friend_request, name='reject_request'),
+    path('cancel-request/<str:to_user>/', views.cancel_friend_request, name='cancel_request'),
 ]

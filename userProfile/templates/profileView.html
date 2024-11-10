@@ -96,13 +96,17 @@
                 {% endif %}
                 {% if loginIn and not own %}
                   <div class="friend-request-section">
-                      {% if not is_friend %}
+                      {% if is_friend %}
+                          <button class="btn btn-success" disabled>Already Friends</button>
+                      {% elif has_sent_request %}
+                          <button class="btn btn-secondary" disabled>Friend Request Sent</button>
+                      {% elif has_received_request %}
+                          <button class="btn btn-info" disabled>Friend Request Received</button>
+                      {% else %}
                           <form method="post" action="{% url 'friends:send_request' profile.user.username %}" class="d-inline">
                               {% csrf_token %}
                               <button type="submit" class="btn btn-primary">Send Friend Request</button>
                           </form>
-                      {% else %}
-                          <button class="btn btn-success" disabled>Already Friends</button>
                       {% endif %}
                   </div>
               {% endif %}
@@ -266,16 +270,24 @@
                         'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
                     },
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.status === 'success') {
-                        const button = this.querySelector('button');
-                        button.className = 'btn btn-success';
-                        button.disabled = true;
-                        button.textContent = 'Friend Request Sent';
+                        const buttonContainer = this.parentElement;
+                        buttonContainer.innerHTML = '<button class="btn btn-secondary" disabled>Friend Request Pending</button>';
+                    } else {
+                        alert('Failed to send friend request: ' + data.message);
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to send friend request. Please try again.');
+                });
             });
         });
     });
