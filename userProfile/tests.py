@@ -78,11 +78,22 @@ class UserProfileListViewTests(TestCase):
         UserProfile.objects.create(user=self.user2, display_name="Jane Smith", privacy_setting="private", account_role="creator")
         UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
+        # Explicitly log in the test client
+        login_successful = self.client.login(
+            username='testuser1',
+            password='testpass'
+        )
+        if not login_successful:
+            raise Exception("Failed to log in test user")
+
     def test_no_filters_applied(self):
         """
         Test that without any filters, all public profiles are shown
         (excluding the logged-in user's profile)
         """
+        # Verify we're logged in
+        self.assertTrue(self.client.session.get('_auth_user_id'))
+        
         response = self.client.get(reverse('userProfile:searchProfile'))
         self.assertEqual(response.status_code, 200)
         
