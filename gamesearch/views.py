@@ -89,7 +89,16 @@ def search_game(request):
 
 
 def game_details_view(request, game_id):
-    return render(request, 'game_details.html', {'game_id': game_id, 'curPath' : reverse('gamesearch:game-details', args=[game_id])})
+    # print(request.GET.get('shelf'), request.GET.get('own'))
+    try:
+        shelf = request.GET.get('shelf')
+        own = request.GET.get('own').replace("$",'')
+        showReviewBox = shelf=="completed" and own=="True"
+        return render(request, 'game_details.html', {'game_id': game_id, 'showReviewBox': showReviewBox ,'curPath' : reverse('gamesearch:game-details', args=[game_id])})
+    except Exception as e:
+        print(e)
+        return render(request, 'game_details.html', {'game_id': game_id, 'curPath' : reverse('gamesearch:game-details', args=[game_id])})
+    
 
 def game_data_fetch_view(request, game_id):
     auth = authorize_igdb()
@@ -128,6 +137,7 @@ def game_data_fetch_view(request, game_id):
             data[key] = value
 
     # print(data)
+    data["yapi"] = os.getenv("YOUTUBE_API_KEY")
     return JsonResponse(data)
 
 

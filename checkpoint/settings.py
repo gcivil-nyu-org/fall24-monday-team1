@@ -26,12 +26,15 @@ SECRET_KEY = 'django-insecure-mlg)s414krx#)ratx2&u_%9d=7y+^nx#$*zu2#wp4smioi=x6c
 
 
 # USE THIS FOR PROD:
-# DEBUG=False
-# ALLOWED_HOSTS = ['checkpoint.eba-4drvums3.us-east-1.elasticbeanstalk.com','172.31.16.114']
+ENV = os.getenv("ENV_NAME")
 
- # USE THIS FOR DEV:
-DEBUG = True
-ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
+if ENV == "PROD":
+    DEBUG=False
+    ALLOWED_HOSTS = ['checkpoint.eba-4drvums3.us-east-1.elasticbeanstalk.com','172.31.16.114']
+
+elif not ENV or ENV=="DEV":
+    DEBUG = True
+    ALLOWED_HOSTS = ['chkpnt-env.eba-4drvums3.us-east-1.elasticbeanstalk.com', '127.0.0.1', '44.195.212.15']
 
 
 # Application definition
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'comments',
     'events',
     'friends',
+    'lists'
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Create List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'lists/lists.css' %}">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkpoint</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'userProfile:myProfile' %}">My Profile</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="tabs mt-5">
+            <button id="myListsTab" class="btn btn-primary tab-button active" onclick="fetchLists('my')">My Lists</button>
+            <button id="discoverListsTab" class="btn btn-primary tab-button ml-2" onclick="fetchLists('discover')">Discover Lists</button>
+            <a href="{% url 'lists:create_list'%}" class="btn btn-primary tab-button ml-2">Make a new Game List</a>
+        </div>
+
+        <div id="listContainer" class="list-container mt-4">
+            <!-- Cards will be populated here dynamically -->
+        </div>
+
+        <button id="loadMoreBtn" class="btn btn-success mt-3" onclick="loadMore()">Load More</button>
+    </div>
+
+    <script>
+        let currentTab = 'my';
+        let lastKey = null; // Initial lastKey is null for the first request
+        let isLoading = false;
+
+        function fetchLists(tab) {
+            currentTab = tab;
+            lastKey = null; // Reset lastKey for a new tab
+            document.getElementById("listContainer").innerHTML = ''; // Clear list container
+            document.getElementById("loadMoreBtn").style.display = 'block';
+            loadMore();
+        }
+
+        function loadMore() {
+            if (isLoading) return; // Prevent multiple concurrent requests
+            isLoading = true;
+
+            // Fetch the lists with the current tab and lastKey
+            fetch(`{% url 'lists:get_lists' %}?tab=${currentTab}&last_key=${lastKey || ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.lists.length === 0 && !lastKey) {
+                        document.getElementById("listContainer").innerHTML = '<p>Nothing to see here!</p>';
+                        document.getElementById("loadMoreBtn").style.display = 'none';
+                    } else {
+                        // Append the new lists
+                        let deleteButtonHTML = '';
+                        if (currentTab === 'my') {
+                            deleteButtonHTML = `
+                                <button class="btn btn-danger btn-sm float-right delete-btn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                        }
+                        data.lists.forEach(list => {
+                            const listCard = document.createElement('div');
+                            listCard.className = 'list-card card mt-3';
+                            listCard.innerHTML = `
+                                <div class="card-body">
+                                    <h5 class="card-title"><strong>${list.name}</strong></h5> ${deleteButtonHTML}
+                                    <p class="card-text">${list.description}</p>
+                                    <p class="card-text"><strong>Creator:</strong> ${list.creator}</p> 
+                                    <p class="card-text"><strong>Games:</strong> ${list.games_count}</p>
+                                </div>
+                            `;
+                            document.getElementById("listContainer").appendChild(listCard);
+
+                            if (currentTab === 'my') {
+                                listCard.querySelector('.delete-btn').addEventListener('click', () => {
+                                    console.log(`Need to delete this list: ${list.id}`);
+                                    fetch("{% url 'lists:delete_list' %}", {
+                                        method: "POST",
+                                        body: new URLSearchParams({ 'listID': list.id })
+                                      })
+                                      .then(response => 
+                                          response.json().then(data => {
+                                                alert(data.details);
+                                                window.location.assign("{% url 'lists:view_lists' %}");
+                                        }))
+                                        .catch(error => {
+                                                console.error('Error fetching game data:', error);
+                                        });
+                                      
+                                });
+                            }
+
+                        });
+
+                        // Update lastKey and has_more
+                        lastKey = data.last_key || null; // Set new lastKey or null if there's no more data
+                        if (!data.has_more) {
+                            document.getElementById("loadMoreBtn").style.display = 'none';
+                        }
+                    }
+                    isLoading = false;
+                })
+                .catch(error => {
+                    console.error("Error fetching lists:", error);
+                    isLoading = false;
+                });
+        }       
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchLists('my');
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,11 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Event</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Checkpoint</a>
+        <div class="collapse navbar-collapse justify-content-end">
+          <ul class="navbar-nav">
+            {% if loginIn %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
     <div class="container mt-5">
         <h1 class="mb-4">Create Event</h1>
-        <form method="POST" action="{% url 'create_event' %}">
+        <form method="POST" action="{% url 'events:create_event' %}" onsubmit="return validateDates()">
             {% csrf_token %}
             <div class="form-group">
                 <label for="eventTitle" class="form-label">Event Title</label>
@@ -21,11 +50,11 @@
             </div>
             <div class="form-group">
                 <label for="eventStartTime" class="form-label">Start Time</label>
-                <input type="datetime-local" class="form-control" id="eventStartTime" name="start_time" required>
+                <input type="datetime-local" class="form-control" id="eventStartTime" name="start_time" required min="2000-01-01T00:00" max="3000-12-31T23:59">
             </div>
             <div class="form-group">
                 <label for="eventEndTime" class="form-label">End Time</label>
-                <input type="datetime-local" class="form-control" id="eventEndTime" name="end_time" required>
+                <input type="datetime-local" class="form-control" id="eventEndTime" name="end_time" required min="2000-01-01T00:00" max="3000-12-31T23:59">
             </div>
             <div class="form-group">
                 <label for="eventLocation" class="form-label">Location</label>
@@ -33,10 +62,22 @@
             </div>
             <button type="submit" class="btn btn-primary">Create Event</button>
         </form>
-        <a href="{% url 'event_list' %}" class="btn btn-link">Back to Event List</a>
+        <a href="{% url 'events:event_list' %}" class="btn btn-link">Back to Event List</a>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function validateDates() {
+            const startTime = new Date(document.getElementById('eventStartTime').value);
+            const endTime = new Date(document.getElementById('eventEndTime').value);
+            if (endTime <= startTime) {
+                alert('End Time must be later than Start Time.');
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>

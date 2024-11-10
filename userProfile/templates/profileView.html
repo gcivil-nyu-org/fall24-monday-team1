@@ -25,10 +25,16 @@
           <ul class="navbar-nav">
             {% if loginIn %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
+              <a class="nav-link" href="{% url 'lists:view_lists' %}">View your Game Lists</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'events:event_list' %}">View your Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
@@ -226,6 +232,12 @@
         gameListDiv.innerHTML = '<p class="text-muted"> Nothing to see here! </p>'
         return;
       }else{
+        gameListDiv.innerHTML = `<div id="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            {% comment %} <span class="visually-hidden">Loading...</span> {% endcomment %}
+                        </div>
+                        <p>Fetching games...</p>
+                    </div>`
         const gameIdString = `(${gameIds.join(',')})`;
         console.log(gameIdString);  
         fetch("{% url 'userProfile:fetch_game_details' %}", {
@@ -239,7 +251,7 @@
                 <div class="game-grid">
                   ${gameDetails.map(game => `
                     <div class="game-item">
-                    <a href="${game.redirect_url}">
+                    <a href="${game.redirect_url}?shelf=${shelf}&own={{own}}">
                       <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
                     </a>
                       </div>

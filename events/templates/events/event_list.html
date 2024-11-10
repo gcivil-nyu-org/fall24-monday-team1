@@ -47,14 +47,14 @@
 
     <div class="container mt-5">
         <h1 class="mb-4">Event List</h1>
-        <a href="{% url 'create_event' %}" class="btn btn-success mb-3">Create New Event</a>
+        <a href="{% url 'events:create_event' %}" class="btn btn-success mb-3">Create New Event</a>
         <div class="row">
             {% for event in page_obj %}
                 <div class="col-md-4 mb-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">{{ event.title }}</h5>
-                            <p class="card-text"><strong>Created by:</strong> {{ event.creator.username }}</p>
+                            <!-- <p class="card-text"><strong>Created by:</strong> {{ event.creator_user.username }}</p> -->
                             <p class="card-text"><strong>Starts at:</strong> {{ event.start_time }}</p>
                             <p class="card-text"><strong>Ends at:</strong> {{ event.end_time }}</p>
                             <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
