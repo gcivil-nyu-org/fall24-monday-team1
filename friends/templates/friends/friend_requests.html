@@ -2,72 +2,81 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2>Friend Requests</h2>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        height: 100%;
+    }
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        flex-grow: 1;
+    }
+    .card-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin: 0 auto 15px;
+    }
+    .request-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    .text-white {
+        color: white !important;
+    }
+    h2, h3, h4, p {
+        color: white;
+    }
+</style>
 
-    {% if error_message %}
-        <div class="alert alert-danger" role="alert">
-            {{ error_message }}
-        </div>
-    {% endif %}
+<div class="container py-5">
+    <h2 class="text-center mb-4 text-white">Friend Requests</h2>
 
     {% if not received_requests and not sent_requests %}
         <div class="text-center mt-5">
-            <h4>You're All Caught Up!</h4>
-            <p class="text-muted">No pending friend requests at the moment</p>
-            <a href="{% url 'userProfile:searchProfile' %}" class="btn btn-primary mt-3">
-                <i class="fas fa-search mr-2"></i>Find Users
-            </a>
+            <div class="empty-state">
+                <i class="fas fa-envelope fa-3x mb-3 text-white"></i>
+                <h4 class="text-white">You're All Caught Up!</h4>
+                <p class="text-white mb-3">No pending friend requests at the moment</p>
+                <a href="{% url 'userProfile:searchProfile' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-search mr-2"></i>Find Users
+                </a>
+            </div>
         </div>
     {% else %}
-        <!-- Received Requests Section -->
         {% if received_requests %}
-            <h3>Received Requests</h3>
-            <ul class="list-group mb-4">
-            {% for request in received_requests %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{% url 'userProfile:viewProfile' request.from_user_id %}">
-                        {{ request.from_user }}
-                    </a>
-                    <div>
-                        <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
-                        </form>
-                        <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                        </form>
+            <h3 class="mb-4 text-white">Received Requests</h3>
+            <div class="row">
+                {% for request in received_requests %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <img
+                                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                    alt="avatar"
+                                    class="rounded-circle card-img"
+                                />
+                                <h5 class="my-3 text-white">{{ request.from_user }}</h5>
+                                <div class="request-buttons">
+                                    <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success">Accept</button>
+                                    </form>
+                                    <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-
-        <!-- Sent Requests Section -->
-        {% if sent_requests %}
-            <h3>Sent Requests</h3>
-            <ul class="list-group">
-            {% for request in sent_requests %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{% url 'userProfile:viewProfile' request.to_user_id %}">
-                        {{ request.to_user }}
-                    </a>
-                    <form method="post" action="{% url 'friends:cancel_request' request.to_user %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-warning btn-sm">Cancel Request</button>
-                    </form>
-                </li>
-            {% endfor %}
-            </ul>
+                {% endfor %}
+            </div>
         {% endif %}
     {% endif %}
 </div>

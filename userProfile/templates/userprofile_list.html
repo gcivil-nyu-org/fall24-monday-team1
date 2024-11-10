@@ -19,19 +19,22 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Checkpoint</a>
+        <a class="navbar-brand text-white" href="#">Checkpoint</a>
         <div class="collapse navbar-collapse justify-content-end">
           <ul class="navbar-nav">
             {% if loginIn %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              <a class="nav-link text-white" href="{% url 'userProfile:myProfile' %}">My Profile</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="{% url 'logout' %}">Logout</a>
             </li>
             {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
+              <a class="nav-link text-white" href="{% url 'login' %}">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+              <a class="nav-link text-white" href="{% url 'signup' %}">Sign Up</a>
             </li>
             {% endif %}
           </ul>
