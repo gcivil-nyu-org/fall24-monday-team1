@@ -118,10 +118,11 @@ def get_lists(request):
     
     lists = response.get('Items', [])
     has_more = 'LastEvaluatedKey' in response
-
+    # print(lists)
     data = {
         'lists': [
             {
+                'id': item['listId'],
                 'name': item['name'],
                 'description': item['description'],
                 'creator': item['username'],
@@ -134,3 +135,19 @@ def get_lists(request):
     }
 
     return JsonResponse(data)
+
+@csrf_exempt
+def delete_list(request):
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('lists')
+    try:
+        table.delete_item(Key={"listId" : request.POST.get('listID', '')})
+        return JsonResponse({"message": "success", "details": "Successfully deleted list!"})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"message": "error", "details": "Failed to delete!"})
