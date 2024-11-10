@@ -279,3 +279,27 @@ class FriendRequest:
         except ClientError as e:
             print(f"Error cancelling friend request: {e.response['Error']['Message']}")
             return False
+
+    @staticmethod
+    def remove_friend(user1, user2):
+        friends_table = FriendRequest.get_friends_table()
+        try:
+            # Remove from first user's friends
+            friends_table.delete_item(
+                Key={
+                    'username': user1,
+                    'friend': user2
+                }
+            )
+            
+            # Remove from second user's friends
+            friends_table.delete_item(
+                Key={
+                    'username': user2,
+                    'friend': user1
+                }
+            )
+            return True
+        except ClientError as e:
+            print(f"Error removing friend: {e.response['Error']['Message']}")
+            return False

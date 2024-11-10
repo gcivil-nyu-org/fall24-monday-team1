@@ -97,7 +97,10 @@
                 {% if loginIn and not own %}
                   <div class="friend-request-section">
                       {% if is_friend %}
-                          <button class="btn btn-success" disabled>Already Friends</button>
+                          <form method="post" action="{% url 'friends:unfriend' profile.user.username %}" class="d-inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">Unfriend</button>
+                          </form>
                       {% elif has_sent_request %}
                           <button class="btn btn-secondary" disabled>Friend Request Sent</button>
                       {% elif has_received_request %}
@@ -279,14 +282,22 @@
                 .then(data => {
                     if (data.status === 'success') {
                         const buttonContainer = this.parentElement;
-                        buttonContainer.innerHTML = '<button class="btn btn-secondary" disabled>Friend Request Pending</button>';
+                        if (this.action.includes('unfriend')) {
+                            buttonContainer.innerHTML = `
+                                <form method="post" action="{% url 'friends:send_request' profile.user.username %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Send Friend Request</button>
+                                </form>`;
+                        } else {
+                            buttonContainer.innerHTML = '<button class="btn btn-secondary" disabled>Friend Request Pending</button>';
+                        }
                     } else {
-                        alert('Failed to send friend request: ' + data.message);
+                        alert('Failed to process request: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Failed to send friend request. Please try again.');
+                    alert('Failed to process request. Please try again.');
                 });
             });
         });

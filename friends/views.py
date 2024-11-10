@@ -138,3 +138,15 @@ def cancel_friend_request(request, to_user):
     except Exception as e:
         messages.error(request, f'Error cancelling friend request: {str(e)}')
         return redirect('friends:friend_requests')
+
+@login_required
+def unfriend(request, friend_username):
+    if request.method == 'POST':
+        try:
+            if FriendRequest.remove_friend(request.user.username, friend_username):
+                messages.success(request, f'Removed {friend_username} from friends.')
+            else:
+                messages.error(request, 'Failed to remove friend.')
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
