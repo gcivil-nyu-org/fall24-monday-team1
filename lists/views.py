@@ -118,7 +118,8 @@ def get_lists(request):
     
     lists = response.get('Items', [])
     has_more = 'LastEvaluatedKey' in response
-    # print(lists)
+    print(lists)
+    print(response.get('LastEvaluatedKey', {}))
     data = {
         'lists': [
             {

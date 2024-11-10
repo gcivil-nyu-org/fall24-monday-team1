@@ -105,19 +105,21 @@ class GetListsTestCase(TestCase):
             mock_table.scan.return_value = {
                 'Items': [
                     {
+                        'listId': '1',
                         'name': 'My List 1',
                         'description': 'A description',
                         'username': 'testuser',
                         'games': [{'id': 1}, {'id': 2}]
                     },
                     {
+                        'listId': '2',
                         'name': 'My List 2',
                         'description': 'Another description',
                         'username': 'testuser',
                         'games': [{'id': 3}]
                     }
                 ],
-                'LastEvaluatedKey': None  # No more pages
+                # 'LastEvaluatedKey': None  # No more pages
             }
 
             request = self.factory.get('/lists/?tab=my', HTTP_USER_AGENT='test')
@@ -143,19 +145,21 @@ class GetListsTestCase(TestCase):
             mock_table.scan.return_value = {
                 'Items': [
                     {
+                        'listId': '1',
                         'name': 'My List 1',
                         'description': 'A description',
                         'username': 'testuser',
                         'games': [{'id': 1}, {'id': 2}]
                     },
                     {
+                        'listId': '2',
                         'name': 'My List 2',
                         'description': 'Another description',
                         'username': 'testuser',
                         'games': [{'id': 3}]
                     }
                 ],
-                'LastEvaluatedKey': None  # No more pages
+                # 'LastEvaluatedKey': None  # No more pages
             }
 
             request = self.factory.get('/lists/?tab=discover', HTTP_USER_AGENT='test')
@@ -169,3 +173,48 @@ class GetListsTestCase(TestCase):
             data = json.loads(response.content)
             self.assertEqual(len(data['lists']), 2)
             self.assertEqual(data['lists'][0]['creator'], 'testuser')
+
+class DeleteListTestCase(TestCase):
+    def setUp(self):
+        # Set up the test client
+        self.client = Client()
+
+    def test_delete_list_success(self):
+        with patch('gamesearch.views.boto3.resource') as mock_dynamo:
+            mock_table = mock_dynamo.return_value.Table.return_value
+            mock_dynamo.return_value.Table.return_value = mock_table
+            # Mock the delete_item method to simulate successful deletion
+            mock_table.delete_item.return_value = {}
+
+            # Perform the delete request
+            response = self.client.post(reverse('lists:delete_list'), {'listID': 'test-list-id'})
+
+            # Check that delete_item was called with the correct parameters
+            mock_table.delete_item.assert_called_once_with(Key={"listId": 'test-list-id'})
+
+            # Check the response
+            self.assertEqual(response.status_code, 200)
+            self.assertJSONEqual(response.content, {
+                "message": "success",
+                "details": "Successfully deleted list!"
+            })
+    
+    def test_delete_list_failure(self):
+        with patch('gamesearch.views.boto3.resource') as mock_dynamo:
+            mock_table = mock_dynamo.return_value.Table.return_value
+            mock_dynamo.return_value.Table.return_value = mock_table
+            
+            mock_table.delete_item.side_effect = Exception("DynamoDB error")
+
+            # Perform the delete request
+            response = self.client.post(reverse('lists:delete_list'), {'listID': 'test-list-id'})
+
+            # Check that delete_item was called with the correct parameters
+            mock_table.delete_item.assert_called_once_with(Key={"listId": 'test-list-id'})
+
+            # Check the response
+            self.assertEqual(response.status_code, 200)
+            self.assertJSONEqual(response.content, {
+                "message": "error",
+                "details": "Failed to delete!"
+            })
