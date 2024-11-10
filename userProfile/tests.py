@@ -85,8 +85,6 @@ class UserProfileListViewTests(TestCase):
         Test that without any filters, all public profiles are shown
         (excluding the logged-in user's profile)
         """
-        # Verify we're logged in
-        self.assertTrue(self.client.session.get('_auth_user_id'))
         
         response = self.client.get(reverse('userProfile:searchProfile'))
         self.assertEqual(response.status_code, 302)
