@@ -95,20 +95,26 @@ def get_lists(request):
     table = dynamodb.Table('lists')
     tab = request.GET.get('tab', 'my')
     
-    page = int(request.GET.get('page', 1))
-    page_size = 10
+    page_size = 5  # Update to 5 items per page for pagination
+    last_key = request.GET.get('last_key', None)
 
+    # Filter based on tab type
     if tab == 'my':
         filter_expression = Attr('username').eq(request.user.username)
     elif tab == 'discover':
-        filter_expression = Attr('visibility').eq('public')
+        filter_expression = Attr('visibility').eq('public') & Attr('username').ne(request.user.username)
 
+    # Set up the parameters for scan with pagination
+    scan_params = {
+        'FilterExpression': filter_expression,
+        'Limit': page_size
+    }
 
-    response = table.scan(
-        FilterExpression=filter_expression,
-        Limit=page_size,
-    )
-    # TODO: Need to fix pagination!
+    # Add the ExclusiveStartKey for pagination if present
+    if last_key:
+        scan_params['ExclusiveStartKey'] = {'listId': last_key}
+
+    response = table.scan(**scan_params)
     
     lists = response.get('Items', [])
     has_more = 'LastEvaluatedKey' in response
@@ -123,7 +129,8 @@ def get_lists(request):
             }
             for item in lists
         ],
-        'has_more': has_more
+        'has_more': has_more,
+        'last_key': response.get('LastEvaluatedKey', {}).get('listId')
     }
-    
+
     return JsonResponse(data)

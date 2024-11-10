@@ -44,26 +44,31 @@
     </div>
 
     <script>
-        let currentPage = 1;
         let currentTab = 'my';
+        let lastKey = null; // Initial lastKey is null for the first request
+        let isLoading = false;
 
         function fetchLists(tab) {
             currentTab = tab;
-            currentPage = 1;
+            lastKey = null; // Reset lastKey for a new tab
             document.getElementById("listContainer").innerHTML = ''; // Clear list container
             document.getElementById("loadMoreBtn").style.display = 'block';
             loadMore();
         }
 
         function loadMore() {
-            fetch(`{% url 'lists:get_lists' %}?tab=${currentTab}&page=${currentPage}`)
+            if (isLoading) return; // Prevent multiple concurrent requests
+            isLoading = true;
+
+            // Fetch the lists with the current tab and lastKey
+            fetch(`{% url 'lists:get_lists' %}?tab=${currentTab}&last_key=${lastKey || ''}`)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.lists.length == 0){
-                        document.getElementById("listContainer").innerHTML = '<p> Nothing to see here! </p>';
+                    if (data.lists.length === 0 && !lastKey) {
+                        document.getElementById("listContainer").innerHTML = '<p>Nothing to see here!</p>';
                         document.getElementById("loadMoreBtn").style.display = 'none';
-                    }
-                    else{
+                    } else {
+                        // Append the new lists
                         data.lists.forEach(list => {
                             const listCard = document.createElement('div');
                             listCard.className = 'list-card card mt-3';
@@ -77,17 +82,20 @@
                             `;
                             document.getElementById("listContainer").appendChild(listCard);
                         });
-                        
 
-                        if (data.has_more) {
-                            currentPage++;
-                        } else {
+                        // Update lastKey and has_more
+                        lastKey = data.last_key || null; // Set new lastKey or null if there's no more data
+                        if (!data.has_more) {
                             document.getElementById("loadMoreBtn").style.display = 'none';
                         }
                     }
+                    isLoading = false;
                 })
-                .catch(error => console.error("Error fetching lists:", error));
-        }
+                .catch(error => {
+                    console.error("Error fetching lists:", error);
+                    isLoading = false;
+                });
+        }       
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchLists('my');
