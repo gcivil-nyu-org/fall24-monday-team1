@@ -27,6 +27,12 @@
               <a class="nav-link text-white" href="{% url 'userProfile:myProfile' %}">My Profile</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link text-white" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="{% url 'friends:friend_list' %}">My Friends</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link text-white" href="{% url 'logout' %}">Logout</a>
             </li>
             {% else %}

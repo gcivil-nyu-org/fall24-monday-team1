@@ -34,13 +34,13 @@
               <a class="nav-link" href="{% url 'events:event_list' %}">View your Events</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'friends:friend_list' %}">My Friends</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
             {% else %}
             <li class="nav-item">
