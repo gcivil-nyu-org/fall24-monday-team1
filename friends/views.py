@@ -12,7 +12,9 @@ def pending_friend_requests(request):
     try:
         pending_requests = FriendRequest.get_pending_requests(request.user.username)
         return render(request, 'friends/friend_requests.html', {
-            'received_requests': pending_requests
+            'received_requests': pending_requests,
+            'sent_requests': [],
+            'loginIn': True
         })
     except Exception as e:
         messages.error(request, f"Error loading friend requests: {str(e)}")
@@ -24,48 +26,27 @@ def friend_requests(request):
         # Get the current user's username
         username = request.user.username
         
-        # Get requests and print them for debugging
+        # Get requests
         received_requests = FriendRequest.get_pending_requests(username)
         sent_requests = FriendRequest.get_sent_requests(username)
         
-        print("Received requests:", received_requests)
-        print("Sent requests:", sent_requests)
-
-        # Enhance the requests with user IDs
-        enhanced_received = []
-        for req in received_requests:
-            try:
-                from_user = User.objects.get(username=req['from_user'])
-                req['from_user_id'] = from_user.id
-                enhanced_received.append(req)
-            except User.DoesNotExist:
-                print(f"User not found: {req['from_user']}")
-                continue
-
-        enhanced_sent = []
-        for req in sent_requests:
-            try:
-                to_user = User.objects.get(username=req['to_user'])
-                req['to_user_id'] = to_user.id
-                enhanced_sent.append(req)
-            except User.DoesNotExist:
-                print(f"User not found: {req['to_user']}")
-                continue
 
         context = {
-            'received_requests': enhanced_received,
-            'sent_requests': enhanced_sent,
+            'received_requests': received_requests,
+            'sent_requests': sent_requests,
             'loginIn': True,
             'error_message': None
         }
+        
         return render(request, 'friends/friend_requests.html', context)
+        
     except Exception as e:
-        print(f"Error in friend_requests view: {str(e)}")
+        messages.error(request, f"Error loading friend requests: {str(e)}")
         context = {
             'received_requests': [],
             'sent_requests': [],
             'loginIn': True,
-            'error_message': f"Error loading friend requests: {str(e)}"
+            'error_message': str(e)
         }
         return render(request, 'friends/friend_requests.html', context)
 
@@ -120,6 +101,7 @@ def friend_list(request):
             'loginIn': True
         })
     except Exception as e:
+        messages.error(request, f"Error loading friends list: {str(e)}")
         return render(request, 'friends/friends_list.html', {
             'friends': [],
             'loginIn': True,

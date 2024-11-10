@@ -136,22 +136,18 @@ class FriendRequest:
     @staticmethod
     def get_pending_requests(username):
         table = FriendRequest.get_friend_requests_table()
+        if not table:
+            return []
+        
         try:
             response = table.query(
-                KeyConditionExpression='to_user = :user',
-                FilterExpression='#status = :status',
-                ExpressionAttributeNames={'#status': 'status'},
-                ExpressionAttributeValues={':user': username, ':status': 'pending'}
+                KeyConditionExpression='to_user = :username',
+                ExpressionAttributeValues={
+                    ':username': username
+                }
             )
-            requests = response.get('Items', [])
-            # Enhance each request with user info
-            for request in requests:
-                user_info = FriendRequest.get_user_info(request['from_user'])
-                if user_info:
-                    request['from_user_id'] = user_info['id']
-            return requests
+            return response.get('Items', [])
         except Exception as e:
-            print(f"Error getting pending requests: {e}")
             return []
 
     @staticmethod
@@ -226,7 +222,7 @@ class FriendRequest:
                     friend = User.objects.get(username=friend_username)
                     friends_with_ids.append({
                         'username': friend_username,
-                        'id': friend.id
+                        'user_id': friend.id  # Changed from 'id' to 'user_id' to match template
                     })
                 except User.DoesNotExist:
                     continue
@@ -240,17 +236,19 @@ class FriendRequest:
     @staticmethod
     def get_sent_requests(username):
         table = FriendRequest.get_friend_requests_table()
+        if not table:
+            return []
+        
         try:
             response = table.query(
-                IndexName='from_user-index',  # You'll need to create this index
-                KeyConditionExpression='from_user = :user',
-                FilterExpression='#status = :status',
-                ExpressionAttributeNames={'#status': 'status'},
-                ExpressionAttributeValues={':user': username, ':status': 'pending'}
+                IndexName='from_user-index',
+                KeyConditionExpression='from_user = :username',
+                ExpressionAttributeValues={
+                    ':username': username
+                }
             )
             return response.get('Items', [])
         except Exception as e:
-            print(f"Error getting sent requests: {e}")
             return []
 
     @staticmethod

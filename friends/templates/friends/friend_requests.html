@@ -8,6 +8,7 @@
         flex-direction: column;
         justify-content: flex-start;
         height: 100%;
+        background-color: #2c3e50;
     }
     .card-body {
         display: flex;
@@ -48,36 +49,66 @@
                 </a>
             </div>
         </div>
-    {% else %}
-        {% if received_requests %}
-            <h3 class="mb-4 text-white">Received Requests</h3>
-            <div class="row">
-                {% for request in received_requests %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <img
-                                    src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-                                    alt="avatar"
-                                    class="rounded-circle card-img"
-                                />
-                                <h5 class="my-3 text-white">{{ request.from_user }}</h5>
-                                <div class="request-buttons">
-                                    <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-success">Accept</button>
-                                    </form>
-                                    <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Reject</button>
-                                    </form>
-                                </div>
+    {% endif %}
+
+    {% if received_requests %}
+        <h3 class="mb-4 text-white">Received Requests</h3>
+        <div class="row">
+            {% for request in received_requests %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <img
+                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                alt="avatar"
+                                class="rounded-circle card-img"
+                            />
+                            <h5 class="my-3 text-white">{{ request.from_user }}</h5>
+                            <div class="request-buttons">
+                                <form method="post" action="{% url 'friends:accept_request' request.from_user %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Accept</button>
+                                </form>
+                                <form method="post" action="{% url 'friends:reject_request' request.from_user %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Reject</button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if sent_requests %}
+        <h3 class="mb-4 text-white">Sent Requests</h3>
+        <div class="row">
+            {% for request in sent_requests %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <img
+                                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                alt="avatar"
+                                class="rounded-circle card-img"
+                            />
+                            <h5 class="my-3 text-white">{{ request.to_user }}</h5>
+                            <form method="post" action="{% url 'friends:cancel_request' request.to_user %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Cancel Request</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if error_message %}
+        <div class="alert alert-danger mt-4">
+            {{ error_message }}
+        </div>
     {% endif %}
 </div>
 {% endblock %}
