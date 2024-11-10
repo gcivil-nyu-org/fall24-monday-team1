@@ -59,24 +59,31 @@
             fetch(`{% url 'lists:get_lists' %}?tab=${currentTab}&page=${currentPage}`)
                 .then(response => response.json())
                 .then(data => {
-                    data.lists.forEach(list => {
-                        const listCard = document.createElement('div');
-                        listCard.className = 'list-card card mt-3';
-                        listCard.innerHTML = `
-                            <div class="card-body">
-                                <h5 class="card-title">${list.name}</h5>
-                                <p class="card-text">${list.description}</p>
-                                <p class="card-text"><strong>Creator:</strong> ${list.creator}</p>
-                                <p class="card-text"><strong>Games:</strong> ${list.games_count}</p>
-                            </div>
-                        `;
-                        document.getElementById("listContainer").appendChild(listCard);
-                    });
-
-                    if (data.has_more) {
-                        currentPage++;
-                    } else {
+                    if(data.lists.length == 0){
+                        document.getElementById("listContainer").innerHTML = '<p> Nothing to see here! </p>';
                         document.getElementById("loadMoreBtn").style.display = 'none';
+                    }
+                    else{
+                        data.lists.forEach(list => {
+                            const listCard = document.createElement('div');
+                            listCard.className = 'list-card card mt-3';
+                            listCard.innerHTML = `
+                                <div class="card-body">
+                                    <h5 class="card-title">${list.name}</h5>
+                                    <p class="card-text">${list.description}</p>
+                                    <p class="card-text"><strong>Creator:</strong> ${list.creator}</p>
+                                    <p class="card-text"><strong>Games:</strong> ${list.games_count}</p>
+                                </div>
+                            `;
+                            document.getElementById("listContainer").appendChild(listCard);
+                        });
+                        
+
+                        if (data.has_more) {
+                            currentPage++;
+                        } else {
+                            document.getElementById("loadMoreBtn").style.display = 'none';
+                        }
                     }
                 })
                 .catch(error => console.error("Error fetching lists:", error));
