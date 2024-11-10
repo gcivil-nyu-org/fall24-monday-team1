@@ -79,11 +79,28 @@ class UserProfileListViewTests(TestCase):
         UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
     def test_no_filters_applied(self):
-        request = self.factory.get('/user-profiles/')
-        request.user = self.user1
-        response = UserProfileListView.as_view()(request)
+        """
+        Test that without any filters, all public profiles are shown
+        (excluding the logged-in user's profile)
+        """
+        response = self.client.get(reverse('userProfile:searchProfile'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context_data['user_profiles']), 3)  # Should return all profiles
+        
+        # We should see 2 profiles (all profiles except our own)
+        profiles = response.context['object_list']
+        self.assertEqual(
+            profiles.count(),
+            2,  # Expecting 2 profiles (excluding the logged-in user)
+            "Should show all profiles except the logged-in user's profile"
+        )
+        
+        # Verify the logged-in user's profile is not in the results
+        profile_usernames = [profile.user.username for profile in profiles]
+        self.assertNotIn(
+            'testuser1',
+            profile_usernames,
+            "Logged-in user's profile should not be in search results"
+        )
 
     def test_filter_by_display_name(self):
         request = self.factory.get('/user-profiles/', {'q': 'Alice'})
