@@ -2,15 +2,29 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from .models import FriendRequest
-from django.contrib.auth.models import User
 
 class FriendRequestTests(TestCase):
     def setUp(self):
+        # Get the custom user model
+        User = get_user_model()
+        
         # Create test users
         self.client = Client()
-        self.user1 = User.objects.create_user(username='testuser1', password='testpass1')
-        self.user2 = User.objects.create_user(username='testuser2', password='testpass2')
-        self.user3 = User.objects.create_user(username='testuser3', password='testpass3')
+        self.user1 = User.objects.create_user(
+            username='testuser1',
+            password='testpass1',
+            email='test1@example.com'  # Required for CheckpointUser
+        )
+        self.user2 = User.objects.create_user(
+            username='testuser2',
+            password='testpass2',
+            email='test2@example.com'
+        )
+        self.user3 = User.objects.create_user(
+            username='testuser3',
+            password='testpass3',
+            email='test3@example.com'
+        )
         
         # Log in user1
         self.client.login(username='testuser1', password='testpass1')
