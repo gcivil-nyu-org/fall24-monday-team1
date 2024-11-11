@@ -1,11 +1,14 @@
 from django.urls import path
-from . import views
+from .views.viewProfile import viewProfile, viewMyProfile, fetch_game_details
+from .views.editProfile import editProfile
+from .views.searchProfile import UserProfileListView
 
-app_name = "userProfile"
+app_name = 'userProfile'
+
 urlpatterns = [
-    path('', views.viewMyProfile, name='myProfile'),
-    path('view/<int:user_id>/', views.viewProfile, name='viewProfile'),
-    path('edit/', views.editProfile, name="editProfile"),
-    path('search/', views.UserProfileListView.as_view(), name="searchProfile"),
-    path('fetch-game-details/', views.fetch_game_details, name='fetch_game_details'),
+    path('view/<int:user_id>/', viewProfile, name='viewProfile'),
+    path('myProfile/', viewMyProfile, name='myProfile'),
+    path('edit/', editProfile, name='editProfile'),
+    path('search/', UserProfileListView.as_view(), name='searchProfile'),
+    path('fetch-game-details/', fetch_game_details, name='fetch_game_details'),
 ]

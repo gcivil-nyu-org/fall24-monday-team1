@@ -34,7 +34,7 @@ def editProfile(request):
                         gaming_usernames[index] = value  # Add to the dictionary
         profile.gaming_usernames = gaming_usernames
         profile.save()
-        return redirect('/profile/')  # Redirect to the profile view
+        return redirect('userProfile:myProfile')  # Redirect to the myProfile view
 
     gaming_usernames = None
     if profile.gaming_usernames:
