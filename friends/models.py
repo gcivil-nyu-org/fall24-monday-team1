@@ -199,7 +199,7 @@ class FriendRequest:
             )
             return True
         except ClientError as e:
-            print(e.response['Error']['Message'])
+            print(f"Error rejecting friend request: {e.response['Error']['Message']}")
             return False
 
     @staticmethod
