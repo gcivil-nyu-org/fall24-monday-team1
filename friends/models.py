@@ -140,14 +140,17 @@ class FriendRequest:
             return []
         
         try:
+            # Query for requests where the user is the recipient
             response = table.query(
                 KeyConditionExpression='to_user = :username',
                 ExpressionAttributeValues={
                     ':username': username
                 }
             )
+            print(f"DynamoDB response for pending requests: {response}")  # Debug print
             return response.get('Items', [])
         except Exception as e:
+            print(f"Error getting pending requests: {e}")
             return []
 
     @staticmethod
@@ -187,16 +190,34 @@ class FriendRequest:
 
     @staticmethod
     def reject_request(from_user, to_user):
+        """
+        Rejects a friend request
+        from_user: the user who sent the request
+        to_user: the user who is rejecting the request
+        """
         table = FriendRequest.get_friend_requests_table()
+        if not table:
+            return False
+        
         try:
-            # The key in DynamoDB must match how it was stored
-            # When a request is sent, it's stored with to_user and from_user
+            print(f"Attempting to delete request with key: to_user={to_user}, from_user={from_user}")  # Debug print
+            # Delete the request
             table.delete_item(
                 Key={
                     'to_user': to_user,
                     'from_user': from_user
                 }
             )
+            # Verify deletion
+            response = table.get_item(
+                Key={
+                    'to_user': to_user,
+                    'from_user': from_user
+                }
+            )
+            if 'Item' in response:
+                print("Warning: Item still exists after deletion")
+                return False
             return True
         except ClientError as e:
             print(f"Error rejecting friend request: {e.response['Error']['Message']}")

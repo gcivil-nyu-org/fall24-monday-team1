@@ -26,8 +26,64 @@ class FriendRequestTests(TestCase):
             email='test3@example.com'
         )
         
+        # Clean up any existing test data
+        self.clean_test_data()
+        
         # Log in user1
         self.client.login(username='testuser1', password='testpass1')
+
+    def clean_test_data(self):
+        """Clean up only test-related data"""
+        test_users = ['testuser1', 'testuser2', 'testuser3']
+        
+        # Clean friend requests table
+        requests_table = FriendRequest.get_friend_requests_table()
+        if requests_table:
+            # Clean requests where either to_user or from_user is a test user
+            for test_user in test_users:
+                # Check requests received by test user
+                response = requests_table.query(
+                    KeyConditionExpression='to_user = :user',
+                    ExpressionAttributeValues={':user': test_user}
+                )
+                for item in response.get('Items', []):
+                    requests_table.delete_item(
+                        Key={
+                            'to_user': item['to_user'],
+                            'from_user': item['from_user']
+                        }
+                    )
+                
+                # Check requests sent by test user using GSI
+                response = requests_table.query(
+                    IndexName='from_user-index',
+                    KeyConditionExpression='from_user = :user',
+                    ExpressionAttributeValues={':user': test_user}
+                )
+                for item in response.get('Items', []):
+                    requests_table.delete_item(
+                        Key={
+                            'to_user': item['to_user'],
+                            'from_user': item['from_user']
+                        }
+                    )
+        
+        # Clean friends table
+        friends_table = FriendRequest.get_friends_table()
+        if friends_table:
+            # Clean friendships where either user is a test user
+            for test_user in test_users:
+                response = friends_table.query(
+                    KeyConditionExpression='username = :user',
+                    ExpressionAttributeValues={':user': test_user}
+                )
+                for item in response.get('Items', []):
+                    friends_table.delete_item(
+                        Key={
+                            'username': item['username'],
+                            'friend': item['friend']
+                        }
+                    )
 
     def test_send_friend_request(self):
         # Send friend request from user1 to user2
@@ -57,16 +113,17 @@ class FriendRequestTests(TestCase):
         # Create a friend request from user2 to user1
         FriendRequest.send_request('testuser2', 'testuser1')
         
-        # Login as user1 who will reject the request
-        self.client.login(username='testuser1', password='testpass1')
+        # Verify request exists before rejection
+        requests_before = FriendRequest.get_pending_requests('testuser1')
+        self.assertEqual(len(requests_before), 1)
         
         # User1 rejects the request from user2
         response = self.client.post(reverse('friends:reject_request', args=['testuser2']))
         self.assertEqual(response.status_code, 302)  # Redirects after rejection
 
         # Verify request is removed
-        requests = FriendRequest.get_pending_requests('testuser1')
-        self.assertEqual(len(requests), 0)
+        requests_after = FriendRequest.get_pending_requests('testuser1')
+        self.assertEqual(len(requests_after), 0)
 
     def test_unfriend(self):
         # Create friendship
