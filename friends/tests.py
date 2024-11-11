@@ -54,10 +54,10 @@ class FriendRequestTests(TestCase):
         self.assertEqual(friends[0]['username'], 'testuser2')
 
     def test_reject_friend_request(self):
-        # Create a friend request
+        # Create a friend request from user2 to user1
         FriendRequest.send_request('testuser2', 'testuser1')
         
-        # Reject the request
+        # User1 rejects the request from user2
         response = self.client.post(reverse('friends:reject_request', args=['testuser2']))
         self.assertEqual(response.status_code, 302)  # Redirects after rejection
 

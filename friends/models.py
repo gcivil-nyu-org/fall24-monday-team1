@@ -189,7 +189,14 @@ class FriendRequest:
     def reject_request(from_user, to_user):
         table = FriendRequest.get_friend_requests_table()
         try:
-            table.delete_item(Key={'to_user': to_user, 'from_user': from_user})
+            # The key in DynamoDB must match how it was stored
+            # When a request is sent, it's stored with to_user and from_user
+            table.delete_item(
+                Key={
+                    'to_user': to_user,
+                    'from_user': from_user
+                }
+            )
             return True
         except ClientError as e:
             print(e.response['Error']['Message'])
@@ -269,8 +276,8 @@ class FriendRequest:
         try:
             table.delete_item(
                 Key={
-                    'from_user': from_user,
-                    'to_user': to_user
+                    'to_user': to_user,
+                    'from_user': from_user
                 }
             )
             return True

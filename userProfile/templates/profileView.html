@@ -278,6 +278,7 @@
         friendForms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                const submitButton = this.querySelector('button');
                 
                 fetch(this.action, {
                     method: 'POST',
@@ -285,23 +286,20 @@
                         'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
                     },
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        const buttonContainer = this.parentElement;
                         if (this.action.includes('unfriend')) {
-                            buttonContainer.innerHTML = `
-                                <form method="post" action="{% url 'friends:send_request' profile.user.username %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary">Send Friend Request</button>
-                                </form>`;
+                            window.location.reload();
                         } else {
-                            buttonContainer.innerHTML = '<button class="btn btn-secondary" disabled>Friend Request Pending</button>';
+                            // Directly replace the form with a disabled button
+                            form.replaceWith(
+                                Object.assign(document.createElement('button'), {
+                                    className: 'btn btn-secondary',
+                                    disabled: true,
+                                    textContent: 'Friend Request Pending'
+                                })
+                            );
                         }
                     } else {
                         alert('Failed to process request: ' + data.message);
