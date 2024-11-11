@@ -38,7 +38,7 @@
 
     <div class="container mt-5">
         <h1 class="mb-4">Create Event</h1>
-        <form method="POST" action="{% url 'events:create_event' %}">
+        <form method="POST" action="{% url 'events:create_event' %}" onsubmit="return validateDates()">
             {% csrf_token %}
             <div class="form-group">
                 <label for="eventTitle" class="form-label">Event Title</label>
@@ -68,5 +68,16 @@
     <script src="https://code.jquery.com/jquery-3.5.2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function validateDates() {
+            const startTime = new Date(document.getElementById('eventStartTime').value);
+            const endTime = new Date(document.getElementById('eventEndTime').value);
+            if (endTime <= startTime) {
+                alert('End Time must be later than Start Time.');
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>

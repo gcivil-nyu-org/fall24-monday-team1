@@ -25,13 +25,22 @@
           <ul class="navbar-nav">
             {% if loginIn %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'events:event_list' %}">Event List</a>
+              <a class="nav-link" href="{% url 'lists:view_lists' %}">View your Game Lists</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'events:event_list' %}">View your Events</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'friends:friend_list' %}">My Friends</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
             {% else %}
             <li class="nav-item">
@@ -91,6 +100,25 @@
                   Message
                 </button>
                 {% endif %}
+                {% if loginIn and not own %}
+                  <div class="friend-request-section">
+                      {% if is_friend %}
+                          <form method="post" action="{% url 'friends:unfriend' profile.user.username %}" class="d-inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-danger">Unfriend</button>
+                          </form>
+                      {% elif has_sent_request %}
+                          <button class="btn btn-secondary" disabled>Friend Request Sent</button>
+                      {% elif has_received_request %}
+                          <button class="btn btn-info" disabled>Friend Request Received</button>
+                      {% else %}
+                          <form method="post" action="{% url 'friends:send_request' profile.user.username %}" class="d-inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-primary">Send Friend Request</button>
+                          </form>
+                      {% endif %}
+                  </div>
+              {% endif %}
               </div>
               <!-- New button to link to search profiles -->
               <div class="d-flex justify-content-center mb-2">
@@ -204,6 +232,12 @@
         gameListDiv.innerHTML = '<p class="text-muted"> Nothing to see here! </p>'
         return;
       }else{
+        gameListDiv.innerHTML = `<div id="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            {% comment %} <span class="visually-hidden">Loading...</span> {% endcomment %}
+                        </div>
+                        <p>Fetching games...</p>
+                    </div>`
         const gameIdString = `(${gameIds.join(',')})`;
         console.log(gameIdString);  
         fetch("{% url 'userProfile:fetch_game_details' %}", {
@@ -217,7 +251,7 @@
                 <div class="game-grid">
                   ${gameDetails.map(game => `
                     <div class="game-item">
-                    <a href="${game.redirect_url}">
+                    <a href="${game.redirect_url}?shelf=${shelf}&own={{own}}">
                       <img src="https://${game.cover}" alt="${game.name}" class="game-cover" title="${game.name}" />
                     </a>
                       </div>
@@ -234,6 +268,49 @@
         });
         
       }
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const friendForms = document.querySelectorAll('.friend-request-section form');
+        
+        friendForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const submitButton = this.querySelector('button');
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (this.action.includes('unfriend')) {
+                            window.location.reload();
+                        } else {
+                            // Directly replace the form with a disabled button
+                            form.replaceWith(
+                                Object.assign(document.createElement('button'), {
+                                    className: 'btn btn-secondary',
+                                    disabled: true,
+                                    textContent: 'Friend Request Pending'
+                                })
+                            );
+                        }
+                    } else {
+                        alert('Failed to process request: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to process request. Please try again.');
+                });
+            });
+        });
     });
   </script>
 
