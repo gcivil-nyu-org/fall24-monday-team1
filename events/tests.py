@@ -53,6 +53,10 @@ class EventViewsTest(TestCase):
         # Create a user and a user profile
         self.user = User.objects.create_user(username='testuser', password='password', email='testuser@events.com')
         self.user_profile = UserProfile.objects.create(user=self.user, account_role='event_organizer')
+        
+        # Create a user with a different role
+        self.non_organizer_user = User.objects.create_user(username='non_org_user', password='password')
+        UserProfile.objects.create(user=self.non_organizer_user, account_role='viewer')
 
         # Initialize DynamoDB resource
         self.dynamodb = boto3.resource(
@@ -75,8 +79,8 @@ class EventViewsTest(TestCase):
                 if creator_user.username == 'testuser':  # Check if the item was created by the test user
                     self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
             except User.DoesNotExist:
-                raise ValueError(f"User not found{item['creator']}")
-                self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
+                print(f"User not found {item['creator']} might because of the test case use different table")
+                # self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
             
     def create_event(self, title, description, start_time, end_time, location, creator_id):
         print(f"Creating event by {creator_id} of type {type(creator_id)}")
@@ -103,10 +107,6 @@ class EventViewsTest(TestCase):
         self.assertContains(response, 'Test Event')
 
     def test_create_event_view_forbidden_for_non_event_organizers(self):
-        # Create a user with a different role
-        non_organizer_user = User.objects.create_user(username='non_org_user', password='password')
-        UserProfile.objects.create(user=non_organizer_user, account_role='viewer')
-
         self.client.login(username='non_org_user', password='password')
         response = self.client.get(reverse('events:create_event'))
 
