@@ -71,6 +71,7 @@ class EventViewsTest(TestCase):
             # Assuming 'creator' is the user ID
                 print(f"Finding user {item['creator']} of type: {type(item['creator'])}")
                 creator_user = User.objects.get(id=int(item['creator']))
+                print(f"Get user with name {creator_user.username}")
                 if creator_user.username == 'testuser':  # Check if the item was created by the test user
                     self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
             except User.DoesNotExist:
