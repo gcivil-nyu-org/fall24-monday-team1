@@ -67,7 +67,8 @@ def event_list(request):
             # Assuming 'creator' is the user ID
             event['creator_user'] = User.objects.get(id=int(event['creator']))
         except User.DoesNotExist:
-            event['creator_user'].username = f"Can't find user with id {int(event['creator'])} with type int"
+            event['creator_user'] = {}
+            event['creator_user']["username"] = f"Can't find user with id {int(event['creator'])} with type int"
             
     # Setup pagination
     paginator = Paginator(sorted_events, 5)  # Show 5 events per page
