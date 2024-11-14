@@ -69,13 +69,17 @@ class EventViewsTest(TestCase):
         for item in response.get('Items', []):
             try:
             # Assuming 'creator' is the user ID
+                print(f"Finding user {item['creator']} of type: {type(item['creator'])}")
                 creator_user = User.objects.get(id=int(item['creator']))
+                print(f"Get user with name {creator_user.username}")
                 if creator_user.username == 'testuser':  # Check if the item was created by the test user
                     self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
             except User.DoesNotExist:
+                raise ValueError(f"User not found{item['creator']}")
                 self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
             
     def create_event(self, title, description, start_time, end_time, location, creator_id):
+        print(f"Creating event by {creator_id} of type {type(creator_id)}")
         event = Event(title, description, start_time, end_time, location, creator_id)
         event.save()
 
