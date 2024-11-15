@@ -127,7 +127,7 @@ def game_data_fetch_view(request, game_id):
         else:
             data[key] = value
 
-    youtube_api_url = f"https://youtube.googleapis.com/youtube/v3/search"
+    youtube_api_url = "https://youtube.googleapis.com/youtube/v3/search"
     params = {
         "q": f"{data['name']} game trailer",
         "key": os.getenv("YOUTUBE_API_KEY"),
