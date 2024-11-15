@@ -28,12 +28,11 @@
         <h1>Search for a Game</h1>
         <form method="POST" action="{% url 'gamesearch:search_game' %}">
             {% csrf_token %}
-            <input type="text" name="game_query" placeholder="Enter game title" required>
+            <input type="text" id="game_query" name="game_query" placeholder="Enter game title" required>
             <button type="submit" id="search-btn" class="btn" onClick="showSpinner()">Search</button>
             <script>
                 function showSpinner() {
-                    var searchInput = document.getElementById('game-query');
-                    console.log(searchInput);
+                    var searchInput = document.getElementById('game_query').value;
                     if(searchInput){
                         var btn = document.getElementById('search-btn');
                         btn.innerHTML = '<div class="spinner"></div>';
