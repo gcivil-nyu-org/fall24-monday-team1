@@ -69,5 +69,3 @@ checkpoint/media/profile_photos*
 !.elasticbeanstalk/*.global.yml
 
 .coverage
-
-db.dev.sqlite3
