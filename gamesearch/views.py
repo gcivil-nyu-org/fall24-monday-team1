@@ -73,9 +73,7 @@ def search_game(request):
 
         
         return render(request, 'search_result.html', {'games': data})
-
-
-        
+ 
     return render(request, 'search.html')
 
 

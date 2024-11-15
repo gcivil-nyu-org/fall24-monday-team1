@@ -148,13 +148,22 @@
 
         function submitList() {
             const name = document.getElementById('listName').value;
+            if(!name){
+                alert("Please enter the name!");
+                return;
+            }
             const description = document.getElementById('description').value;
-            const visibility = document.getElementById('visibility').value;
+            const visibility = document.getElementById('visibility').value;     //default public
             // Display data in console for debugging
             var gameIds=[];
             gameList.forEach(game=> {
                 gameIds.push(game.id);
             });
+            console.log();
+            if(gameIds.length==0){
+                alert("You need to add at least one game in the list!");
+                return;
+            }
 
             fetch("{% url 'lists:save_list' %}", {
                 method: "POST",
