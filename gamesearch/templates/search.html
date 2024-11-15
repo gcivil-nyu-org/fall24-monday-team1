@@ -32,8 +32,12 @@
             <button type="submit" id="search-btn" class="btn" onClick="showSpinner()">Search</button>
             <script>
                 function showSpinner() {
-                    var btn = document.getElementById('search-btn');
-                    btn.innerHTML = '<div class="spinner"></div>';
+                    var searchInput = document.getElementById('game-query');
+                    console.log(searchInput);
+                    if(searchInput){
+                        var btn = document.getElementById('search-btn');
+                        btn.innerHTML = '<div class="spinner"></div>';
+                    }
                 }
             </script>
         </form>
