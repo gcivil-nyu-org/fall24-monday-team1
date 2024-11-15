@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ event.title }} - Event Details</title>
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+        rel="stylesheet"
+        href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <style>
+        .event-title {
+            color: black; /* Change the title color to black */
+            transition: none; /* Disable any transition */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkpoint</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    {% if loginIn %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h1 class="card-title event-title">{{ event.title }}</h1>
+                        <p class="card-text"><strong>Description:</strong> {{ event.description }}</p>
+                        <p class="card-text"><strong>Start Time:</strong> {{ event.start_time }}</p>
+                        <p class="card-text"><strong>End Time:</strong> {{ event.end_time }}</p>
+                        <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
+                        
+                        <h5>Created by:</h5>
+                        <p class="card-text">{{ event.creator_user.username }}</p>
+
+                        <h5>Participants</h5>
+                        <ul class="list-group mb-3">
+                            {% for participant in event.participants_users %}
+                                <li class="list-group-item">{{ participant.username }}</li>
+                            {% empty %}
+                                <li class="list-group-item">No participants yet.</li>
+                            {% endfor %}
+                        </ul>
+
+                        <div class="d-flex">
+                            {% if is_participant %}
+                                <form action="{% url 'events:unregister_event' event.eventId %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Unregister</button>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'events:register_event' event.eventId %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Register</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
