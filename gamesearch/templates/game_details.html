@@ -46,57 +46,56 @@
 
                     var gameHtml = `
                                 <div class="border p-3 mb-3">
-                                    <div class="row justify-content-center">
-                                        <div class="col-md-4">
-                                            <img src="https://${game.cover}" alt="Game Poster" class="img-fluid" style="border: 1px solid #ddd;">
-                                        </div>
-                                        <div class="col-md-8 text-start">
-                                            <h2>
-                                                <a href="${game.url}" target="_blank" class="text-decoration-none text-dark fw-bold">${game.name}</a> 
-                                                <span class="fw-normal">(${game.release_year})</span>
-                                            </h2>
-                                        </div>
+                                <div class="row justify-content-center">
+                                    <div class="col-md-4">
+                                        <img src="${game.cover ? `https://${game.cover}` : '/static/images/placeholder.png'}" alt="Game Poster" class="img-fluid" style="border: 1px solid #ddd;">
                                     </div>
-
-                                    <div class="mb-3">
-                                        <strong>Genres:</strong> ${game.genres.join(', ')}
+                                    <div class="col-md-8 text-start">
+                                        <h2>
+                                            <a href="${game.url || '#'}" target="_blank" class="text-decoration-none text-dark fw-bold">${game.name || 'Unknown Game'}</a> 
+                                            <span class="fw-normal">(${game.release_year || 'N/A'})</span>
+                                        </h2>
                                     </div>
-
-                                    <div class="mb-3">
-                                        <strong>Rating:</strong> ${game.rating.toFixed(2)}
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <strong>Summary:</strong>
-                                        <p>${game.summary}</p>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <strong>Platforms:</strong> ${game.platforms.join(', ')}
-                                    </div>
-
-                                    <div class="mb-3 text-center">
-                                        <strong>Trailer:</strong>
-                                        <div id="trailer-container" class="mt-2" style="border: 1px solid #ddd;">
-                                            <p>Loading trailer...</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="row justify-content-center align-items-center mt-3">
-                                        <div class="col-md-6 text-center">
-                                            <strong>Add to shelf:</strong>
-                                            <select class="form-select d-inline w-auto mx-2" id="shelf-select">
-                                                <option value="completed">Completed</option>
-                                                <option value="want-to-play">Want to Play</option>
-                                                <option value="abandoned">Abandoned</option>
-                                                <option value="paused">Paused</option>
-                                                <option value="playing">Playing</option>
-                                            </select>
-                                            <button class="btn btn-primary d-inline" id="shelf-submit">Submit</button>
-                                        </div>
-                                    </div>
-                                
                                 </div>
+
+                                <div class="mb-3">
+                                    <strong>Genres:</strong> ${game.genres ? game.genres.join(', ') : 'Not specified'}
+                                </div>
+
+                                <div class="mb-3">
+                                    <strong>Rating:</strong> ${game.rating ? game.rating.toFixed(2) : 'Not rated'}
+                                </div>
+
+                                <div class="mb-3">
+                                    <strong>Summary:</strong>
+                                    <p>${game.summary || 'No summary available for this game.'}</p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <strong>Platforms:</strong> ${game.platforms ? game.platforms.join(', ') : 'Not specified'}
+                                </div>
+
+                                <div class="mb-3 text-center">
+                                    <strong>Trailer:</strong>
+                                    <div id="trailer-container" class="mt-2" style="border: 1px solid #ddd;">
+                                        <p>${game.trailer ? 'Trailer will be displayed here.' : 'Trailer not available.'}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center align-items-center mt-3">
+                                    <div class="col-md-6 text-center">
+                                        <strong>Add to shelf:</strong>
+                                        <select class="form-select d-inline w-auto mx-2" id="shelf-select">
+                                            <option value="completed">Completed</option>
+                                            <option value="want-to-play">Want to Play</option>
+                                            <option value="abandoned">Abandoned</option>
+                                            <option value="paused">Paused</option>
+                                            <option value="playing">Playing</option>
+                                        </select>
+                                        <button class="btn btn-primary d-inline" id="shelf-submit">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
                         `;
 
                     $('#game-content').html(gameHtml);

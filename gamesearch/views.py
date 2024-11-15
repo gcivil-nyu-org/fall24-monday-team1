@@ -68,15 +68,6 @@ def search_game(request):
                 row['release_date'] = datetime.fromtimestamp(game['first_release_date']).strftime("%Y-%m-%d")
             else:
                 row['release_date'] = None
-        # # 3. get actual genre strings
-        #     url = "https://api.igdb.com/v4/genres"
-        #     if 'genres' in game:
-        #         row['genres'] = []
-        #         for gid in game['genres']:
-        #             payload = "fields name; where id=%d;"%gid
-        #             response = requests.request("POST", url, headers=headers, data=payload)
-        #             row['genres'].append(response.json()[0]["name"])
-
 
             data.append(row)
 
