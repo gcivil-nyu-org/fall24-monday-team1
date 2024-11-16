@@ -10,7 +10,6 @@ from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.utils.text import slugify
 import requests
-import os
 import glob
 
 User = get_user_model()
