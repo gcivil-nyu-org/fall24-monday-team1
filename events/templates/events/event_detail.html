@@ -1,4 +1,5 @@
 {% load static %}
+{% load user_info_tags %}  {# Make sure to load the tag library where render_user_info is defined #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,12 +62,14 @@
                         <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
                         
                         <h5>Created by:</h5>
-                        <p class="card-text">{{ event.creator_user.username }}</p>
+                        {% render_user_info event.creator_user.id as creator_info %}
+                        {{ creator_info|safe }}
 
                         <h5>Participants</h5>
                         <ul class="list-group mb-3">
                             {% for participant in event.participants_users %}
-                                <li class="list-group-item">{{ participant.username }}</li>
+                                {% render_user_info participant.id as participant_info %}
+                                <li class="list-group-item">{{ participant_info|safe }}</li>
                             {% empty %}
                                 <li class="list-group-item">No participants yet.</li>
                             {% endfor %}

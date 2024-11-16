@@ -18,42 +18,8 @@
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Checkpoint</a>
-        <div class="collapse navbar-collapse justify-content-end">
-          <ul class="navbar-nav">
-            {% if loginIn %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'lists:view_lists' %}">View your Game Lists</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'events:event_list' %}">View your Events</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'friends:friend_list' %}">My Friends</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
-      </div>
-    </nav>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
     <div class="container py-5">
       <div class="row">
         <div class="col-lg-4">
