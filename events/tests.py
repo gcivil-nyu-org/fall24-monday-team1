@@ -6,6 +6,12 @@ import boto3
 import os
 from botocore.exceptions import ClientError
 from .models import Event
+from django.contrib import messages
+from django.core.files.base import ContentFile
+from django.utils.text import slugify
+import requests
+import os
+import glob
 
 User = get_user_model()
 
@@ -53,7 +59,17 @@ class EventViewsTest(TestCase):
         # Create a user and a user profile
         self.user = User.objects.create_user(username='testuser', password='password', email='testuser@events.com')
         self.user_profile = UserProfile.objects.create(user=self.user, account_role='event_organizer')
-        
+        username = self.user.username
+        avatar_url = f"https://ui-avatars.com/api/?name={username}"
+
+        response = requests.get(avatar_url)
+        if response.status_code == 200:
+            # Create a unique filename for the image
+            filename = f"{slugify(username)}.png"   
+            # Save the image to the ImageField
+            self.user_profile.profile_photo.save(filename, ContentFile(response.content), save=True)
+        else:
+            raise ValueError("Avatar link not available")
         # Create a user with a different role
         self.non_organizer_user = User.objects.create_user(username='non_org_user', password='password')
         UserProfile.objects.create(user=self.non_organizer_user, account_role='viewer')
@@ -73,7 +89,6 @@ class EventViewsTest(TestCase):
         for item in response.get('Items', []):
             try:
             # Assuming 'creator' is the user ID
-                print(f"Finding user {item['creator']} of type: {type(item['creator'])}")
                 creator_user = User.objects.get(id=int(item['creator']))
                 print(f"Get user with name {creator_user.username}")
                 if creator_user.username == 'testuser':  # Check if the item was created by the test user
@@ -81,11 +96,34 @@ class EventViewsTest(TestCase):
             except User.DoesNotExist:
                 print(f"User not found {item['creator']} might because of the test case use different table")
                 # self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
+        media_directory = './media/profile_photos'  # Update this path
+
+        # Construct the pattern for matching files
+        pattern = os.path.join(media_directory, 'testuser*.png')
+
+        # Use glob to find all files that match the pattern
+        files_to_delete = glob.glob(pattern)
+
+        # Delete the matched files
+        for file_path in files_to_delete:
+            try:
+                os.remove(file_path)
+                print(f"Deleted: {file_path}")
+            except Exception as e:
+                print(f"Error deleting {file_path}: {e}")
             
-    def create_event(self, title, description, start_time, end_time, location, creator_id):
-        print(f"Creating event by {creator_id} of type {type(creator_id)}")
-        event = Event(title, description, start_time, end_time, location, creator_id)
+    def create_event(self, title, description, start_time, end_time, location, creator_id, participants=None):
+        event = Event(
+            title=title,
+            description=description,
+            start_time=start_time,
+            end_time=end_time,
+            location=location,
+            creator=creator_id,
+            participants=participants or []
+        )
         event.save()
+        return event
 
     def test_create_event_view_redirects_when_logged_in(self):
         # original_len = len(self.table.scan())
@@ -191,3 +229,113 @@ class EventViewsTest(TestCase):
         # Assertions for page 1
         # self.assertEqual(first_event_start_time, '2024-10-31 10:000:00')    # First event should be Event 1
         # self.assertEqual(last_event_start_time, '2024-10-31 10:040:00')     # Last event should be Event 5
+    def get_event_from_dynamodb(self, event_id):
+        response = self.table.get_item(Key={'eventId': event_id})
+        return response.get('Item')
+
+    def test_register_event_success(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id
+        )
+
+        response = self.client.post(reverse('events:register_event', args=[event.eventId]))
+
+        # Check that the user is registered
+        registered_event = self.get_event_from_dynamodb(event.eventId)
+        self.assertIn(self.user.id, registered_event['participants'])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_detail', args=[event.eventId]))
+        self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "You have successfully registered for the event.")
+
+    def test_register_event_already_registered(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id,
+            participants=[self.user.id]
+        )
+
+        response = self.client.post(reverse('events:register_event', args=[event.eventId]))
+
+        # Check that the user is still registered
+        registered_event = self.get_event_from_dynamodb(event.eventId)
+        self.assertIn(self.user.id, registered_event['participants'])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_detail', args=[event.eventId]))
+        self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "You are already registered for this event.")
+
+    def test_register_event_not_found(self):
+        self.client.login(username='testuser', password='password')
+        response = self.client.post(reverse('events:register_event', args=[999]))  # Assuming 999 does not exist
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_list'))
+        self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "Event not found.")
+
+    def test_unregister_event_success(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id,
+            participants=[self.user.id]
+        )
+
+        response = self.client.post(reverse('events:unregister_event', args=[event.eventId]))
+
+        # Check that the user is unregistered
+        registered_event = self.get_event_from_dynamodb(event.eventId)
+        self.assertNotIn(self.user.id, registered_event['participants'])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_detail', args=[event.eventId]))
+        self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "You have successfully unregistered from the event.")
+
+    def test_unregister_event_not_registered(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id
+        )
+
+        response = self.client.post(reverse('events:unregister_event', args=[event.eventId]))
+
+        # Check that the user is still not registered
+        registered_event = self.get_event_from_dynamodb(event.eventId)
+        self.assertNotIn(self.user.id, registered_event['participants'])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_detail', args=[event.eventId]))
+        self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "You are not registered for this event.")
+
+    def test_event_detail_view(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id
+        )
+
+        response = self.client.get(reverse('events:event_detail', args=[event.eventId]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Test Event')
+        self.assertTemplateUsed(response, 'events/event_detail.html')
