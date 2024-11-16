@@ -30,6 +30,9 @@
             </a>
             </li>
             {% endfor %}
+            {% if games|length == 0%}
+                <p> <i> Nothing to see here! </i> </p>
+            {%endif%}
         </ul>
     </div>
 </body>
