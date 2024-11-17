@@ -8,6 +8,10 @@ import json
 
 @login_required
 def create_profile(request):
+    # First check if profile already exists
+    if UserProfile.objects.filter(user=request.user).exists():
+        return redirect('userProfile:myProfile')
+        
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES)
         post_params = request.POST
@@ -23,14 +27,14 @@ def create_profile(request):
 
             # Parse the gaming usernames from the POST data
             gaming_usernames = {}
-            platforms = request.POST.getlist('platforms[]')  # Get list of platforms
-            usernames = request.POST.getlist('gaming_usernames[]')  # Get list of usernames
+            platforms = request.POST.getlist('platforms[]')
+            usernames = request.POST.getlist('gaming_usernames[]')
             for platform, username in zip(platforms, usernames):
                 if platform and username:
                     gaming_usernames[platform] = username
 
             # Store the gaming usernames as a JSON field
-            profile.gaming_usernames = json.dumps(gaming_usernames)  # Serialize to JSON
+            profile.gaming_usernames = json.dumps(gaming_usernames)
             profile.save()
 
             messages.success(request, 'Profile created successfully!')
