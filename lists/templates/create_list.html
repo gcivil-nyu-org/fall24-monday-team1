@@ -12,23 +12,8 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Checkpoint</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'userProfile:myProfile' %}">My Profile</a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
     <!-- Create List Form -->
     <div class="card">
         <h2>Create New List</h2>
@@ -148,13 +133,22 @@
 
         function submitList() {
             const name = document.getElementById('listName').value;
+            if(!name){
+                alert("Please enter the name!");
+                return;
+            }
             const description = document.getElementById('description').value;
-            const visibility = document.getElementById('visibility').value;
+            const visibility = document.getElementById('visibility').value;     //default public
             // Display data in console for debugging
             var gameIds=[];
             gameList.forEach(game=> {
                 gameIds.push(game.id);
             });
+            console.log();
+            if(gameIds.length==0){
+                alert("You need to add at least one game in the list!");
+                return;
+            }
 
             fetch("{% url 'lists:save_list' %}", {
                 method: "POST",

@@ -10,30 +10,23 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Checkpoint</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
 
     <!-- Game Search Container -->
     <div class="container">
         <h1>Search for a Game</h1>
         <form method="POST" action="{% url 'gamesearch:search_game' %}">
             {% csrf_token %}
-            <input type="text" name="game_query" placeholder="Enter game title" required>
+            <input type="text" id="game_query" name="game_query" placeholder="Enter game title" required>
             <button type="submit" id="search-btn" class="btn" onClick="showSpinner()">Search</button>
             <script>
                 function showSpinner() {
-                    var btn = document.getElementById('search-btn');
-                    btn.innerHTML = '<div class="spinner"></div>';
+                    var searchInput = document.getElementById('game_query').value;
+                    if(searchInput){
+                        var btn = document.getElementById('search-btn');
+                        btn.innerHTML = '<div class="spinner"></div>';
+                    }
                 }
             </script>
         </form>

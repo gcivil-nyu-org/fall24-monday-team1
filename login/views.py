@@ -80,4 +80,5 @@ def logout_view(request):
     return redirect("/")
 
 def home(request):
+    list(messages.get_messages(request))
     return render(request, 'index.html')

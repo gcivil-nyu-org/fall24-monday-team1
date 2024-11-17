@@ -68,23 +68,12 @@ def search_game(request):
                 row['release_date'] = datetime.fromtimestamp(game['first_release_date']).strftime("%Y-%m-%d")
             else:
                 row['release_date'] = None
-        # # 3. get actual genre strings
-        #     url = "https://api.igdb.com/v4/genres"
-        #     if 'genres' in game:
-        #         row['genres'] = []
-        #         for gid in game['genres']:
-        #             payload = "fields name; where id=%d;"%gid
-        #             response = requests.request("POST", url, headers=headers, data=payload)
-        #             row['genres'].append(response.json()[0]["name"])
-
 
             data.append(row)
 
-        # print(data)
-        return render(request, 'search_result.html', {'games': data})
-
-
         
+        return render(request, 'search_result.html', {'games': data})
+ 
     return render(request, 'search.html')
 
 
@@ -136,8 +125,27 @@ def game_data_fetch_view(request, game_id):
         else:
             data[key] = value
 
-    # print(data)
-    data["yapi"] = os.getenv("YOUTUBE_API_KEY")
+    youtube_api_url = "https://youtube.googleapis.com/youtube/v3/search"
+    params = {
+        "q": f"{data['name']} game trailer",
+        "key": os.getenv("YOUTUBE_API_KEY"),
+        "part": "snippet",
+        "type": "video",
+        "maxResults": 1
+    }
+    
+    data['trailer'] = ''
+    try:
+        response = requests.get(youtube_api_url, params=params)
+        response_data = response.json()
+
+        if "items" in response_data and len(response_data["items"]) > 0:
+            video_id = response_data["items"][0]["id"]["videoId"]
+            data['trailer'] = 'https://www.youtube.com/embed/%s' % video_id
+        else:
+            print("error fetching trailer")
+    except Exception as e:
+        print(f"Error fetching trailer: {e}")
     return JsonResponse(data)
 
 

@@ -56,7 +56,17 @@ def get_all_events():
     response = table.scan()
     return response.get('Items', [])
 
+def get_event(event_id):
+    """Fetch a single event by its ID."""
+    events = get_all_events()
+    for event in events:
+        if event['eventId'] == event_id:
+            return event
+    return None
+
 def event_list(request):
+    list(messages.get_messages(request))
+
     events = get_all_events()
     
     # Sort events by start_time (or any other attribute)
@@ -67,7 +77,8 @@ def event_list(request):
             # Assuming 'creator' is the user ID
             event['creator_user'] = User.objects.get(id=int(event['creator']))
         except User.DoesNotExist:
-            event['creator_user'] = None  # Or handle it as needed
+            event['creator_user'] = {}
+            event['creator_user']["username"] = f"Can't find user with id {int(event['creator'])} with type int"
             
     # Setup pagination
     paginator = Paginator(sorted_events, 5)  # Show 5 events per page
@@ -78,3 +89,93 @@ def event_list(request):
     page_obj
 
     return render(request, 'events/event_list.html', {'page_obj': page_obj, "loginIn": request.user.is_authenticated})
+
+
+@login_required
+def register_event(request, event_id):
+    """Register the logged-in user for an event."""
+    event = get_event(event_id)
+    if not event:
+        messages.error(request, "Event not found.")
+        return redirect('events:event_list')
+
+    if request.user.id in event.get('participants', []):
+        messages.warning(request, "You are already registered for this event.")
+    else:
+        event['participants'].append(request.user.id)  # Add user as participant
+        messages.success(request, "You have successfully registered for the event.")
+
+        # Save changes to DynamoDB
+        event_obj = Event(
+            title=event['title'],
+            description=event['description'],
+            start_time=event['start_time'],
+            end_time=event['end_time'],
+            location=event['location'],
+            creator=event['creator'],
+            participants=event['participants'],
+            event_id=event['eventId']  # Pass the existing event ID
+        )
+        event_obj.save()  # Save updated event to DynamoDB
+
+    return redirect('events:event_detail', event_id=event_id)
+
+@login_required
+def unregister_event(request, event_id):
+    """Unregister the logged-in user from an event."""
+    event = get_event(event_id)
+    if not event:
+        messages.error(request, "Event not found.")
+        return redirect('events:event_list')
+
+    if request.user.id not in event.get('participants', []):
+        messages.warning(request, "You are not registered for this event.")
+    else:
+        event['participants'].remove(request.user.id)  # Remove user from participants
+        messages.success(request, "You have successfully unregistered from the event.")
+
+        # Save changes to DynamoDB
+        event_obj = Event(
+            title=event['title'],
+            description=event['description'],
+            start_time=event['start_time'],
+            end_time=event['end_time'],
+            location=event['location'],
+            creator=event['creator'],
+            participants=event['participants'],
+            event_id=event['eventId']  # Pass the existing event ID
+        )
+        event_obj.save()  # Save updated event to DynamoDB
+
+    return redirect('events:event_detail', event_id=event_id)
+
+def event_detail(request, event_id):
+    """View for displaying event details."""
+    event = get_event(event_id)  # Fetch the event details
+
+    if not event:
+        messages.error(request, "Event not found.")
+        return redirect('events:event_list')
+
+    # Populate creator user
+    try:
+        event['creator_user'] = User.objects.get(id=int(event['creator']))
+    except User.DoesNotExist:
+        event['creator_user'] = {}
+        event['creator_user']["username"] = f"Can't find user with id {int(event['creator'])}"
+
+    # Populate participants
+    event['participants_users'] = []
+    for participant_id in event.get('participants', []):
+        try:
+            user = User.objects.get(id=int(participant_id))
+            event['participants_users'].append(user)
+        except User.DoesNotExist:
+            event['participants_users'].append({
+                "username": f"Can't find user with id {int(participant_id)}"
+            })
+
+    context = {
+        'event': event,
+    }
+    return render(request, 'events/event_detail.html', context)

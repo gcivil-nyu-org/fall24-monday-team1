@@ -62,10 +62,10 @@ eb-engine.log
 
 checkpoint/static/*
 
-checkpoint/media/profile_photos*
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
 
 .coverage
+media/profile_photos/*

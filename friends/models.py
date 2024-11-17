@@ -19,78 +19,78 @@ class FriendRequest:
             print(f"Error connecting to DynamoDB: {e}")
             return None
 
-    @staticmethod
-    def ensure_tables_exist():
-        try:
-            dynamodb = boto3.client(
-                'dynamodb',
-                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-                region_name='us-east-1'
-            )
+    # @staticmethod
+    # def ensure_tables_exist():
+    #     try:
+    #         dynamodb = boto3.client(
+    #             'dynamodb',
+    #             aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+    #             aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+    #             region_name='us-east-1'
+    #         )
             
-            # Check and create friend_requests table
-            try:
-                dynamodb.describe_table(TableName='friend_requests')
-            except dynamodb.exceptions.ResourceNotFoundException:
-                dynamodb.create_table(
-                    TableName='friend_requests',
-                    KeySchema=[
-                        {'AttributeName': 'to_user', 'KeyType': 'HASH'},
-                        {'AttributeName': 'from_user', 'KeyType': 'RANGE'}
-                    ],
-                    AttributeDefinitions=[
-                        {'AttributeName': 'to_user', 'AttributeType': 'S'},
-                        {'AttributeName': 'from_user', 'AttributeType': 'S'}
-                    ],
-                    GlobalSecondaryIndexes=[
-                        {
-                            'IndexName': 'from_user-index',
-                            'KeySchema': [
-                                {'AttributeName': 'from_user', 'KeyType': 'HASH'},
-                            ],
-                            'Projection': {
-                                'ProjectionType': 'ALL'
-                            },
-                            'ProvisionedThroughput': {
-                                'ReadCapacityUnits': 5,
-                                'WriteCapacityUnits': 5
-                            }
-                        }
-                    ],
-                    ProvisionedThroughput={
-                        'ReadCapacityUnits': 5,
-                        'WriteCapacityUnits': 5
-                    }
-                )
+    #         # Check and create friend_requests table
+    #         try:
+    #             dynamodb.describe_table(TableName='friend_requests')
+    #         except dynamodb.exceptions.ResourceNotFoundException:
+    #             dynamodb.create_table(
+    #                 TableName='friend_requests',
+    #                 KeySchema=[
+    #                     {'AttributeName': 'to_user', 'KeyType': 'HASH'},
+    #                     {'AttributeName': 'from_user', 'KeyType': 'RANGE'}
+    #                 ],
+    #                 AttributeDefinitions=[
+    #                     {'AttributeName': 'to_user', 'AttributeType': 'S'},
+    #                     {'AttributeName': 'from_user', 'AttributeType': 'S'}
+    #                 ],
+    #                 GlobalSecondaryIndexes=[
+    #                     {
+    #                         'IndexName': 'from_user-index',
+    #                         'KeySchema': [
+    #                             {'AttributeName': 'from_user', 'KeyType': 'HASH'},
+    #                         ],
+    #                         'Projection': {
+    #                             'ProjectionType': 'ALL'
+    #                         },
+    #                         'ProvisionedThroughput': {
+    #                             'ReadCapacityUnits': 5,
+    #                             'WriteCapacityUnits': 5
+    #                         }
+    #                     }
+    #                 ],
+    #                 ProvisionedThroughput={
+    #                     'ReadCapacityUnits': 5,
+    #                     'WriteCapacityUnits': 5
+    #                 }
+    #             )
                 
-            # Check and create user_friends table
-            try:
-                dynamodb.describe_table(TableName='user_friends')
-            except dynamodb.exceptions.ResourceNotFoundException:
-                dynamodb.create_table(
-                    TableName='user_friends',
-                    KeySchema=[
-                        {'AttributeName': 'username', 'KeyType': 'HASH'},
-                        {'AttributeName': 'friend', 'KeyType': 'RANGE'}
-                    ],
-                    AttributeDefinitions=[
-                        {'AttributeName': 'username', 'AttributeType': 'S'},
-                        {'AttributeName': 'friend', 'AttributeType': 'S'}
-                    ],
-                    ProvisionedThroughput={
-                        'ReadCapacityUnits': 5,
-                        'WriteCapacityUnits': 5
-                    }
-                )
-            return True
-        except Exception as e:
-            print(f"Error ensuring tables exist: {e}")
-            return False
+    #         # Check and create user_friends table
+    #         try:
+    #             dynamodb.describe_table(TableName='user_friends')
+    #         except dynamodb.exceptions.ResourceNotFoundException:
+    #             dynamodb.create_table(
+    #                 TableName='user_friends',
+    #                 KeySchema=[
+    #                     {'AttributeName': 'username', 'KeyType': 'HASH'},
+    #                     {'AttributeName': 'friend', 'KeyType': 'RANGE'}
+    #                 ],
+    #                 AttributeDefinitions=[
+    #                     {'AttributeName': 'username', 'AttributeType': 'S'},
+    #                     {'AttributeName': 'friend', 'AttributeType': 'S'}
+    #                 ],
+    #                 ProvisionedThroughput={
+    #                     'ReadCapacityUnits': 5,
+    #                     'WriteCapacityUnits': 5
+    #                 }
+    #             )
+    #         return True
+    #     except Exception as e:
+    #         print(f"Error ensuring tables exist: {e}")
+    #         return False
 
     @staticmethod
     def get_friend_requests_table():
-        FriendRequest.ensure_tables_exist()  # First ensure tables exist
+        # FriendRequest.ensure_tables_exist()  # First ensure tables exist
         dynamodb = FriendRequest.get_dynamodb_resource()
         return dynamodb.Table('friend_requests')
 
@@ -107,15 +107,16 @@ class FriendRequest:
             return table
         except Exception as e:
             print(f"Error getting friends table: {e}")
+            return None
             # Try to create tables if they don't exist
-            from .utils import create_dynamodb_tables
-            create_dynamodb_tables()
-            # Try one more time
-            try:
-                return dynamodb.Table('user_friends')
-            except Exception as e:
-                print(f"Final error getting friends table: {e}")
-                return None
+            # from .utils import create_dynamodb_tables
+            # create_dynamodb_tables()
+            # # Try one more time
+            # try:
+            #     return dynamodb.Table('user_friends')
+            # except Exception as e:
+            #     print(f"Final error getting friends table: {e}")
+            #     return None
 
     @staticmethod
     def send_request(from_user, to_user):

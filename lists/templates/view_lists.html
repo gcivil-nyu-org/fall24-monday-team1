@@ -12,23 +12,9 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Checkpoint</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'userProfile:myProfile' %}">My Profile</a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+    
     <div class="container">
         <div class="tabs mt-5">
             <button id="myListsTab" class="btn btn-primary tab-button active" onclick="fetchLists('my')">My Lists</button>

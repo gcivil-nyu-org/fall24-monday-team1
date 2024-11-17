@@ -1,5 +1,5 @@
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from ..models import UserProfile
@@ -12,11 +12,18 @@ import requests
 from unittest import skip
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib import messages
 
 
 def viewProfile(request, user_id):
-    profile = get_object_or_404(UserProfile, user_id=user_id)
+    list(messages.get_messages(request))
+
+    try:
+        profile = get_object_or_404(UserProfile, user_id=user_id)
+    except Http404:
+        if (user_id == request.user.pk):
+            return redirect('createUserProfile:createProfile')
+        raise Http404("UserProfile not found for the given user_id.")
     
     # Initialize variables
     is_own_profile = request.user.id == user_id

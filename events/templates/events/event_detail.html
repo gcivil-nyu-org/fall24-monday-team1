@@ -1,0 +1,73 @@
+{% load static %}
+{% load user_info_tags %}  {# Make sure to load the tag library where render_user_info is defined #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ event.title }} - Event Details</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        rel="stylesheet"
+        href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <style>
+        .event-title {
+            color: black; /* Change the title color to black */
+            transition: none; /* Disable any transition */
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h1 class="card-title event-title">{{ event.title }}</h1>
+                        <p class="card-text"><strong>Description:</strong> {{ event.description }}</p>
+                        <p class="card-text"><strong>Start Time:</strong> {{ event.start_time }}</p>
+                        <p class="card-text"><strong>End Time:</strong> {{ event.end_time }}</p>
+                        <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
+                        
+                        <h5>Created by:</h5>
+                        {% render_user_info event.creator_user.id as creator_info %}
+                        {{ creator_info|safe }}
+
+                        <h5>Participants</h5>
+                        <ul class="list-group mb-3">
+                            {% for participant in event.participants_users %}
+                                {% render_user_info participant.id as participant_info %}
+                                <li class="list-group-item">{{ participant_info|safe }}</li>
+                            {% empty %}
+                                <li class="list-group-item">No participants yet.</li>
+                            {% endfor %}
+                        </ul>
+
+                        <div class="d-flex">
+                            {% if is_participant %}
+                                <form action="{% url 'events:unregister_event' event.eventId %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Unregister</button>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'events:register_event' event.eventId %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">Register</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
