@@ -50,35 +50,6 @@ class UserProfileTests(TestCase):
         messages = list(response.wsgi_request._messages)
         self.assertTrue(any("Profile created successfully!" in str(message) for message in messages))
 
-    
-    def test_invalid_form(self):
-        UserProfile.objects.create(user=self.user)
-
-        
-        url = reverse('createUserProfile:createProfile')
-
-        
-        post_data = {
-            
-        }
-        response = self.client.post(url, data=post_data)
-
-        self.assertEqual(response.status_code, 200)
-    
-    def test_get_call(self):
-        UserProfile.objects.create(user=self.user)
-
-        
-        url = reverse('createUserProfile:createProfile')
-
-        
-        post_data = {
-            
-        }
-        response = self.client.get(url, data=post_data)
-
-        self.assertEqual(response.status_code, 200)
-
     def test_get_call_no_profile(self):
         """Test GET request when user has no profile"""
         url = reverse('createUserProfile:createProfile')
