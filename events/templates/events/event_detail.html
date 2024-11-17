@@ -6,10 +6,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ event.title }} - Event Details</title>
-    <link
-        rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link
         rel="stylesheet"
         href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
@@ -21,12 +18,16 @@
             color: black; /* Change the title color to black */
             transition: none; /* Disable any transition */
         }
+
     </style>
 </head>
 <body>
     <!-- Navbar -->
-    {% load navbar_tags %}
-    {% render_navbar user=request.user %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'events:event_list' %}">Back to Events Page</a>
+        </div>
+    </nav>
 
     <div class="container py-5">
         <div class="row">
