@@ -12,10 +12,12 @@ import requests
 from unittest import skip
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib import messages
 
 
 def viewProfile(request, user_id):
+    list(messages.get_messages(request))
+
     try:
         profile = get_object_or_404(UserProfile, user_id=user_id)
     except Http404:

@@ -23,6 +23,7 @@
         max-height: 40px;
         width: auto;
         vertical-align: middle;
+        
     }
 
     .custom-dropdown-btn {
@@ -31,6 +32,8 @@
         min-width: 60px;
         display: flex;
         align-items: center;
+        background: rgba(53,58,63, 0.5);
+        border-color: white;
     }
 
     .dropdown-toggle::after {
@@ -39,7 +42,6 @@
         content: "";
         border: solid transparent;
         border-width: 0 4px 4px 0;
-        border-top-color: white; /* Change this to match your button background */
         display: inline-block;
         transform: rotate(45deg);
         width: 8px;
@@ -58,7 +60,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Checkpoint</a>
+        <a class="navbar-brand" href="{% url 'userProfile:myProfile' %}">Checkpoint</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -79,18 +81,20 @@
                         <button type="button" class="btn btn-primary dropdown-toggle custom-dropdown-btn" 
                         alt="Welcome, {{ user.username }}!"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <script>console.log("{{user.profile.display_name}}");</script>
                             <div class="avatar-crop">
                                 <img 
                                 {% if user.profile.profile_photo %}
                                 src="{{ user.profile.profile_photo.url }}"
                                 {% else %}
-                                src="https://ui-avatars.com/api/?name={{user.profile.username}}"
+                                src="https://ui-avatars.com/api/?name={{user.profile.display_name}}"
                                 {% endif %}                           
                                 alt="Avatar" class="img-fluid" />
                             </div>
                             <i class="fa-solid fa-angle-down" style="margin-left: 5px;"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="{% url 'userProfile:myProfile' %}">My Profile</a>
                             <a class="dropdown-item" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
                             <a class="dropdown-item" href="{% url 'friends:friend_list' %}">My Friends</a>
                             <div class="dropdown-divider"></div>

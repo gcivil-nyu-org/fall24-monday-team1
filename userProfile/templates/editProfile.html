@@ -32,16 +32,8 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Checkpoint</a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <!-- Add Navbar Items Here -->
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
 
     <!-- Edit Profile Form -->
     <div class="container mt-5">
