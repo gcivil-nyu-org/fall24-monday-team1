@@ -51,15 +51,17 @@
         <div class="row">
             {% for event in page_obj %}
                 <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ event.title }}</h5>
-                            <p class="card-text"><strong>Created by:</strong> {{ event.creator_user.username }}</p>
-                            <p class="card-text"><strong>Starts at:</strong> {{ event.start_time }}</p>
-                            <p class="card-text"><strong>Ends at:</strong> {{ event.end_time }}</p>
-                            <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
+                    <a href="{% url 'events:event_detail' event.eventId %}" class="text-decoration-none text-dark">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.title }}</h5>
+                                <p class="card-text"><strong>Created by:</strong> {{ event.creator_user.username }}</p>
+                                <p class="card-text"><strong>Starts at:</strong> {{ event.start_time }}</p>
+                                <p class="card-text"><strong>Ends at:</strong> {{ event.end_time }}</p>
+                                <p class="card-text"><strong>Location:</strong> {{ event.location }}</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             {% empty %}
                 <div class="col-12">

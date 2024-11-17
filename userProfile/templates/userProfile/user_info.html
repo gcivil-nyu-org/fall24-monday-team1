@@ -1,0 +1,69 @@
+<div class="user-profile">
+    <div class="avatar-crop">
+        <img src="{{ user_profile.profile_photo.url }}" alt="Avatar" class="img-fluid" />
+    </div>
+    <div class="card hover-card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-2"><strong>{{ user_profile.display_name }}</strong></h5>
+            <p class="card-text text-muted">{{ user_profile.bio }} 
+                {% if user_profile.account_role == 'creator' %}
+                    <span class="badge bg-success">CREATOR</span>
+                {% elif user_profile.account_role == 'event_organizer' %}
+                    <span class="badge bg-warning text-dark">ORGANIZER</span>
+                {% elif user_profile.account_role == 'gamer' %}
+                    <span class="badge bg-info">GAMER</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-profile {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-crop {
+    width: 80px; /* Desired size */
+    height: 80px; /* Desired size */
+    overflow: hidden;
+    border-radius: 50%; /* Circular shape */
+}
+
+.avatar-crop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Crop the image while maintaining aspect ratio */
+    object-position: center; /* Center the image */
+}
+
+.hover-card {
+    display: none;
+    position: absolute;
+    bottom: 160%; /* Position above the avatar */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px; /* Adjust width as necessary */
+    z-index: 10;
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Transition effect */
+    transform: translateY(-10px); /* Slight upward shift for effect */
+}
+
+.user-profile:hover .hover-card {
+    display: block;
+    opacity: 1; /* Fade in */
+    transform: translateY(0); /* Reset upward shift */
+}
+
+/* Ensure responsiveness on mobile */
+@media (max-width: 576px) {
+    .hover-card {
+        width: 90%; /* Adjust width for mobile */
+    }
+}
+</style>
+
+<!-- Include Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">

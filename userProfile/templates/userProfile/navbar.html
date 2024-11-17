@@ -1,0 +1,113 @@
+<style>
+    .avatar-crop {
+        width: 35px;
+        height: 35px;
+        overflow: hidden;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .avatar-crop img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .dropdown-toggle::after {
+        display: none; /* Hide default dropdown indicator */
+    }
+
+    .dropdown-icon {
+        margin-left: 5px; /* Space between avatar and icon */
+        max-height: 40px;
+        width: auto;
+        vertical-align: middle;
+    }
+
+    .custom-dropdown-btn {
+        padding: 5px 20px;
+        height: 40px;
+        min-width: 60px;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-toggle::after {
+        margin-left: 10px; /* Space between avatar and icon */
+        margin-top: -2px; /* Adjust this value for vertical alignment */
+        content: "";
+        border: solid transparent;
+        border-width: 0 4px 4px 0;
+        border-top-color: white; /* Change this to match your button background */
+        display: inline-block;
+        transform: rotate(45deg);
+        width: 8px;
+        height: 8px;
+        line-height: 40px; /* Match this with the button height for centering */
+    }
+</style>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Checkpoint</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'gamesearch:search_game' %}">Search for Games</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lists:view_lists' %}">View Game Lists</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'events:event_list' %}">View Events</a>
+                </li>
+                <li class="nav-item">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle custom-dropdown-btn" 
+                        alt="Welcome, {{ user.username }}!"
+                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="avatar-crop">
+                                <img 
+                                {% if user.profile.profile_photo %}
+                                src="{{ user.profile.profile_photo.url }}"
+                                {% else %}
+                                src="https://ui-avatars.com/api/?name={{user.profile.username}}"
+                                {% endif %}                           
+                                alt="Avatar" class="img-fluid" />
+                            </div>
+                            <i class="fa-solid fa-angle-down" style="margin-left: 5px;"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="{% url 'friends:friend_requests' %}">Friend Requests</a>
+                            <a class="dropdown-item" href="{% url 'friends:friend_list' %}">My Friends</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
