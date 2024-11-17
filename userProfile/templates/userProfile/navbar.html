@@ -1,5 +1,5 @@
 <style>
-    .avatar-crop {
+    .avatar-crop-nav {
         width: 35px;
         height: 35px;
         overflow: hidden;
@@ -7,7 +7,7 @@
         display: inline-block;
     }
 
-    .avatar-crop img {
+    .avatar-crop-nav img {
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -82,7 +82,7 @@
                         alt="Welcome, {{ user.username }}!"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <script>console.log("{{user.profile.display_name}}");</script>
-                            <div class="avatar-crop">
+                            <div class="avatar-crop-nav">
                                 <img 
                                 {% if user.profile.profile_photo %}
                                 src="{{ user.profile.profile_photo.url }}"
