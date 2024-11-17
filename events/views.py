@@ -65,6 +65,8 @@ def get_event(event_id):
     return None
 
 def event_list(request):
+    list(messages.get_messages(request))
+
     events = get_all_events()
     
     # Sort events by start_time (or any other attribute)

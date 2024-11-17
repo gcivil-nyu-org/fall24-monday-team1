@@ -13,9 +13,32 @@
         #comment_board {
             display: none;
         }
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.5);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        /* Navbar link colors */
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        
+        .nav-link:hover {
+            color: #ddd !important;
+        }
     </style>
 </head>
 <body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'gamesearch:search_game' %}">Checkpoint</a>
+        </div>
+    </nav>
+        
     <div class="container">
         <div class="row justify-content-center mt-5">
             <div class="col-md-8">
