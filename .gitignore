@@ -68,3 +68,4 @@ checkpoint/static/*
 !.elasticbeanstalk/*.global.yml
 
 .coverage
+db.prod.sqlite3
