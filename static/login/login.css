@@ -11,6 +11,7 @@ body {
     overflow: hidden; /* Prevent scrolling */
 }
 
+
 .container {
     background: white;
     border-radius: 10px;
@@ -80,3 +81,4 @@ p {
         opacity: 1;
     }
 }
+
