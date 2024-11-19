@@ -166,9 +166,12 @@ def event_detail(request, event_id):
 
     # Populate participants
     event['participants_users'] = []
+    is_participant = False
     for participant_id in event.get('participants', []):
         try:
             user = User.objects.get(id=int(participant_id))
+            if (int(participant_id) == int(request.user.pk)):
+                is_participant = True
             event['participants_users'].append(user)
         except User.DoesNotExist:
             event['participants_users'].append({
@@ -177,5 +180,6 @@ def event_detail(request, event_id):
 
     context = {
         'event': event,
+        'is_participant': is_participant,
     }
     return render(request, 'events/event_detail.html', context)
