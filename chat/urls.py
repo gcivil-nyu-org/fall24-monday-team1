@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 app_name="chat"
 urlpatterns = [
-    path("<str:room_id>/", chat_views.chatPage, name="chat-page"),
+    path("<str:to>/<str:room_id>/", chat_views.chatPage, name="chat-page"),
 
     # # login-section
     # path("auth/login/", LoginView.as_view

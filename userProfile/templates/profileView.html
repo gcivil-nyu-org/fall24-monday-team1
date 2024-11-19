@@ -289,7 +289,7 @@
     function sendMessage(){
       const chatRoomId = generateQuickGuid();
       console.log(chatRoomId)
-      window.location.href = `/chat/`+chatRoomId;
+      window.location.href = `/chat/`+"{{profile.user.username}}/"+chatRoomId;
     }
   </script>
 </html>
