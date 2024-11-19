@@ -1,45 +1,108 @@
 <!DOCTYPE html>
-<html>
-  <body>
-    <center><h1>Hello , Welcome to my chat site ! {{request.user}}</h1></center>
-    <br>
-    <div
-      class="chat__item__container"
-      id="id_chat_item_container"
-      style="font-size: 20px"
-    >
-      <br />
-      <input type="text" id="id_message_send_input" />
-      <button type="submit" id="id_message_send_button">Send Message</button>
-      <br />
-      <br />
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    {%load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        #chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        #messages {
+            border: 1px solid #ddd;
+            height: 300px;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+        .message.sent {
+            text-align: right;
+            color: blue;
+        }
+        .message.received {
+            text-align: left;
+            color: green;
+        }
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h2>Chat Room: {{ room_name }}</h2>
+        <div id="messages"></div>
+        <input type="text" id="chat-message-input" placeholder="Type your message...">
+        <button id="chat-message-submit">Send</button>
     </div>
+
     <script>
       const chatSocket = new WebSocket("ws://" + window.location.host + "/");
+
       chatSocket.onopen = function (e) {
-        console.log("The connection was setup successfully !");
+        console.log("The connection was setup successfully!");
       };
+
       chatSocket.onclose = function (e) {
-        console.log("Something unexpected happened !");
+        console.log("Something unexpected happened!");
       };
-      document.querySelector("#id_message_send_input").focus();
-      document.querySelector("#id_message_send_input").onkeyup = function (e) {
-        if (e.keyCode == 13) {
-          document.querySelector("#id_message_send_button").click();
+
+      document.querySelector("#chat-message-input").focus();
+      document.querySelector("#chat-message-input").onkeyup = function (e) {
+        if (e.keyCode === 13) {
+          document.querySelector("#chat-message-submit").click();
         }
       };
-      document.querySelector("#id_message_send_button").onclick = function (e) {
-        var messageInput = document.querySelector(
-          "#id_message_send_input"
-        ).value;
-        chatSocket.send(JSON.stringify({ message: messageInput, username : "{{request.user.username}}"}));
+
+      document.querySelector("#chat-message-submit").onclick = function (e) {
+        var messageInput = document.querySelector("#chat-message-input").value;
+        if (messageInput.trim() === "") {
+          return;  // Don't send empty messages
+        }
+        chatSocket.send(
+          JSON.stringify({
+            message: messageInput,
+            username: "{{ request.user.username }}",
+          })
+        );
       };
+
       chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
         var div = document.createElement("div");
-        div.innerHTML = data.username + " : " + data.message;
-        document.querySelector("#id_message_send_input").value = "";
-        document.querySelector("#id_chat_item_container").appendChild(div);
+        div.classList.add("message");
+        div.classList.add(data.username === "{{ request.user.username }}" ? "sent" : "received");
+        div.innerHTML = `<strong>${data.username}</strong>: ${data.message}`;
+        document.querySelector("#chat-message-input").value = "";
+        document.querySelector("#messages").appendChild(div);
+
+        // Scroll to the bottom when a new message is received
+        var container = document.querySelector("#id_chat_item_container");
+        container.scrollTop = container.scrollHeight;
       };
     </script>
   </body>
