@@ -62,6 +62,7 @@
                   data-mdb-button-init
                   data-mdb-ripple-init
                   class="btn btn-outline-primary ms-1"
+                  onclick="sendMessage()"
                 >
                   Message
                 </button>
@@ -280,4 +281,15 @@
     });
   </script>
 
+  <script>
+    function generateQuickGuid() {
+      return Math.random().toString(36).substring(2, 15) +
+          Math.random().toString(36).substring(2, 15);
+    }
+    function sendMessage(){
+      const chatRoomId = generateQuickGuid();
+      console.log(chatRoomId)
+      window.location.href = `/chat/`+chatRoomId;
+    }
+  </script>
 </html>
