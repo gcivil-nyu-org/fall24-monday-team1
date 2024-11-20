@@ -200,3 +200,8 @@ h2 {
 .text-center p {
     color: #666;
 }
+
+p {
+    text-align: center;
+    margin-top: 15px;
+}

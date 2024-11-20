@@ -1,18 +1,19 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 
 from django.urls import reverse
 import requests
 import os
-import json
 from datetime import datetime
 import boto3
 
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from botocore.exceptions import ClientError
+
+from boto3.dynamodb.conditions import Attr
+
 
 def authorize_igdb():
         url = "https://id.twitch.tv/oauth2/token?client_id=%s&client_secret=%s&grant_type=client_credentials" % (os.environ['igdb_client_id'], os.environ['igdb_client_secret'])
@@ -79,10 +80,25 @@ def search_game(request):
 
 def game_details_view(request, game_id):
     # print(request.GET.get('shelf'), request.GET.get('own'))
+    # TODO: make a dynamoDB request instead to see if current user has this in completed shelf
     try:
-        shelf = request.GET.get('shelf')
-        own = request.GET.get('own').replace("$",'')
-        showReviewBox = shelf=="completed" and own=="True"
+        dynamodb = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name='us-east-1'
+        )
+    
+        table = dynamodb.Table('user-shelves')
+        filter_expression = Attr('user_id').eq(request.user.username)
+        scan_params = {
+        'FilterExpression': filter_expression,
+        }
+        response = table.scan(**scan_params)
+        showReviewBox = False
+        if response['Items']:
+            completed_games = response['Items'][0]['completed']
+            showReviewBox = str(game_id) in completed_games
         return render(request, 'game_details.html', {'game_id': game_id, 'showReviewBox': showReviewBox ,'curPath' : reverse('gamesearch:game-details', args=[game_id])})
     except Exception as e:
         print(e)
