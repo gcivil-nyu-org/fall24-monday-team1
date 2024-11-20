@@ -1,5 +1,5 @@
 {% load static %}
-{% load user_info_tags %}  {# Make sure to load the tag library where render_user_info is defined #}
+{% load user_info_tags %}  {# Load the tag library for user information #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,10 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ event.title }} - Event Details</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link
-        rel="stylesheet"
-        href="https://use.fontawesome.com/releases/v5.0.8/css/all.css"
-    />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <style>
@@ -18,7 +15,6 @@
             color: black; /* Change the title color to black */
             transition: none; /* Disable any transition */
         }
-
     </style>
 </head>
 <body>
@@ -64,6 +60,14 @@
                                 </form>
                             {% endif %}
                         </div>
+
+                        {# Edit and Delete buttons visible only to the creator #}
+                        {% if request.user.id == event.creator %}
+                            <div class="mt-3">
+                                <a href="{% url 'events:edit_event' event.eventId %}" class="btn btn-warning">Edit Event</a>
+                                <a href="{% url 'events:delete_event' event.eventId %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this event?');">Delete Event</a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
