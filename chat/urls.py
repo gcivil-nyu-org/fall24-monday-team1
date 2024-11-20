@@ -5,6 +5,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 app_name="chat"
 urlpatterns = [
     path("<str:to>/<str:room_id>/", chat_views.chatPage, name="chat-page"),
+    path("", chat_views.save_message, name="save-message")
 
     # # login-section
     # path("auth/login/", LoginView.as_view

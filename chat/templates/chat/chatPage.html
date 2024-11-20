@@ -44,12 +44,23 @@
         if (messageInput.trim() === "") {
           return;  // Don't send empty messages
         }
+        fetch("{% url 'chat:save-message' %}", {
+          method: "POST",
+          body: new URLSearchParams({ 'message': messageInput, 'sender': "{{ request.user.username }}" , 'receiver' : "{{ to }}" , 'room_uuid': "{{ room_name }}"})
+        })
+        .then(response => 
+                  response.json().then(data => {
+                    console.log(data);
+                    
+        }));
         chatSocket.send(
           JSON.stringify({
             message: messageInput,
             username: "{{ request.user.username }}",
           })
         );
+
+       
       };
 
       chatSocket.onmessage = function (e) {

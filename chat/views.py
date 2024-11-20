@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect
 import boto3
 import os
+from chat.models import ChatMessage
 from checkpoint.settings import ENV
 
 from boto3.dynamodb.conditions import Attr
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+import time
 
 
 def chatPage(request, to, room_id):
@@ -44,5 +49,18 @@ def chatPage(request, to, room_id):
 
     context = {
         "room_name": room_id,
+        "to": to
     }
     return render(request, "chat/chatPage.html", context)
+
+@csrf_exempt
+def save_message(request):
+
+    if request.method == 'POST':
+        body = request.POST
+        msg = ChatMessage(body['room_uuid'], body['sender'], body['receiver'], time.time(), body['message'])
+        try:
+            msg.save()
+            return JsonResponse({"status":"success", "message" : "saved message to DB"})
+        except Exception as e:
+            return JsonResponse({"status":"failure", "message" : "could not save"})
