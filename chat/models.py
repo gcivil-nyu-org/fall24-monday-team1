@@ -3,9 +3,12 @@ import boto3
 import os
 from botocore.exceptions import ClientError
 from checkpoint.settings import ENV
+import uuid
+
 
 class ChatMessage:
     def __init__(self, room_uuid, sender, receiver, timestamp, content):
+        self.msgid = str(uuid.uuid4())
         self.msg = content
         self.room_uuid = room_uuid
         self.sender = sender

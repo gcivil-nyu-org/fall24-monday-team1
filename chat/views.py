@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
 import time
+import json
 
 
 def chatPage(request, to, room_id):
@@ -34,9 +35,16 @@ def chatPage(request, to, room_id):
     'FilterExpression': filter_expression,
     }
     response = table.scan(**scan_params)
+    messages = []
     if response['Items']:
         room_id = response['Items'][0]['room_uuid']
-        print("existing room, fetch history pending")
+        # print("existing room, fetch history pending")
+        if ENV=="PROD":
+            chat_table = dynamodb.Table('chathistory')
+        elif not ENV or ENV=="DEV":
+            chat_table = dynamodb.Table('dev-chathistory')  
+        messages = chat_table.scan(FilterExpression = Attr('room_uuid').eq(room_id))['Items']
+        
     else:
         # add this to the table
         table.put_item(Item={
@@ -45,11 +53,11 @@ def chatPage(request, to, room_id):
             'to':to
         })
         print("created new room")
-      
-
+    
     context = {
         "room_name": room_id,
-        "to": to
+        "to": to,
+        "messages": json.dumps(messages)
     }
     return render(request, "chat/chatPage.html", context)
 

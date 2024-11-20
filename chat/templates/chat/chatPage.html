@@ -38,6 +38,22 @@
           document.querySelector("#chat-message-submit").click();
         }
       };
+      
+      var msgHistory = JSON.parse("{{ messages|escapejs}}")
+      msgHistory.sort((a, b) => (a.timestamp > b.timestamp ? 1 : -1));
+      msgHistory.forEach(message => {
+        console.log(message);
+        var div = document.createElement("div");
+        div.classList.add("message");
+        div.classList.add(message.sender === "{{ request.user.username }}" ? "sent" : "received");
+        div.innerHTML = `<strong>${message.sender}</strong>: ${message.msg}`;
+        document.querySelector("#chat-message-input").value = "";
+        document.querySelector("#messages").appendChild(div);
+
+        // Scroll to the bottom when a new message is received
+        {% comment %} var container = document.querySelector("#id_chat_item_container");
+        container.scrollTop = container.scrollHeight; {% endcomment %}
+      });
 
       document.querySelector("#chat-message-submit").onclick = function (e) {
         var messageInput = document.querySelector("#chat-message-input").value;
