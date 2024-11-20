@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'login',
     'userProfile',
@@ -53,8 +54,16 @@ INSTALLED_APPS = [
     'comments',
     'events',
     'friends',
-    'lists'
+    'lists',
+    'channels',
+    'chat'
 ]
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -85,6 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'checkpoint.wsgi.application'
+ASGI_APPLICATION = 'checkpoint.asgi.application'
 
 
 # Database

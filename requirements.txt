@@ -13,4 +13,6 @@ six==1.16.0
 sqlparse==0.5.1
 urllib3==1.26.6
 Pillow
+daphne
+channels
 
