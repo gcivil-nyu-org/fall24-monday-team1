@@ -11,6 +11,8 @@ from django.http import JsonResponse
 import time
 import json
 
+import pusher
+
 
 def chatPage(request, to, room_id):
     if not request.user.is_authenticated:
@@ -50,16 +52,18 @@ def chatPage(request, to, room_id):
         table.put_item(Item={
             'room_uuid': room_id,
             'from': request.user.username,
-            'to':to
+            'to':to,
+            'pusher_api': os.environ.get("PUSHER_API"),
+            'pusher_secret': os.environ.get("PUSHER_SECRET"),
+            'pusher_app': os.environ.get("PUSHER_APP"),
         })
         print("created new room")
     
-    isLocal = os.environ.get("local", False)
     context = {
         "room_name": room_id,
         "to": to,
         "messages": json.dumps(messages),
-        "prefix": "wss" if isLocal == "True" else "ws"
+        "pusher_api": os.environ.get("PUSHER_API")
     }
     return render(request, "chat/chatPage.html", context)
 
@@ -68,6 +72,15 @@ def save_message(request):
 
     if request.method == 'POST':
         body = request.POST
+        pusher_client = pusher.Pusher(
+            app_id=os.environ.get("PUSHER_APP"),
+            key=os.environ.get("PUSHER_API"),
+            secret=os.environ.get("PUSHER_SECRET"),
+            cluster='us2',
+            ssl=True
+        )
+
+        pusher_client.trigger('my-channel', body['room_uuid'] , {'message': body['message'], 'sender': body['sender']})
         msg = ChatMessage(body['room_uuid'], body['sender'], body['receiver'], time.time(), body['message'])
         try:
             msg.save()
