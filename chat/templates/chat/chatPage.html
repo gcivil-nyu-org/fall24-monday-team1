@@ -22,7 +22,7 @@
     </div>
 
     <script>
-      const chatSocket = new WebSocket("{{prefix}}://" + window.location.host + "/ws/chat/{{ room_name }}/");
+      const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/{{ room_name }}/");
 
       chatSocket.onopen = function (e) {
         console.log("The connection was setup successfully!");

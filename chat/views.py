@@ -59,7 +59,6 @@ def chatPage(request, to, room_id):
         "room_name": room_id,
         "to": to,
         "messages": json.dumps(messages),
-        "prefix": "wss" if isLocal == "True" else "ws"
     }
     return render(request, "chat/chatPage.html", context)
 
