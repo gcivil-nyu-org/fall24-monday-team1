@@ -54,10 +54,12 @@ def chatPage(request, to, room_id):
         })
         print("created new room")
     
+    isLocal = os.environ.get("local", False)
     context = {
         "room_name": room_id,
         "to": to,
-        "messages": json.dumps(messages)
+        "messages": json.dumps(messages),
+        "prefix": "wss" if isLocal == "True" else "ws"
     }
     return render(request, "chat/chatPage.html", context)
 

@@ -22,7 +22,7 @@
     </div>
 
     <script>
-      const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/{{ room_name }}/");
+      const chatSocket = new WebSocket("{{prefix}}://" + window.location.host + "/ws/chat/{{ room_name }}/");
 
       chatSocket.onopen = function (e) {
         console.log("The connection was setup successfully!");
@@ -51,8 +51,8 @@
         document.querySelector("#messages").appendChild(div);
 
         // Scroll to the bottom when a new message is received
-        {% comment %} var container = document.querySelector("#id_chat_item_container");
-        container.scrollTop = container.scrollHeight; {% endcomment %}
+        var container = document.querySelector("#messages");
+        container.scrollTop = container.scrollHeight;
       });
 
       document.querySelector("#chat-message-submit").onclick = function (e) {
@@ -89,7 +89,7 @@
         document.querySelector("#messages").appendChild(div);
 
         // Scroll to the bottom when a new message is received
-        var container = document.querySelector("#id_chat_item_container");
+        var container = document.querySelector("#messages");
         container.scrollTop = container.scrollHeight;
       };
     </script>
