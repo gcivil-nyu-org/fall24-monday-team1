@@ -19,18 +19,35 @@
         <div id="messages"></div>
         <input type="text" id="chat-message-input" placeholder="Type your message...">
         <button id="chat-message-submit">Send</button>
+        <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
     </div>
 
     <script>
-      const chatSocket = new WebSocket("ws://" + window.location.host + "/ws/chat/{{ room_name }}/");
 
-      chatSocket.onopen = function (e) {
-        console.log("The connection was setup successfully!");
-      };
+      Pusher.logToConsole = true;
+      
+      var pusher = new Pusher("{{pusher_api}}", {
+        cluster: "us2"
+      });
 
-      chatSocket.onclose = function (e) {
-        console.log("Something unexpected happened!");
-      };
+      var channel = pusher.subscribe('my-channel');
+      channel.bind('{{room_name}}', function(data){
+          if(data.sender != "{{request.user.username}}"){
+            // This is from the other side
+            var div = document.createElement("div");
+            div.classList.add("message");
+            div.classList.add("received");
+            div.innerHTML = `<strong>${data.sender}</strong>: ${data.message}`;
+            document.querySelector("#chat-message-input").value = "";
+            document.querySelector("#messages").appendChild(div);
+
+            var container = document.querySelector("#messages");
+            container.scrollTop = container.scrollHeight;
+
+
+          }
+      });
 
       document.querySelector("#chat-message-input").focus();
       document.querySelector("#chat-message-input").onkeyup = function (e) {
@@ -57,9 +74,22 @@
 
       document.querySelector("#chat-message-submit").onclick = function (e) {
         var messageInput = document.querySelector("#chat-message-input").value;
+
         if (messageInput.trim() === "") {
           return;  // Don't send empty messages
         }
+
+
+        var div = document.createElement("div");
+        div.classList.add("message");
+        div.classList.add("sent");
+        div.innerHTML = `<strong>{{request.user.username}}</strong>: ${messageInput}`;
+        document.querySelector("#chat-message-input").value = "";
+        document.querySelector("#messages").appendChild(div);
+
+        var container = document.querySelector("#messages");
+        container.scrollTop = container.scrollHeight;
+
         fetch("{% url 'chat:save-message' %}", {
           method: "POST",
           body: new URLSearchParams({ 'message': messageInput, 'sender': "{{ request.user.username }}" , 'receiver' : "{{ to }}" , 'room_uuid': "{{ room_name }}"})
@@ -69,29 +99,10 @@
                     console.log(data);
                     
         }));
-        chatSocket.send(
-          JSON.stringify({
-            message: messageInput,
-            username: "{{ request.user.username }}",
-          })
-        );
 
        
       };
 
-      chatSocket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-        var div = document.createElement("div");
-        div.classList.add("message");
-        div.classList.add(data.username === "{{ request.user.username }}" ? "sent" : "received");
-        div.innerHTML = `<strong>${data.username}</strong>: ${data.message}`;
-        document.querySelector("#chat-message-input").value = "";
-        document.querySelector("#messages").appendChild(div);
-
-        // Scroll to the bottom when a new message is received
-        var container = document.querySelector("#messages");
-        container.scrollTop = container.scrollHeight;
-      };
     </script>
   </body>
 </html>
