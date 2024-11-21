@@ -36,9 +36,10 @@ def search_game(request):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
-        
-        search_result = response.json()
-        
+        if response.status_code == 200:
+            search_result = response.json()
+        else:
+            search_result = []
         # print(search_result)
         # clean data
         data = []
