@@ -157,16 +157,16 @@ class EventViewsTest(TestCase):
         self.create_event(
             title='Event 1',
             description='Description 1',
-            start_time='2024-10-31 10:00',
-            end_time='2024-10-31 12:00',
+            start_time='2000-10-31 10:00',
+            end_time='2000-10-31 12:00',
             location='Location 1',
             creator_id=self.user.id,
         )
         self.create_event(
             title='Event 2',
             description='Description 2',
-            start_time='2024-10-31 13:00',
-            end_time='2024-10-31 15:00',
+            start_time='2000-10-31 13:00',
+            end_time='2000-10-31 15:00',
             location='Location 2',
             creator_id=self.user.id
         )

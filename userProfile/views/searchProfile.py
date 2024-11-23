@@ -1,32 +1,40 @@
-from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from ..models import UserProfile
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Q
+from ..models import UserProfile
 
-class UserProfileListView(LoginRequiredMixin, ListView):
-    model = UserProfile
-    template_name = 'userProfile/search_profile.html'
-    context_object_name = 'user_profiles'
-    paginate_by = 10
+@login_required
+def user_profile_list(request):
+    # Get query parameters
+    query = request.GET.get('q', '')
+    privacy = request.GET.get('privacy', '')
+    role = request.GET.get('role', '')
 
-    def get_queryset(self):
-        queryset = super().get_queryset().exclude(user=self.request.user)
-        query = self.request.GET.get('q')
-        privacy = self.request.GET.get('privacy')
-        role = self.request.GET.get('role')
+    # Build the queryset
+    queryset = UserProfile.objects.exclude(user=request.user)
 
-        if query:
-            queryset = queryset.filter(Q(display_name__icontains=query))
+    if query:
+        queryset = queryset.filter(Q(display_name__icontains=query))
 
-        if privacy:
-            queryset = queryset.filter(privacy_setting=privacy)
+    if privacy:
+        queryset = queryset.filter(privacy_setting=privacy)
 
-        if role:
-            queryset = queryset.filter(account_role=role)
+    if role:
+        queryset = queryset.filter(account_role=role)
 
-        return queryset
+    # Pagination
+    paginator = Paginator(queryset, 6)  # Show 6 profiles per page
+    page_number = request.GET.get('page')
+    user_profiles = paginator.get_page(page_number)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['loginIn'] = True
-        return context
+    # Prepare context
+    context = {
+        'user_profiles': user_profiles,
+        'query': query,
+        'privacy': privacy,
+        'role': role,
+        'loginIn': True,
+    }
+
+    return render(request, 'userProfile/search_profile.html', context)

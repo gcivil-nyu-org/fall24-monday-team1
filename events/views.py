@@ -80,12 +80,10 @@ def event_list(request):
             event['creator_user']["username"] = f"Can't find user with id {int(event['creator'])} with type int"
             
     # Setup pagination
-    paginator = Paginator(sorted_events, 5)  # Show 5 events per page
+    paginator = Paginator(sorted_events, 6)  # Show 5 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # populate user here
-    page_obj
 
     return render(request, 'events/event_list.html', {'page_obj': page_obj, "loginIn": request.user.is_authenticated})
 
