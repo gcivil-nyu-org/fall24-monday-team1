@@ -79,22 +79,21 @@ class UserProfileListViewTests(TestCase):
         UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
     def test_no_filters_applied(self):
-        request = self.factory.get('/userProfile/search/')
-        request.user = self.user1  # Assuming user1 is logged in
-        response = user_profile_list(request)
-
+        self.client.login(username='user1', password='password')  # Log in user1
+        response = self.client.get(reverse('userProfile:searchProfile'))  # Use reverse to get the URL
+        
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['user_profiles']), 2)  # Should return all profiles excluding the logged-in user
+        user_profiles = response.context['user_profiles']  # Access context
+        self.assertEqual(len(user_profiles), 2)  # Should return all profiles excluding user1's profile
 
     def test_filter_by_display_name(self):
-        request = self.factory.get('/userProfile/search/', {'q': 'Alice'})
-        request.user = self.user1  # Assuming user1 is logged in
-        response = user_profile_list(request)
-
+        self.client.login(username='user1', password='password')  # Log in user1
+        response = self.client.get(reverse('userProfile:searchProfile'), {'q': 'Alice'})  # Use reverse to get the URL with query param
+        
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['user_profiles']), 1)  # Should return only Alice's profile
-        self.assertEqual(response.context['user_profiles'][0].display_name, 'Alice')
-
+        user_profiles = response.context['user_profiles']  # Access context
+        self.assertEqual(len(user_profiles), 1)  # Should return only Alice's profile
+        self.assertEqual(user_profiles[0].display_name, 'Alice')
 
 
 class UserProfileViewTests(TestCase):
