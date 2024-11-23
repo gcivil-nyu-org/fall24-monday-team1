@@ -65,42 +65,28 @@ textarea.form-control {
 }
 
 /* Dropdown styling */
-.dropdown {
-    display: flex;
-    flex-direction: column;
-    margin-top: 10px;
-    max-width: 100%;
-}
-
-.dropdown .dropdown-item {
-    padding: 5px 10px;
-    cursor: pointer;
-    background-color: #f8f9fa;
+#gameDropdown {
+    position: absolute; /* Ensure it's positioned absolutely */
+    width: 100%;
+    background: white;
     border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.dropdown .dropdown-item:hover {
-    background-color: #e9ecef;
-}
-
-#game-results {
     display: none;
-    max-height: 200px;
+    max-height: 150px;
     overflow-y: auto;
-}
-
-.btn-success {
-    margin-top: 15px;
+    z-index: 1000; /* High z-index to bring it to the front */
 }
 
 
-/* Container for selected games */
-.selected-games-container {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 15px;
+#selectedGamesContainer {
+    max-height: 200px; /* Adjust this height as needed */
+    overflow-y: auto;  /* Make it scrollable */
+    border: 1px solid #ddd; /* Optional: Add a border for clarity */
+    padding: 10px;     /* Optional: Add some padding for spacing */
+    box-sizing: border-box; /* Ensures padding doesn't exceed container size */
+    margin-bottom: 20px;
 }
+
+
 
 /* Individual selected game styling */
 .selected-game {
