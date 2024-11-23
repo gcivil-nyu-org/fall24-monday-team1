@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    {%load static %}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'chat/chat.css' %}">
+</head>
+<body>
+  {% load navbar_tags %}
+  {% render_navbar user=request.user %}
+    <div id="chat-container">
+        <h2>Chat Room</h2>
+        <div id="messages"></div>
+        <input type="text" id="chat-message-input" placeholder="Type your message...">
+        <button id="chat-message-submit">Send</button>
+        <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+    </div>
+
+    <script>
+
+      Pusher.logToConsole = true;
+      
+      var pusher = new Pusher("{{pusher_api}}", {
+        cluster: "us2"
+      });
+
+      var channel = pusher.subscribe('my-channel');
+      channel.bind('{{room_name}}', function(data){
+          if(data.sender != "{{request.user.username}}"){
+            // This is from the other side
+            var div = document.createElement("div");
+            div.classList.add("message");
+            div.classList.add("received");
+            div.innerHTML = `<strong>${data.sender}</strong>: ${data.message}`;
+            document.querySelector("#chat-message-input").value = "";
+            document.querySelector("#messages").appendChild(div);
+
+            var container = document.querySelector("#messages");
+            container.scrollTop = container.scrollHeight;
+
+
+          }
+      });
+
+      document.querySelector("#chat-message-input").focus();
+      document.querySelector("#chat-message-input").onkeyup = function (e) {
+        if (e.keyCode === 13) {
+          document.querySelector("#chat-message-submit").click();
+        }
+      };
+      
+      var msgHistory = JSON.parse("{{ messages|escapejs}}")
+      msgHistory.sort((a, b) => (a.timestamp > b.timestamp ? 1 : -1));
+      msgHistory.forEach(message => {
+        console.log(message);
+        var div = document.createElement("div");
+        div.classList.add("message");
+        div.classList.add(message.sender === "{{ request.user.username }}" ? "sent" : "received");
+        div.innerHTML = `<strong>${message.sender}</strong>: ${message.msg}`;
+        document.querySelector("#chat-message-input").value = "";
+        document.querySelector("#messages").appendChild(div);
+
+        // Scroll to the bottom when a new message is received
+        var container = document.querySelector("#messages");
+        container.scrollTop = container.scrollHeight;
+      });
+
+      document.querySelector("#chat-message-submit").onclick = function (e) {
+        var messageInput = document.querySelector("#chat-message-input").value;
+
+        if (messageInput.trim() === "") {
+          return;  // Don't send empty messages
+        }
+
+
+        var div = document.createElement("div");
+        div.classList.add("message");
+        div.classList.add("sent");
+        div.innerHTML = `<strong>{{request.user.username}}</strong>: ${messageInput}`;
+        document.querySelector("#chat-message-input").value = "";
+        document.querySelector("#messages").appendChild(div);
+
+        var container = document.querySelector("#messages");
+        container.scrollTop = container.scrollHeight;
+
+        fetch("{% url 'chat:save-message' %}", {
+          method: "POST",
+          body: new URLSearchParams({ 'message': messageInput, 'sender': "{{ request.user.username }}" , 'receiver' : "{{ to }}" , 'room_uuid': "{{ room_name }}"})
+        })
+        .then(response => 
+                  response.json().then(data => {
+                    console.log(data);
+                    
+        }));
+
+       
+      };
+
+    </script>
+  </body>
+</html>

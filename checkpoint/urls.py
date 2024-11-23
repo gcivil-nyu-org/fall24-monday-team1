@@ -32,6 +32,7 @@ urlpatterns = [
     path('events/', include('events.urls')),
     path('friends/', include('friends.urls', namespace='friends')),
     path('lists/', include('lists.urls')),
+    path('chat/', include("chat.urls")),
     re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}), 
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}), 
 ]
