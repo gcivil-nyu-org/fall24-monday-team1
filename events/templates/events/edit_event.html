@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Event</title>
+    <title>Edit Event</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -15,30 +15,30 @@
     {% render_navbar user=request.user %}
 
     <div class="container mt-5">
-        <h1 class="mb-4">Create Event</h1>
-        <form method="POST" action="{% url 'events:create_event' %}" onsubmit="return validateDates()">
+        <h1 class="mb-4">Edit Event</h1>
+        <form method="POST" action="{% url 'events:edit_event' event.eventId %}" onsubmit="return validateDates()">
             {% csrf_token %}
             <div class="form-group">
                 <label for="eventTitle" class="form-label">Event Title</label>
-                <input type="text" class="form-control" id="eventTitle" name="title" placeholder="Event Title" required>
+                <input type="text" class="form-control" id="eventTitle" name="title" value="{{ event.title }}" placeholder="Event Title" required>
             </div>
             <div class="form-group">
                 <label for="eventDescription" class="form-label">Event Description</label>
-                <textarea class="form-control" id="eventDescription" name="description" placeholder="Event Description" required></textarea>
+                <textarea class="form-control" id="eventDescription" name="description" placeholder="Event Description" required>{{ event.description }}</textarea>
             </div>
             <div class="form-group">
                 <label for="eventStartTime" class="form-label">Start Time</label>
-                <input type="datetime-local" class="form-control" id="eventStartTime" name="start_time" required min="2000-01-01T00:00" max="3000-12-31T23:59">
+                <input type="datetime-local" class="form-control" id="eventStartTime" name="start_time" value="{{ event.start_time }}" required min="2000-01-01T00:00" max="3000-12-31T23:59">
             </div>
             <div class="form-group">
                 <label for="eventEndTime" class="form-label">End Time</label>
-                <input type="datetime-local" class="form-control" id="eventEndTime" name="end_time" required min="2000-01-01T00:00" max="3000-12-31T23:59">
+                <input type="datetime-local" class="form-control" id="eventEndTime" name="end_time" value="{{ event.end_time }}" required min="2000-01-01T00:00" max="3000-12-31T23:59">
             </div>
             <div class="form-group">
                 <label for="eventLocation" class="form-label">Location</label>
-                <input type="text" class="form-control" id="eventLocation" name="location" placeholder="Location" required>
+                <input type="text" class="form-control" id="eventLocation" name="location" value="{{ event.location }}" placeholder="Location" required>
             </div>
-            <button type="submit" class="btn btn-primary">Create Event</button>
+            <button type="submit" class="btn btn-primary">Update Event</button>
         </form>
         <a href="{% url 'events:event_list' %}" class="btn btn-link">Back to Event List</a>
     </div>
@@ -51,8 +51,7 @@
             const startTime = new Date(document.getElementById('eventStartTime').value);
             const endTime = new Date(document.getElementById('eventEndTime').value);
             const now = new Date();
-
-            if (startTime < now) {
+            if (startTime < now || {{event.start_time}} == document.getElementById('eventStartTime').value) {
                 alert('Start Time must be in the future.');
                 return false;
             }
