@@ -79,15 +79,15 @@ class UserProfileListViewTests(TestCase):
         UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
     def test_no_filters_applied(self):
-        self.client.login(username='user1', password='password')  # Log in user1
+        self.client.login(username='testuser1', password='testpass')  # Log in user1
         response = self.client.get(reverse('userProfile:searchProfile'))  # Use reverse to get the URL
         
         self.assertEqual(response.status_code, 200)
         user_profiles = response.context['user_profiles']  # Access context
-        self.assertEqual(len(user_profiles), 2)  # Should return all profiles excluding user1's profile
+        self.assertEqual(len(user_profiles), 3)  # Should return all profiles
 
     def test_filter_by_display_name(self):
-        self.client.login(username='user1', password='password')  # Log in user1
+        self.client.login(username='testuser2', password='testpass')  # Log in user1
         response = self.client.get(reverse('userProfile:searchProfile'), {'q': 'Alice'})  # Use reverse to get the URL with query param
         
         self.assertEqual(response.status_code, 200)

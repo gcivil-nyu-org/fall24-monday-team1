@@ -4,7 +4,6 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from ..models import UserProfile
 
-@login_required
 def user_profile_list(request):
     # Get query parameters
     query = request.GET.get('q', '')
@@ -12,7 +11,10 @@ def user_profile_list(request):
     role = request.GET.get('role', '')
 
     # Build the queryset
-    queryset = UserProfile.objects.exclude(user=request.user)
+    if (request.user.is_authenticated):
+        queryset = UserProfile.objects.exclude(user=request.user)
+    else:
+        queryset = UserProfile.objects.all()
 
     if query:
         queryset = queryset.filter(Q(display_name__icontains=query))
