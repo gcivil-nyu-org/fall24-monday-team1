@@ -2,7 +2,7 @@ from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from userProfile.models import UserProfile
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .views import UserProfileListView
+from .views import user_profile_list
 import json
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
@@ -81,14 +81,14 @@ class UserProfileListViewTests(TestCase):
     def test_no_filters_applied(self):
         request = self.factory.get('/user-profiles/')
         request.user = self.user1
-        response = UserProfileListView.as_view()(request)
+        response = user_profile_list(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context_data['user_profiles']), 2)  # Should return all profiles
 
     def test_filter_by_display_name(self):
         request = self.factory.get('/user-profiles/', {'q': 'Alice'})
         request.user = self.user1
-        response = UserProfileListView.as_view()(request)
+        response = user_profile_list(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context_data['user_profiles']), 1)  # Should return only Alice's profile
         self.assertEqual(response.context_data['user_profiles'][0].display_name, 'Alice')
