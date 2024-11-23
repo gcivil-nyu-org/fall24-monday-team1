@@ -30,6 +30,15 @@
             platformDiv.remove();
         }
     </script>
+    <script>
+        document.getElementById('profile_photo').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file && file.size > 10 * 1024 * 1024) { // 10 MB in bytes
+                alert("File size must be under 10 MB.");
+                this.value = ''; // Clear the input
+            }
+        });
+    </script>
 </head>
 <body>
     <!-- Navbar -->
@@ -51,7 +60,9 @@
                     </div>
                     <div class="form-group">
                         <label for="profile_photo">Profile Photo:</label>
-                        <input type="file" class="form-control-file" id="profile_photo" name="profile_photo">
+                        <input type="file" class="form-control-file" id="profile_photo" name="profile_photo" 
+                               accept="image/jpeg, image/png, image/gif" required>
+                        <small class="form-text text-muted">Please upload an image file (max size: 10MB).</small>
                     </div>
                     <div class="form-group">
                         <label for="bio">Bio:</label>

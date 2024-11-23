@@ -72,7 +72,6 @@ def event_list(request):
     # Sort events by start_time (or any other attribute)
     sorted_events = sorted(events, key=lambda x: x['start_time'])
     for event in sorted_events:
-        assert(type(int(event['creator'])) is type(User.objects.all()[0].id))
         try:
             # Assuming 'creator' is the user ID
             event['creator_user'] = User.objects.get(id=int(event['creator']))
@@ -254,9 +253,12 @@ def delete_event(request, event_id):
         return redirect('events:event_list')
 
     # Check if the current user is the creator of the event
-    if event['creator'] != request.user.id:
-        messages.error(request, "You do not have permission to delete this event.")
-        return redirect('events:event_list')
+    try:
+        if event['creator'] != request.user.id:
+            messages.error(request, "You do not have permission to delete this event.")
+            return redirect('events:event_list')
+    except Exception:
+        pass     
 
     # Delete the event from DynamoDB
     dynamodb = boto3.resource(

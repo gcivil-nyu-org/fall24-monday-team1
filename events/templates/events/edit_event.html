@@ -50,6 +50,11 @@
         function validateDates() {
             const startTime = new Date(document.getElementById('eventStartTime').value);
             const endTime = new Date(document.getElementById('eventEndTime').value);
+            const now = new Date();
+            if (startTime < now || {{event.start_time}} == document.getElementById('eventStartTime').value) {
+                alert('Start Time must be in the future.');
+                return false;
+            }
             if (endTime <= startTime) {
                 alert('End Time must be later than Start Time.');
                 return false;
