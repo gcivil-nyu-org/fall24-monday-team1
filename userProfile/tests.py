@@ -79,19 +79,21 @@ class UserProfileListViewTests(TestCase):
         UserProfile.objects.create(user=self.user3, display_name="Alice", privacy_setting="public", account_role="event_organizer")
 
     def test_no_filters_applied(self):
-        request = self.factory.get('/user-profiles/')
-        request.user = self.user1
+        request = self.factory.get('/userProfile/search/')
+        request.user = self.user1  # Assuming user1 is logged in
         response = user_profile_list(request)
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context_data['user_profiles']), 2)  # Should return all profiles
+        self.assertEqual(len(response.context['user_profiles']), 2)  # Should return all profiles excluding the logged-in user
 
     def test_filter_by_display_name(self):
-        request = self.factory.get('/user-profiles/', {'q': 'Alice'})
-        request.user = self.user1
+        request = self.factory.get('/userProfile/search/', {'q': 'Alice'})
+        request.user = self.user1  # Assuming user1 is logged in
         response = user_profile_list(request)
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context_data['user_profiles']), 1)  # Should return only Alice's profile
-        self.assertEqual(response.context_data['user_profiles'][0].display_name, 'Alice')
+        self.assertEqual(len(response.context['user_profiles']), 1)  # Should return only Alice's profile
+        self.assertEqual(response.context['user_profiles'][0].display_name, 'Alice')
 
 
 
