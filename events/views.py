@@ -72,7 +72,6 @@ def event_list(request):
     # Sort events by start_time (or any other attribute)
     sorted_events = sorted(events, key=lambda x: x['start_time'])
     for event in sorted_events:
-        assert(type(int(event['creator'])) is type(User.objects.all()[0].id))
         try:
             # Assuming 'creator' is the user ID
             event['creator_user'] = User.objects.get(id=int(event['creator']))
@@ -81,12 +80,10 @@ def event_list(request):
             event['creator_user']["username"] = f"Can't find user with id {int(event['creator'])} with type int"
             
     # Setup pagination
-    paginator = Paginator(sorted_events, 5)  # Show 5 events per page
+    paginator = Paginator(sorted_events, 6)  # Show 5 events per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    # populate user here
-    page_obj
 
     return render(request, 'events/event_list.html', {'page_obj': page_obj, "loginIn": request.user.is_authenticated})
 
@@ -166,9 +163,12 @@ def event_detail(request, event_id):
 
     # Populate participants
     event['participants_users'] = []
+    is_participant = False
     for participant_id in event.get('participants', []):
         try:
             user = User.objects.get(id=int(participant_id))
+            if (int(participant_id) == int(request.user.pk)):
+                is_participant = True
             event['participants_users'].append(user)
         except User.DoesNotExist:
             event['participants_users'].append({
@@ -177,5 +177,96 @@ def event_detail(request, event_id):
 
     context = {
         'event': event,
+        'is_participant': is_participant,
     }
     return render(request, 'events/event_detail.html', context)
+
+
+@login_required
+def edit_event(request, event_id):
+    # Retrieve the event using the provided function
+    event = get_event(event_id)
+    print(event)
+    print(event_id)
+
+    # Check if the event exists
+    if event is None:
+        messages.error(request, "Event not found.")
+        return redirect('events:event_list')
+
+    # Check if the current user is the creator of the event
+    if event['creator'] != request.user.id:
+        messages.error(request, "You do not have permission to edit this event.")
+        return redirect('events:event_detail', event_id=event_id)
+
+    if request.method == 'POST':
+        # Retrieve data from the request
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        location = request.POST.get('location')
+
+        # Update the event instance in DynamoDB
+        dynamodb = boto3.resource(
+            'dynamodb',
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            region_name='us-east-1'
+        )
+        table = dynamodb.Table('Events')
+        table.update_item(
+            Key={'eventId': event_id},
+            UpdateExpression="set title=:t, description=:d, start_time=:st, end_time=:et, #l=:l",
+            ExpressionAttributeValues={
+                ':t': title,
+                ':d': description,
+                ':st': start_time,
+                ':et': end_time,
+                ':l': location
+            },
+            ExpressionAttributeNames={
+                "#l": "location"
+            }
+        )
+
+        messages.success(request, "Event updated successfully.")
+        return redirect('events:event_detail', event_id=event_id)  # Redirect to the event list view
+
+    # Render the edit event template with the existing event data
+    return render(request, 'events/edit_event.html', {
+        "event": event,
+        "loginIn": request.user.is_authenticated
+    })
+
+
+@login_required
+def delete_event(request, event_id):
+    # Retrieve the event using the provided function
+    event = get_event(event_id)
+
+    # Check if the event exists
+    if event is None:
+        messages.error(request, "Event not found.")
+        return redirect('events:event_list')
+
+    # Check if the current user is the creator of the event
+    try:
+        if event['creator'] != request.user.id:
+            messages.error(request, "You do not have permission to delete this event.")
+            return redirect('events:event_list')
+    except Exception:
+        pass     
+
+    # Delete the event from DynamoDB
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('Events')
+    table.delete_item(Key={'eventId': event_id})
+
+    messages.success(request, "Event deleted successfully.")
+    return redirect('events:event_list')  # Redirect to the event list view

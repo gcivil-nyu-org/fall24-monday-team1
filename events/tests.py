@@ -157,16 +157,16 @@ class EventViewsTest(TestCase):
         self.create_event(
             title='Event 1',
             description='Description 1',
-            start_time='2024-10-31 10:00',
-            end_time='2024-10-31 12:00',
+            start_time='2000-10-31 10:00',
+            end_time='2000-10-31 12:00',
             location='Location 1',
             creator_id=self.user.id,
         )
         self.create_event(
             title='Event 2',
             description='Description 2',
-            start_time='2024-10-31 13:00',
-            end_time='2024-10-31 15:00',
+            start_time='2000-10-31 13:00',
+            end_time='2000-10-31 15:00',
             location='Location 2',
             creator_id=self.user.id
         )
@@ -338,3 +338,51 @@ class EventViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test Event')
         self.assertTemplateUsed(response, 'events/event_detail.html')
+        
+    def test_edit_event_success(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id
+        )
+
+        response = self.client.post(reverse('events:edit_event', args=[event.eventId]), {
+            'title': 'Updated Event',
+            'description': 'Updated description.',
+            'start_time': '2024-11-01 10:00',
+            'end_time': '2024-11-01 12:00',
+            'location': 'Updated Location'
+        })
+
+        
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_detail', args=[event.eventId]))
+        
+        event = self.get_event_from_dynamodb(event.eventId)
+        self.assertEqual(event['title'], 'Updated Event')
+        self.assertEqual(event['description'], 'Updated description.')
+        self.assertEqual(event['start_time'], '2024-11-01 10:00')
+        self.assertEqual(event['end_time'], '2024-11-01 12:00')
+        self.assertEqual(event['location'], 'Updated Location')
+
+    def test_delete_event_success(self):
+        self.client.login(username='testuser', password='password')
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id
+        )
+
+        response = self.client.post(reverse('events:delete_event', args=[event.eventId]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('events:event_list'))
+        self.assertIsNone(self.get_event_from_dynamodb(event.eventId))  # Ensure the event is deleted
+        self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "Event deleted successfully.")

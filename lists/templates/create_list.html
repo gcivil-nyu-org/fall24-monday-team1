@@ -39,7 +39,7 @@
             <label for="gameSearch">Add Game to List</label>
             <div style="position: relative;">
                 <input type="text" id="gameSearch" class="form-control" placeholder="Search for a game">
-                <i class="fas fa-check" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="fetchGameSuggestions()"></i>
+                <i class="fas fa-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="fetchGameSuggestions()"></i>
                 <div id="gameDropdown" style="position: absolute; width: 100%; background: white; border: 1px solid #ddd; display: none; max-height: 150px; overflow-y: auto;"></div>
             </div>
         </div>
@@ -69,7 +69,6 @@
               .then(response => 
                   response.json().then(games => {
                         const dropdown = document.getElementById('gameDropdown');
-                        console.log(dropdown);
                         dropdown.innerHTML = '';
                         games.forEach(game => {
                             const option = document.createElement('div');
@@ -104,6 +103,8 @@
                 dropdown.innerHTML = '';
                 document.getElementById('gameSearch').value = '';
                 updateSelectedGames();
+            }else{
+                alert("You have already selected this game!");
             }
         }
 

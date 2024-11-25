@@ -6,6 +6,35 @@
     {% load static %}
     <title>Login</title>
     <link rel="stylesheet" href="{% static 'login/login.css' %}">
+    <script>
+        window.addEventListener("pageshow", function(event) {
+            if (event.persisted) {
+                // If the page was loaded from the cache, reload it
+                window.location.reload();
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    let submit = this.querySelector('input[type="submit"], button[type="submit"]');
+                    submit.disabled = true;
+                    console.log("disabled submit button")
+
+                    let username = this.querySelector('input[name="username"]');
+                    let password = this.querySelector('input[name="password"]');
+                    if (username) {
+                        username.setAttribute('readonly', true);
+                        console.log("Set username to readonly");
+                    }
+                    if (password) {
+                        password.setAttribute('readonly', true);
+                        console.log("Set password to readonly");
+                    }
+                });
+            });
+        });
+
+    </script>
 </head>
 <body>
     <div class="container">
