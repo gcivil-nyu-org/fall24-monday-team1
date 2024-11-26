@@ -64,6 +64,7 @@
                             `;
                         }
                         data.lists.forEach(list => {
+                            console.log(`abla babla: ${list.id}`);
                             const listCard = document.createElement('div');
                             listCard.className = 'list-card card mt-3';
                             listCard.innerHTML = `
@@ -74,6 +75,9 @@
                                     <p class="card-text"><strong>Games:</strong> ${list.games_count}</p>
                                 </div>
                             `;
+                            listCard.addEventListener('click', () => {
+                                window.location.href = `/lists/list-details/${list.id}/`;
+                            });
                             document.getElementById("listContainer").appendChild(listCard);
 
                             if (currentTab === 'my') {
