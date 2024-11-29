@@ -95,6 +95,8 @@ class EventViewsTest(TestCase):
             except User.DoesNotExist:
                 print(f"User not found {item['creator']} might because of the test case use different table")
                 # self.table.delete_item(Key={'eventId': item['eventId']})  # Use the correct key schema
+            except KeyError as e:
+                self.table.delete_item(Key={'eventId': item['eventId']})
         media_directory = './media/profile_photos'  # Update this path
 
         # Construct the pattern for matching files
@@ -386,3 +388,32 @@ class EventViewsTest(TestCase):
         self.assertRedirects(response, reverse('events:event_list'))
         self.assertIsNone(self.get_event_from_dynamodb(event.eventId))  # Ensure the event is deleted
         self.assertEqual(list(messages.get_messages(response.wsgi_request))[0].message, "Event deleted successfully.")
+        
+    def test_my_events_view_success(self):
+        self.client.login(username='testuser', password='password')
+        # Create an event and register the user for it
+        event = self.create_event(
+            title='Test Event',
+            description='A test event description.',
+            start_time='2024-10-31 10:00',
+            end_time='2024-10-31 12:00',
+            location='Test Location',
+            creator_id=self.user.id,
+        )
+        # Simulate registering the user for the event
+        event.participants.add(self.user.id)
+        event.save()
+
+        response = self.client.get(reverse('events:my_events'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'My Registered Events')
+        self.assertContains(response, event.title)
+        self.assertContains(response, event.description)
+
+    def test_my_events_view_no_events(self):
+        self.client.login(username='testuser', password='password')
+        response = self.client.get(reverse('events:my_events'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'No registered events found.')
