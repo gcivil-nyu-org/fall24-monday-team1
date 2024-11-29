@@ -1,0 +1,41 @@
+{% load static %}
+{% load user_info_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Events</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+</head>
+<body>
+    <!-- Navbar -->
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+
+    <div class="container py-5">
+        <h1>My Registered Events</h1>
+        {% if my_events %}
+            <ul class="list-group">
+                {% for event in my_events %}
+                    <li class="list-group-item">
+                        <h5>{{ event.title }}</h5>
+                        <p><strong>Description:</strong> {{ event.description }}</p>
+                        <p><strong>Start Time:</strong> {{ event.start_time }}</p>
+                        <p><strong>End Time:</strong> {{ event.end_time }}</p>
+                        <p><strong>Location:</strong> {{ event.location }}</p>
+                        <a href="{% url 'events:event_detail' event.eventId %}" class="btn btn-primary">View Details</a>
+                        <form action="{% url 'events:unregister_event' event.eventId %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Unregister</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No registered events found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
