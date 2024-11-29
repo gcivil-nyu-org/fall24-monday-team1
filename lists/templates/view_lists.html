@@ -138,7 +138,10 @@
         // Update fetch function to handle full list fetch
         function fetchLists(tab){
             currentTab = tab;
-            fetch(`{% url 'lists:get_lists' %}?tab=${currentTab}`)
+            fetch(`{% url 'lists:get_lists' %}`, {
+                "method": "POST",
+                body: new URLSearchParams({'tab': currentTab}),
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.lists.length === 0) {
