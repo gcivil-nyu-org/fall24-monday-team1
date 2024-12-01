@@ -36,10 +36,29 @@
 
         function fetchLists(tab) {
             currentTab = tab;
-            lastKey = null; // Reset lastKey for a new tab
-            document.getElementById("listContainer").innerHTML = ''; // Clear list container
-            document.getElementById("loadMoreBtn").style.display = 'block';
-            loadMore();
+            fetch(`{% url 'lists:get_lists' %}`, {
+                "method": "POST",
+                body: new URLSearchParams({'tab': currentTab}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.lists.length === 0) {
+                        document.getElementById("listContainer").innerHTML = '<p>Nothing to see here!</p>';
+                    } else {
+                        allLists = data.lists; // Store all lists globally
+                        currentPage = 1;       // Reset to first page
+                        renderLists(allLists); // Render first page of lists
+                        
+                        // Update lastKey and has_more for pagination
+                        lastKey = data.last_key || null;
+                        if (!data.has_more) {
+                            document.getElementById("loadMoreBtn").style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching lists:", error);
+                });
         }
 
         function loadMore() {
