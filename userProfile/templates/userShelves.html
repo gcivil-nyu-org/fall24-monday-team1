@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+        /* Custom styles */
+        body {
+            background-color: #f8f9fa;
+        }
+
         .container h1 {
             color: white;
         }
@@ -24,15 +29,13 @@
         }
 
         /* Pagination arrows */
-        .pagination .page-item:first-child .page-link,
-        .pagination .page-item:last-child .page-link {
-            background-color: #007bff;
-            color: white;
-            border: none;
-        }
-
         .pagination .page-item .page-link {
             color: #007bff;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background-color: #0056b3;
+            color: white;
         }
 
         .pagination .page-item.active .page-link {
@@ -41,14 +44,67 @@
             border: none;
         }
 
-        .pagination .page-link:hover {
-            background-color: #0056b3;
-            color: white;
-        }
-
         .pagination .page-item.disabled .page-link {
             background-color: #f8f9fa;
             color: #ccc;
+        }
+
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+
+        .pagination .page-link {
+            padding: 8px 15px; /* Increase padding for better clickability */
+            margin: 0 5px; /* Space between pagination controls */
+        }
+
+        .pagination .page-item .page-link:focus {
+            outline: none;
+        }
+
+        /* Centered title */
+        .container h1 {
+            text-align: center;
+        }
+
+        /* Game list card styles */
+        .game-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .game-card {
+            width: 200px; /* Fixed width */
+            margin: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .game-card .card-body {
+            padding: 10px;
+        }
+
+        .game-card .card-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .game-card .btn-primary {
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -118,16 +174,22 @@
             });
             
             var resp = await response;
-            if(resp.status==200){
+            if(resp.status==200)
                 return resp.json();
-            }return [];
-
+            return [];
         }
 
         function renderPagination(tab, totalItems) {
             const paginationContainer = document.getElementById(`${tab}-pagination`);
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             paginationContainer.innerHTML = '';
+
+            // Add previous arrow
+            paginationContainer.innerHTML += `
+                <li class="page-item ${1 === 1 ? 'disabled' : ''}">
+                    <button class="page-link" onclick="showPage('${tab}', 1)">&#8592;</button>
+                </li>
+            `;
             
             for (let i = 1; i <= totalPages; i++) {
                 paginationContainer.innerHTML += `
@@ -136,12 +198,19 @@
                     </li>
                 `;
             }
+
+            // Add next arrow
+            paginationContainer.innerHTML += `
+                <li class="page-item ${totalPages === 1 ? 'disabled' : ''}">
+                    <button class="page-link" onclick="showPage('${tab}', ${totalPages})">&#8594;</button>
+                </li>
+            `;
         }
 
         function showPage(tab, pageNumber) {
             const tabList = document.getElementById(`${tab}-list`);
             const paginationContainer = document.getElementById(`${tab}-pagination`);
-            
+
             // Show the "Loading" message
             tabList.innerHTML = '<p>Loading games...</p>';
 
@@ -151,8 +220,8 @@
 
             fetchGameDetails(gameIds).then(gamesInTab => {
                 tabList.innerHTML = gamesInTab.length ? gamesInTab.map(game => `
-                    <div class="card mt-3">
-                        <img src="https:${game.cover}" class="card-img-top" alt="${game.name}" style="width: 100px; height: 100px; object-fit: cover;">
+                    <div class="game-card">
+                        <img src="https:${game.cover}" class="card-img-top" alt="${game.name}">
                         <div class="card-body">
                             <h5 class="card-title">${game.name}</h5>
                             <a href="${game.redirect_url}" class="btn btn-primary">View Details</a>
