@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Shelves</title>
-    {%load static%}
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -59,9 +59,27 @@
     </div>
 
     <script>
-        const games = {{ user_games|safe }}
-        console.log(games);
+        const games = {{ user_games|safe }}; // game IDs
         const itemsPerPage = 5;
+
+        // Fetch game details
+        async function fetchGameDetails(gameIds) {
+            const response = await fetch('{% url "userProfile:fetch_game_details" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'gameIds[]': gameIds
+                })
+            });
+            
+            var resp = await response;
+            if(resp.status==200){
+                return resp.json();
+            }return [];
+
+        }
 
         function renderPagination(tab, totalItems) {
             const paginationContainer = document.getElementById(`${tab}-pagination`);
@@ -80,22 +98,28 @@
         function showPage(tab, pageNumber) {
             const tabList = document.getElementById(`${tab}-list`);
             const paginationContainer = document.getElementById(`${tab}-pagination`);
+            
+            // Show the "Loading" message
+            tabList.innerHTML = '<p>Loading games...</p>';
 
             const start = (pageNumber - 1) * itemsPerPage;
             const end = start + itemsPerPage;
-            const gamesInTab = games[tab].slice(start, end);
-            
+            const gameIds = games[tab].slice(start, end);
 
-            tabList.innerHTML = gamesInTab.length ? gamesInTab.map(game => `
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h5 class="card-title">${game}</h5>
+            fetchGameDetails(gameIds).then(gamesInTab => {
+                tabList.innerHTML = gamesInTab.length ? gamesInTab.map(game => `
+                    <div class="card mt-3">
+                        <img src="https:${game.cover}" class="card-img-top" alt="${game.name}" style="width: 100px; height: 100px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">${game.name}</h5>
+                            <a href="${game.redirect_url}" class="btn btn-primary">View Details</a>
+                        </div>
                     </div>
-                </div>
-            `).join('') : '<p>No games in this shelf.</p>';
+                `).join('') : '<p>No games in this shelf.</p>';
 
-            Array.from(paginationContainer.children).forEach((item, index) => {
-                item.classList.toggle('active', index + 1 === pageNumber);
+                Array.from(paginationContainer.children).forEach((item, index) => {
+                    item.classList.toggle('active', index + 1 === pageNumber);
+                });
             });
         }
 
