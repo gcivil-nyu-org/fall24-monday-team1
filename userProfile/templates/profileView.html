@@ -225,8 +225,7 @@
                     
                   `).join('')}
                 </div>
-                <button id="view-all-button" class="view-all-btn">View all my games</button>
-              `;
+              <button id="view-all-button" class="view-all-btn" onclick="location.href='{% url 'userProfile:user_shelves' %}'">View all my games</button>              `;
             })
           )
         .catch(error => {

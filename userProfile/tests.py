@@ -155,3 +155,42 @@ class UserProfileViewTests(TestCase):
         response = self.client.get(reverse('userProfile:viewProfile', args=[self.user.id]))
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context['viewable'])
+
+
+
+
+class UserShelvesViewTest(TestCase):
+    def setUp(self):
+        # Create a test user
+        self.user = User.objects.create_user(username='testuser', password='password')
+        
+        # Log the user in
+        self.client.login(username='testuser', password='password')
+        
+    def test_user_shelves_view(self):
+        # Mock DynamoDB resource
+        
+        with patch('gamesearch.views.boto3.resource') as mock_dynamo:
+            mock_table = mock_dynamo.return_value.Table.return_value
+            mock_dynamo.return_value = mock_dynamo
+            mock_dynamo.Table.return_value = mock_table
+        
+        # Mock DynamoDB scan response
+        mock_table.scan.return_value = {
+            'Items': [
+                {
+                    'playing': ['game1', 'game2'],
+                    'completed': ['game3'],
+                    'abandoned': [],
+                    'paused': ['game4'],
+                    'want-to-play': ['game5', 'game6'],
+                }
+            ]
+        }
+
+        # Make the request
+        response = self.client.get(reverse('userProfile:user_shelves'))  # Ensure this is the correct URL name
+        
+        # Check that the view returns a successful response
+        self.assertEqual(response.status_code, 200)
+        
