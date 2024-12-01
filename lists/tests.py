@@ -218,3 +218,66 @@ class DeleteListTestCase(TestCase):
                 "message": "error",
                 "details": "Failed to delete!"
             })
+
+class ListDetailViewTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='testpassword')
+
+    def test_list_cards_display(self):
+        with patch('gamesearch.views.boto3.resource') as mock_dynamo:
+            mock_table = mock_dynamo.return_value.Table.return_value
+            mock_table.scan.return_value = {
+                'Items': [
+                    {
+                        'listId': '1',
+                        'name': 'My List 1',
+                        'description': 'A description',
+                        'username': 'testuser',
+                        'games': [{'id': 1}, {'id': 2}]
+                    }
+                ]
+            }
+
+            response = self.client.get(reverse('lists:view_lists'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'My List 1')
+            self.assertTemplateUsed(response, 'view_lists.html')
+
+    def test_open_list_details(self):
+        with patch('gamesearch.views.boto3.resource') as mock_dynamo:
+            mock_table = mock_dynamo.return_value.Table.return_value
+            mock_table.get_item.return_value = {
+                'Item': {
+                    'listId': '1',
+                    'name': 'My List 1',
+                    'description': 'A description',
+                    'username': 'testuser',
+                    'games': ['1', '2']
+                }
+            }
+
+            with patch('lists.views.requests.post') as mock_post:
+                mock_post.return_value.json.return_value = [
+                    {
+                        'id': 1,
+                        'name': 'Game 1',
+                        'summary': 'Summary of Game 1',
+                        'first_release_date': 1609459200,
+                        'cover': {'url': '//images.igdb.com/igdb/image/upload/t_thumb/co1r7f.jpg'}
+                    },
+                    {
+                        'id': 2,
+                        'name': 'Game 2',
+                        'summary': 'Summary of Game 2',
+                        'first_release_date': 1609459200,
+                        'cover': {'url': '//images.igdb.com/igdb/image/upload/t_thumb/co1r7f.jpg'}
+                    }
+                ]
+
+                response = self.client.get(reverse('lists:fetch_list_details', args=['1']))
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, 'Game 1')
+                self.assertContains(response, 'Game 2')
+                self.assertTemplateUsed(response, 'list_details.html')
