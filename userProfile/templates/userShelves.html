@@ -5,111 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Shelves</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/userShelves.css' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <style>
-        /* Custom styles */
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .container h1 {
-            color: white;
-        }
-
-        /* Tab text color and active state */
-        .nav-tabs .nav-link {
-            color: #000; /* Tab text color */
-        }
-
-        .nav-tabs .nav-link.active {
-            background-color: #007bff; /* Active tab background color */
-            color: white; /* Active tab text color */
-        }
-
-        /* Pagination arrows */
-        .pagination .page-item .page-link {
-            color: #007bff;
-        }
-
-        .pagination .page-item .page-link:hover {
-            background-color: #0056b3;
-            color: white;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #007bff;
-            color: white;
-            border: none;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            background-color: #f8f9fa;
-            color: #ccc;
-        }
-
-        .pagination .page-item:first-child .page-link,
-        .pagination .page-item:last-child .page-link {
-            background-color: #007bff;
-            color: white;
-            border: none;
-        }
-
-        .pagination .page-link {
-            padding: 8px 15px; /* Increase padding for better clickability */
-            margin: 0 5px; /* Space between pagination controls */
-        }
-
-        .pagination .page-item .page-link:focus {
-            outline: none;
-        }
-
-        /* Centered title */
-        .container h1 {
-            text-align: center;
-        }
-
-        /* Game list card styles */
-        .game-list {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .game-card {
-            width: 200px; /* Fixed width */
-            margin: 10px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .game-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        .game-card .card-body {
-            padding: 10px;
-        }
-
-        .game-card .card-title {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .game-card .btn-primary {
-            margin-top: 10px;
-        }
-    </style>
+    
 </head>
 <body>
-    <div class="container mt-5">
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+    
+    <div class="container mt-5 shelf-tabs">
         <h1 class="text-center mb-4">My Game Shelves</h1>
         <ul class="nav nav-tabs" id="gameTabs" role="tablist">
             <script>
@@ -119,12 +24,12 @@
                         <li class="nav-item" role="presentation">
                             <button 
                                 class="nav-link ${index === 0 ? 'active' : ''}" 
-                                id="${tab}-tab" 
+                                id="shelf-${tab}-tab" 
                                 data-bs-toggle="tab" 
-                                data-bs-target="#${tab}" 
+                                data-bs-target="#shelf-${tab}" 
                                 type="button" 
                                 role="tab" 
-                                aria-controls="${tab}" 
+                                aria-controls="shelf-${tab}" 
                                 aria-selected="${index === 0}">
                                 ${tab.replace('-', ' ').toUpperCase()}
                             </button>
@@ -139,14 +44,14 @@
                     document.write(`
                         <div 
                             class="tab-pane fade ${index === 0 ? 'show active' : ''}" 
-                            id="${tab}" 
+                            id="shelf-${tab}" 
                             role="tabpanel" 
-                            aria-labelledby="${tab}-tab">
-                            <div class="game-list" id="${tab}-list">
+                            aria-labelledby="shelf-${tab}-tab">
+                            <div class="game-list" id="shelf-${tab}-list">
                                 <p>Loading games...</p>
                             </div>
-                            <nav aria-label="${tab} pagination" class="mt-3">
-                                <ul class="pagination justify-content-center" id="${tab}-pagination">
+                            <nav aria-label="${tab} pagination" class="shelf-pagination mt-3">
+                                <ul class="pagination justify-content-center" id="shelf-${tab}-pagination">
                                     <!-- Pagination controls will be added here dynamically -->
                                 </ul>
                             </nav>
@@ -158,39 +63,39 @@
     </div>
 
     <script>
-        const games = {{ user_games|safe }}; // game IDs
+        const games = {{ user_games|safe }}; // Game data
         const itemsPerPage = 5;
 
-        // Fetch game details
         async function fetchGameDetails(gameIds) {
-            const response = await fetch('{% url "userProfile:fetch_game_details" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'gameIds[]': gameIds
-                })
-            });
-            
-            var resp = await response;
-            if(resp.status==200)
-                return resp.json();
-            return [];
+            try {
+                const response = await fetch('{% url "userProfile:fetch_game_details" %}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 'gameIds[]': gameIds })
+                });
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to fetch game details.');
+                }
+            } catch (error) {
+                console.error(error);
+                return [];
+            }
         }
 
         function renderPagination(tab, totalItems) {
-            const paginationContainer = document.getElementById(`${tab}-pagination`);
+            const paginationContainer = document.getElementById(`shelf-${tab}-pagination`);
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             paginationContainer.innerHTML = '';
 
-            // Add previous arrow
+            // Add Previous Button
             paginationContainer.innerHTML += `
-                <li class="page-item ${1 === 1 ? 'disabled' : ''}">
+                <li class="page-item">
                     <button class="page-link" onclick="showPage('${tab}', 1)">&#8592;</button>
                 </li>
             `;
-            
+
             for (let i = 1; i <= totalPages; i++) {
                 paginationContainer.innerHTML += `
                     <li class="page-item ${i === 1 ? 'active' : ''}">
@@ -199,19 +104,18 @@
                 `;
             }
 
-            // Add next arrow
+            // Add Next Button
             paginationContainer.innerHTML += `
-                <li class="page-item ${totalPages === 1 ? 'disabled' : ''}">
+                <li class="page-item">
                     <button class="page-link" onclick="showPage('${tab}', ${totalPages})">&#8594;</button>
                 </li>
             `;
         }
 
         function showPage(tab, pageNumber) {
-            const tabList = document.getElementById(`${tab}-list`);
-            const paginationContainer = document.getElementById(`${tab}-pagination`);
+            const tabList = document.getElementById(`shelf-${tab}-list`);
+            const paginationContainer = document.getElementById(`shelf-${tab}-pagination`);
 
-            // Show the "Loading" message
             tabList.innerHTML = '<p>Loading games...</p>';
 
             const start = (pageNumber - 1) * itemsPerPage;
@@ -219,15 +123,17 @@
             const gameIds = games[tab].slice(start, end);
 
             fetchGameDetails(gameIds).then(gamesInTab => {
-                tabList.innerHTML = gamesInTab.length ? gamesInTab.map(game => `
-                    <div class="game-card">
-                        <img src="https:${game.cover}" class="card-img-top" alt="${game.name}">
-                        <div class="card-body">
-                            <h5 class="card-title">${game.name}</h5>
-                            <a href="${game.redirect_url}" class="btn btn-primary">View Details</a>
+                tabList.innerHTML = gamesInTab.length
+                    ? gamesInTab.map(game => `
+                        <div class="game-card">
+                            <img src="https:${game.cover}" class="card-img-top" alt="${game.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${game.name}</h5>
+                                <a href="${game.redirect_url}" class="btn btn-primary">View Details</a>
+                            </div>
                         </div>
-                    </div>
-                `).join('') : '<p>No games in this shelf.</p>';
+                    `).join('')
+                    : '<p>No games in this shelf.</p>';
 
                 Array.from(paginationContainer.children).forEach((item, index) => {
                     item.classList.toggle('active', index + 1 === pageNumber);
