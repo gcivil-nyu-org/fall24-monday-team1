@@ -3,6 +3,8 @@ dist: bionic
 python:
   - "3.9"
 
+cache: pip
+
 # Only run builds for main and dev branches
 branches:
   only:

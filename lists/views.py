@@ -9,6 +9,7 @@ import boto3
 import uuid
 from django.core.paginator import Paginator
 from boto3.dynamodb.conditions import Attr
+from datetime import datetime
 
 
 @login_required
@@ -83,7 +84,7 @@ def save_list(request):
 def view_lists(request):
     return render(request, 'view_lists.html')
 
-
+@csrf_exempt
 @login_required
 def get_lists(request):
     dynamodb = boto3.resource(
@@ -93,33 +94,22 @@ def get_lists(request):
         region_name='us-east-1'
     )
     table = dynamodb.Table('lists')
-    tab = request.GET.get('tab', 'my')
+    tab = request.POST.get('tab', 'my')
     
-    page_size = 5  # Update to 5 items per page for pagination
-    last_key = request.GET.get('last_key', None)
-
     # Filter based on tab type
     if tab == 'my':
         filter_expression = Attr('username').eq(request.user.username)
     elif tab == 'discover':
         filter_expression = Attr('visibility').eq('public') & Attr('username').ne(request.user.username)
 
-    # Set up the parameters for scan with pagination
+    # Set up the parameters for scan
     scan_params = {
         'FilterExpression': filter_expression,
-        'Limit': page_size
     }
 
-    # Add the ExclusiveStartKey for pagination if present
-    if last_key:
-        scan_params['ExclusiveStartKey'] = {'listId': last_key}
-
     response = table.scan(**scan_params)
-    
     lists = response.get('Items', [])
-    has_more = 'LastEvaluatedKey' in response
-    print(lists)
-    print(response.get('LastEvaluatedKey', {}))
+    
     data = {
         'lists': [
             {
@@ -131,10 +121,10 @@ def get_lists(request):
             }
             for item in lists
         ],
-        'has_more': has_more,
-        'last_key': response.get('LastEvaluatedKey', {}).get('listId')
+        'has_more': 'LastEvaluatedKey' in response,
+        'last_key': response.get('LastEvaluatedKey', {}).get('listId', None)
     }
-
+    print("Sending data:", data)  # Add this for debugging
     return JsonResponse(data)
 
 @csrf_exempt
@@ -152,3 +142,52 @@ def delete_list(request):
     except Exception as e:
         print(e)
         return JsonResponse({"message": "error", "details": "Failed to delete!"})
+@login_required
+def fetch_list_details(request, list_id):
+    dynamodb = boto3.resource(
+        'dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('lists')
+
+    # Fetch the list details from DynamoDB
+    response = table.get_item(Key={'listId': list_id})
+    list_details = response.get('Item', None)
+
+    if not list_details:
+        return render(request, 'list_not_found.html', status=404)
+
+    # Fetch game details from IGDB
+    auth = authorize_igdb()
+    headers = {
+        'Client-ID': os.environ.get("igdb_client_id"),
+        'Authorization': f'Bearer {auth.json()["access_token"]}',
+        'Content-Type': 'text/plain',
+    }
+
+    game_ids = list_details.get('games', [])
+    game_details = []
+
+    if game_ids:
+        # Query IGDB for game details
+        payload = f"fields name, first_release_date, cover.url, summary; where id = ({','.join(game_ids)});"
+        url = "https://api.igdb.com/v4/games"
+        response = requests.post(url, headers=headers, data=payload)
+        if response.status_code == 200:
+            igdb_games = response.json()
+            for game in igdb_games:
+                game_detail = {
+                    'id': game.get('id'),
+                    'name': game.get('name'),
+                    'summary': (game.get('summary', 'No description available')[:150] + '...') if len(game.get('summary', '')) > 150 else game.get('summary', 'No description available'),
+                    'release_date': datetime.fromtimestamp(game['first_release_date']).strftime("%Y-%m-%d") if 'first_release_date' in game else 'Unknown',
+                    'cover': game['cover']['url'].replace("//", "https://") if 'cover' in game else None
+                }
+                game_details.append(game_detail)
+
+    return render(request, 'list_details.html', {
+        'list': list_details,
+        'game_details': game_details
+    })

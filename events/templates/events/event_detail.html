@@ -16,6 +16,16 @@
             transition: none; /* Disable any transition */
         }
     </style>
+    <script>
+        function copyEventLink() {
+            const eventLink = '{{ request.build_absolute_uri }}'; // Get the event URL
+            navigator.clipboard.writeText(eventLink).then(() => {
+                alert('Event link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
 </head>
 <body>
     <!-- Navbar -->
@@ -67,6 +77,10 @@
                                     <button type="submit" class="btn btn-primary">Register</button>
                                 </form>
                             {% endif %}
+                        </div>
+
+                        <div class="mt-3">
+                            <button class="btn btn-info" onclick="copyEventLink()">Share Event</button>
                         </div>
 
                         {# Edit and Delete buttons visible only to the creator #}
