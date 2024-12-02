@@ -240,10 +240,17 @@ class ListDetailViewTestCase(TestCase):
                 ]
             }
 
+            # First test that the view_lists page loads correctly
             response = self.client.get(reverse('lists:view_lists'))
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, 'My List 1')
             self.assertTemplateUsed(response, 'view_lists.html')
+
+            # Then test the get_lists API endpoint
+            response = self.client.post(reverse('lists:get_lists'), {'tab': 'my'})
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.content)
+            self.assertEqual(len(data['lists']), 1)
+            self.assertEqual(data['lists'][0]['name'], 'My List 1')
 
     def test_open_list_details(self):
         with patch('gamesearch.views.boto3.resource') as mock_dynamo:
@@ -275,9 +282,10 @@ class ListDetailViewTestCase(TestCase):
                         'cover': {'url': '//images.igdb.com/igdb/image/upload/t_thumb/co1r7f.jpg'}
                     }
                 ]
+                mock_post.return_value.status_code = 200
 
                 response = self.client.get(reverse('lists:fetch_list_details', args=['1']))
                 self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, 'list_details.html')
                 self.assertContains(response, 'Game 1')
                 self.assertContains(response, 'Game 2')
-                self.assertTemplateUsed(response, 'list_details.html')
