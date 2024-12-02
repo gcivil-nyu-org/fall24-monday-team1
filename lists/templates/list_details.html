@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ list.name }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .game-card {
+            width: 18rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .game-card .card-body {
+            flex-grow: 1;
+        }
+
+        .game-card .card-text {
+            max-height: 50px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+    <div class="container mt-5">
+        <h1>{{ list.name }}</h1>
+        <p><strong>Description:</strong> {{ list.description }}</p>
+        <p><strong>Creator:</strong> {{ list.username }}</p>
+        <p><strong>Visibility:</strong> {{ list.visibility }}</p>
+
+        <h3>Games:</h3>
+        <div class="row">
+            {% for game in game_details %}
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card game-card mb-4">
+                    <img src="{{ game.cover|default:'https://via.placeholder.com/300x200?text=No+Image' }}" alt="{{ game.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ game.name }}</h5>
+                        <p class="card-text">{{ game.summary }}</p>
+                        <p><strong>Release Date:</strong> {{ game.release_date }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{% url 'gamesearch:game-details' game.id %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'lists:view_lists' %}" class="btn btn-secondary mt-3">Back to Lists</a>
+    </div>
+</body>
+</html>

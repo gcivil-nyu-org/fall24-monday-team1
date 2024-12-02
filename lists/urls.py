@@ -10,6 +10,7 @@ urlpatterns = [
     path('save_list/', views.save_list, name='save_list'),
     path('', views.view_lists, name='view_lists'),
     path('get_lists', views.get_lists, name='get_lists'),
+    path('list-details/<list_id>/', views.fetch_list_details, name='fetch_list_details'),
     path('delete_list', views.delete_list, name='delete_list')
 
 ]
