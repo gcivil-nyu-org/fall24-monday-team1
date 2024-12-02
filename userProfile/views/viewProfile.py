@@ -111,7 +111,6 @@ def viewMyProfile(request):
 
 @csrf_exempt
 @require_POST
-
 def fetch_game_details(request):    #pragma: no cover
     game_ids = request.POST.getlist('gameIds[]')  # Retrieve as a list
     game_id_string = f"({','.join(game_ids)})"  # Format as (gameid1, gameid2, ...)

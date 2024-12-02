@@ -26,7 +26,9 @@
             <!-- Cards will be populated here dynamically -->
         </div>
 
-        <div id="paginationControls" class="mt-3"></div>
+        <div id="paginationControls" class="mt-3">
+            <!-- Pagination controls will be populated here dynamically -->
+        </div>
     </div>
 
     <script>
@@ -35,6 +37,67 @@
         let isLoading = false;
         let currentPage = 1; // Current page number
         const pageSize = 5;  // Number of lists per page
+        let allLists = []; // Make sure allLists is defined in the global scope
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function fetchLists(tab) {
+            currentTab = tab;
+            document.getElementById("listContainer").innerHTML = '<p>Loading...</p>';
+            
+            // Update tab button states
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${tab}ListsTab`).classList.add('active');
+
+            const csrftoken = getCookie('csrftoken');
+
+            fetch(`{% url 'lists:get_lists' %}`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken
+                },
+                body: new URLSearchParams({'tab': currentTab}),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Received data:", data);  // Debug log
+                if (!data.lists || data.lists.length === 0) {
+                    document.getElementById("listContainer").innerHTML = '<p>Nothing to see here!</p>';
+                    document.getElementById("paginationControls").innerHTML = '';
+                } else {
+                    allLists = data.lists; // Store all lists globally
+                    currentPage = 1;
+                    renderLists(allLists);
+                    renderPaginationControls(allLists.length); // Call the pagination function
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching lists:", error);  // More detailed error logging
+                document.getElementById("listContainer").innerHTML = 
+                    `<p>Error loading lists. Please try again. (${error.message})</p>`;
+            });
+        }
 
         function renderLists(lists) {
             const listContainer = document.getElementById("listContainer");
@@ -67,7 +130,8 @@
                 listContainer.appendChild(listCard);
 
                 if (currentTab === 'my') {
-                    listCard.querySelector('.delete-btn').addEventListener('click', () => {
+                    listCard.querySelector('.delete-btn').addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent the card click event from firing
                         console.log(`Need to delete this list: ${list.id}`);
                         fetch("{% url 'lists:delete_list' %}", {
                             method: "POST",
@@ -83,16 +147,22 @@
                         });
                     });
                 }
+
+                // Make the card clickable
+                listCard.addEventListener('click', (event) => {
+                    if (!event.target.closest('.delete-btn')) {
+                        window.location.href = `/lists/list-details/${list.id}/`;
+                    }
+                });
             });
-            renderPaginationControls(lists.length);
         }
 
         function renderPaginationControls(totalLists) {
             const paginationContainer = document.getElementById("paginationControls");
             paginationContainer.innerHTML = ''; // Clear existing controls
-        
+
             const totalPages = Math.ceil(totalLists / pageSize);
-        
+
             // Previous button
             const prevButton = document.createElement('button');
             prevButton.className = 'btn btn-light pagination-arrow';
@@ -102,10 +172,11 @@
                 if (currentPage > 1) {
                     currentPage--;
                     renderLists(allLists); // Re-render with the new page
+                    renderPaginationControls(allLists.length); // Update pagination controls
                 }
             });
             paginationContainer.appendChild(prevButton);
-        
+
             // Numbered page buttons
             for (let i = 1; i <= totalPages; i++) {
                 const pageButton = document.createElement('button');
@@ -117,10 +188,11 @@
                 pageButton.addEventListener('click', () => {
                     currentPage = i;
                     renderLists(allLists); // Re-render with the new page
+                    renderPaginationControls(allLists.length); // Update pagination controls
                 });
                 paginationContainer.appendChild(pageButton);
             }
-        
+
             // Next button
             const nextButton = document.createElement('button');
             nextButton.className = 'btn btn-light pagination-arrow';
@@ -130,32 +202,13 @@
                 if (currentPage < totalPages) {
                     currentPage++;
                     renderLists(allLists); // Re-render with the new page
+                    renderPaginationControls(allLists.length); // Update pagination controls
                 }
             });
             paginationContainer.appendChild(nextButton);
         }
 
-        // Update fetch function to handle full list fetch
-        function fetchLists(tab){
-            currentTab = tab;
-            fetch(`{% url 'lists:get_lists' %}`, {
-                "method": "POST",
-                body: new URLSearchParams({'tab': currentTab}),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.lists.length === 0) {
-                        document.getElementById("listContainer").innerHTML = '<p>Nothing to see here!</p>';
-                    } else {
-                        allLists = data.lists; // Store all lists globally
-                        currentPage = 1;       // Reset to first page
-                        renderLists(allLists); // Render first page of lists
-                    }
-                })
-                .catch(error => {
-                    console.error("Error fetching lists:", error);
-                });
-        }
+        // Initialize the list on page load
         document.addEventListener('DOMContentLoaded', () => {
             fetchLists('my');
         });
