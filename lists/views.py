@@ -95,19 +95,21 @@ def get_lists(request):
     )
     table = dynamodb.Table('lists')
     tab = request.POST.get('tab', 'my')
+    
     # Filter based on tab type
     if tab == 'my':
         filter_expression = Attr('username').eq(request.user.username)
     elif tab == 'discover':
         filter_expression = Attr('visibility').eq('public') & Attr('username').ne(request.user.username)
 
-    # Set up the parameters for scan with pagination
+    # Set up the parameters for scan
     scan_params = {
         'FilterExpression': filter_expression,
     }
 
     response = table.scan(**scan_params)
     lists = response.get('Items', [])
+    
     data = {
         'lists': [
             {
@@ -118,10 +120,11 @@ def get_lists(request):
                 'games_count': len(item['games'])
             }
             for item in lists
-        ]
+        ],
+        'has_more': 'LastEvaluatedKey' in response,
+        'last_key': response.get('LastEvaluatedKey', {}).get('listId', None)
     }
-    print(data)
-
+    print("Sending data:", data)  # Add this for debugging
     return JsonResponse(data)
 
 @csrf_exempt
