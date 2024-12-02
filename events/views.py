@@ -270,3 +270,23 @@ def delete_event(request, event_id):
 
     messages.success(request, "Event deleted successfully.")
     return redirect('events:event_list')  # Redirect to the event list view
+
+@login_required
+def my_events(request):
+    """View for displaying events the logged-in user is registered for."""
+    events = get_all_events()  # Fetch all events
+    my_events = []
+
+    # Filter for events where the user is a participant
+    for event in events:
+        if request.user.id in event.get('participants', []):
+            my_events.append(event)
+
+    # Sort my_events by start_time (or any other attribute)
+    sorted_my_events = sorted(my_events, key=lambda x: x['start_time'])
+
+    context = {
+        'my_events': sorted_my_events,
+        'loginIn': request.user.is_authenticated,
+    }
+    return render(request, 'events/my_events.html', context)
