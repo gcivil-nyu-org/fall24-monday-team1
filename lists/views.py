@@ -84,7 +84,7 @@ def save_list(request):
 def view_lists(request):
     return render(request, 'view_lists.html')
 
-
+@csrf_exempt
 @login_required
 def get_lists(request):
     dynamodb = boto3.resource(
@@ -94,11 +94,7 @@ def get_lists(request):
         region_name='us-east-1'
     )
     table = dynamodb.Table('lists')
-    tab = request.GET.get('tab', 'my')
-    
-    page_size = 5  # Update to 5 items per page for pagination
-    last_key = request.GET.get('last_key', None)
-
+    tab = request.POST.get('tab', 'my')
     # Filter based on tab type
     if tab == 'my':
         filter_expression = Attr('username').eq(request.user.username)
@@ -108,19 +104,10 @@ def get_lists(request):
     # Set up the parameters for scan with pagination
     scan_params = {
         'FilterExpression': filter_expression,
-        'Limit': page_size
     }
 
-    # Add the ExclusiveStartKey for pagination if present
-    if last_key:
-        scan_params['ExclusiveStartKey'] = {'listId': last_key}
-
     response = table.scan(**scan_params)
-    
     lists = response.get('Items', [])
-    has_more = 'LastEvaluatedKey' in response
-    print(lists)
-    print(response.get('LastEvaluatedKey', {}))
     data = {
         'lists': [
             {
@@ -131,10 +118,9 @@ def get_lists(request):
                 'games_count': len(item['games'])
             }
             for item in lists
-        ],
-        'has_more': has_more,
-        'last_key': response.get('LastEvaluatedKey', {}).get('listId')
+        ]
     }
+    print(data)
 
     return JsonResponse(data)
 
