@@ -159,22 +159,31 @@ def fetch_list_details(request, list_id):
     if not list_details:
         return render(request, 'list_not_found.html', status=404)
 
-    # Fetch game details from IGDB
-    auth = authorize_igdb()
-    headers = {
-        'Client-ID': os.environ.get("igdb_client_id"),
-        'Authorization': f'Bearer {auth.json()["access_token"]}',
-        'Content-Type': 'text/plain',
-    }
+    # Check if user has permission to view the list
+    is_owner = request.user.username == list_details.get('username')
+    is_public = list_details.get('visibility') == 'public'
 
-    game_ids = list_details.get('games', [])
+    if not (is_owner or is_public):
+        return render(request, 'list_not_found.html', {
+            'error_message': 'This list is private and cannot be viewed.'
+        }, status=403)
+
+    # If we get here, user has permission to view the list
     game_details = []
+    game_ids = list_details.get('games', [])
 
     if game_ids:
-        # Query IGDB for game details
+        auth = authorize_igdb()
+        headers = {
+            'Client-ID': os.environ.get("igdb_client_id"),
+            'Authorization': f'Bearer {auth.json()["access_token"]}',
+            'Content-Type': 'text/plain',
+        }
+
         payload = f"fields name, first_release_date, cover.url, summary; where id = ({','.join(game_ids)});"
         url = "https://api.igdb.com/v4/games"
         response = requests.post(url, headers=headers, data=payload)
+        
         if response.status_code == 200:
             igdb_games = response.json()
             for game in igdb_games:
@@ -189,5 +198,6 @@ def fetch_list_details(request, list_id):
 
     return render(request, 'list_details.html', {
         'list': list_details,
-        'game_details': game_details
+        'game_details': game_details,
+        'is_owner': is_owner
     })

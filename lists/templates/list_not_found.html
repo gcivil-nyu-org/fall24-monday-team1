@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>List Not Found</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'lists/lists.css' %}">
+</head>
+<body>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+    
+    <div class="container mt-5">
+        <div class="alert alert-warning text-center">
+            <h2><i class="fas fa-exclamation-triangle"></i></h2>
+            <h3>{{ error_message|default:"List not found" }}</h3>
+            <p class="mt-3">
+                <a href="{% url 'lists:view_lists' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Lists
+                </a>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 
