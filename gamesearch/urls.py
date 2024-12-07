@@ -8,4 +8,8 @@ urlpatterns = [
     path('game/<str:game_id>/', views.game_details_view, name='game-details'),
     path('game/<str:game_id>/fetch-data/', views.game_data_fetch_view, name='game-data-fetch'),
     path('save_to_shelf/', views.save_to_shelf, name='save_to_shelf'),
+    path("<int:game_id>/", views.game_detail, name="game_detail"),
+    path("<int:game_id>/add_review/", views.add_review, name="add_review"),
 ]
+
+

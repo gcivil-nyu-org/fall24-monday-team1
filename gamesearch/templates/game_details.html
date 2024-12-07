@@ -129,6 +129,28 @@
                     if("{{showReviewBox}}" == "True"){
                         document.getElementById('comment_board').style.display = 'block'; 
                     }
+                    $('#game-content').html(gameHtml);
+
+                    <div class="container mt-4">
+                        <h1>{{ game.title }}</h1>
+                        <p>{{ game.description }}</p>
+
+                        <h2>Average Rating: {{ average_rating }} out of 5 stars</h2>
+                        <h3>Reviews</h3>
+                        <ul>
+                            {% for review in reviews %}
+                                 <li>
+                                    <strong>{{ review.user.username }}</strong> rated {{ review.rating }} out of 5 stars
+                                     <p>{{ review.comment }}</p>
+                                     <small>Posted on {{ review.created_at }}</small>
+                                </li>
+                            {% empty %}
+                                <p>No reviews yet. Be the first to review!</p>
+                            {% endfor %}
+                        </ul>
+                        <a href="{% url 'add_review' game.id %}" class="btn btn-primary">Add a Review</a>
+                    </div>
+
 
                     
                     $('#shelf-submit').on('click', function() {

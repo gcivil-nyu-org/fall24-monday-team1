@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404, redirect
 from django.http import JsonResponse
 
 from django.urls import reverse
@@ -13,6 +13,11 @@ from django.views.decorators.csrf import csrf_exempt
 from botocore.exceptions import ClientError
 
 from boto3.dynamodb.conditions import Attr
+
+
+from django.contrib.auth.decorators import login_required
+from .models import Game, Review
+from .forms import ReviewForm
 
 
 def authorize_igdb():
@@ -225,3 +230,28 @@ def save_to_shelf(request):
 
     return JsonResponse({'status': 'error', 'message': 'Something went wrong!'}, status=400)
 
+
+def game_detail(request, game_id):
+    game = get_object_or_404(Game, id=game_id)
+    reviews = game.reviews.all()
+    average_rating = reviews.aggregate(models.Avg("rating"))["rating__avg"] or 0
+    return render(request, "gamesearch/game_detail.html", {
+        "game": game,
+        "reviews": reviews,
+        "average_rating": round(average_rating, 1),
+    })
+
+@login_required
+def add_review(request, game_id):
+    game = get_object_or_404(Game, id=game_id)
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.game = game
+            review.user = request.user
+            review.save()
+            return redirect("game_detail", game_id=game.id)
+    else:
+        form = ReviewForm()
+    return render(request, "gamesearch/add_review.html", {"form": form, "game": game})
