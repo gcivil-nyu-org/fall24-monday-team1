@@ -16,4 +16,5 @@ Pillow
 # daphne
 # channels
 pusher
+django-storages
 
