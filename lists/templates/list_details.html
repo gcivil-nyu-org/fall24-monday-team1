@@ -155,6 +155,26 @@
             transform: translateY(-2px);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
+
+        .comments-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-top: 3rem;
+        }
+
+        .comments-section .section-title {
+            color: #2c3e50;
+            border-bottom-color: #6c757d;
+        }
+
+        #comment_board {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -214,6 +234,18 @@
             </div>
         </div>
         
+        <div class="comments-section mt-5">
+            <h3 class="section-title">Comments</h3>
+            <div id="comment_board">
+                {% load comment_tags %}
+                {% with list_detail="list-detail" %}
+                {% with list_id=list.listId|stringformat:"s" %}
+                    {% render_review_board list_detail|add:list_id %}
+                {% endwith %}
+                {% endwith %}
+            </div>
+        </div>
+
         <div class="text-center">
             <a href="{% url 'lists:view_lists' %}" class="btn btn-secondary back-btn">
                 <i class="fas fa-arrow-left"></i> Back to Lists

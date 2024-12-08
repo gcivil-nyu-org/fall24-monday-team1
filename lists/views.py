@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 from boto3.dynamodb.conditions import Attr
 from datetime import datetime
 import json
+from django.urls import reverse
 
 
 @login_required
@@ -200,7 +201,8 @@ def fetch_list_details(request, list_id):
     return render(request, 'list_details.html', {
         'list': list_details,
         'game_details': game_details,
-        'is_owner': is_owner
+        'is_owner': is_owner,
+        'curPath': reverse('lists:fetch_list_details', args=[list_id])
     })
 
 @login_required
