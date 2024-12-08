@@ -103,8 +103,9 @@
         }
 
         .list-header {
+            position: relative;
             background: #f8f9fa;
-            padding: 2rem 0;
+            padding: 2rem;
             margin-bottom: 2rem;
             border-radius: 15px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -136,6 +137,24 @@
             padding: 0.5rem 1.5rem;
             margin-top: 2rem;
         }
+
+        .action-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .action-buttons .btn {
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -144,7 +163,19 @@
     
     <div class="container mt-5">
         <div class="list-header text-center">
-            <h1 class="display-4">{{ list.name }}</h1>
+            <div class="d-flex justify-content-between align-items-start">
+                <h1 class="display-4">{{ list.name }}</h1>
+                {% if is_owner %}
+                <div class="action-buttons">
+                    <a href="{% url 'lists:edit_list' list.listId %}" class="btn btn-info mr-2">
+                        <i class="fas fa-pencil-alt"></i> Edit List
+                    </a>
+                    <button onclick="deleteList('{{ list.listId }}')" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete List
+                    </button>
+                </div>
+                {% endif %}
+            </div>
             <div class="list-info mt-3">
                 <p><strong>Description:</strong> {{ list.description }}</p>
                 <p><strong>Creator:</strong> {{ list.username }}</p>
@@ -189,5 +220,25 @@
             </a>
         </div>
     </div>
+
+    <script>
+        function deleteList(listId) {
+            if (confirm('Are you sure you want to delete this list?')) {
+                fetch("{% url 'lists:delete_list' %}", {
+                    method: "POST",
+                    body: new URLSearchParams({ 'listID': listId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.details);
+                    window.location.href = "{% url 'lists:view_lists' %}";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the list');
+                });
+            }
+        }
+    </script>
 </body>
 </html>

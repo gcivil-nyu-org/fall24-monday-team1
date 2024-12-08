@@ -10,6 +10,7 @@ import uuid
 from django.core.paginator import Paginator
 from boto3.dynamodb.conditions import Attr
 from datetime import datetime
+import json
 
 
 @login_required
@@ -201,3 +202,86 @@ def fetch_list_details(request, list_id):
         'game_details': game_details,
         'is_owner': is_owner
     })
+
+@login_required
+def edit_list(request, list_id):
+    dynamodb = boto3.resource('dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('lists')
+    
+    response = table.get_item(Key={'listId': list_id})
+    list_details = response.get('Item', None)
+    
+    if not list_details or request.user.username != list_details.get('username'):
+        return render(request, 'list_not_found.html', status=403)
+    
+    game_details = []
+    game_ids = list_details.get('games', [])
+    
+    if game_ids:
+        # Fetch game details from IGDB
+        auth = authorize_igdb()
+        headers = {
+            'Client-ID': os.environ.get("igdb_client_id"),
+            'Authorization': f'Bearer {auth.json()["access_token"]}',
+            'Content-Type': 'text/plain',
+        }
+        
+        payload = f"fields name, first_release_date, cover.url, summary; where id = ({','.join(str(id) for id in game_ids)});"
+        url = "https://api.igdb.com/v4/games"
+        response = requests.post(url, headers=headers, data=payload)
+        
+        if response.status_code == 200:
+            igdb_games = response.json()
+            for game in igdb_games:
+                game_detail = {
+                    'id': game.get('id'),
+                    'name': game.get('name'),
+                    'summary': game.get('summary', 'No description available'),
+                    'cover': game['cover']['url'].replace("//", "https://") if 'cover' in game else None
+                }
+                game_details.append(game_detail)
+    
+    return render(request, 'edit_list.html', {
+        'list': list_details,
+        'game_details': game_details,
+        'game_ids': json.dumps(game_ids)
+        })
+
+@csrf_exempt
+@login_required
+def update_list(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'})
+    
+    data = json.loads(request.body)
+    
+    # Convert game IDs to strings to maintain consistency
+    games = [str(game_id) for game_id in data['games']]
+    
+    dynamodb = boto3.resource('dynamodb',
+        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        region_name='us-east-1'
+    )
+    table = dynamodb.Table('lists')
+    
+    try:
+        response = table.update_item(
+            Key={'listId': data['listId']},
+            UpdateExpression='SET #name = :name, description = :description, visibility = :visibility, games = :games',
+            ExpressionAttributeNames={'#name': 'name'},
+            ExpressionAttributeValues={
+                ':name': data['name'],
+                ':description': data['description'],
+                ':visibility': data['visibility'],
+                ':games': games  # Using the converted games array
+            },
+            ReturnValues='UPDATED_NEW'
+        )
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
