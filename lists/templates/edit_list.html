@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Edit List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'lists/lists.css' %}">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+        .page-container {
+            min-height: calc(100vh - 56px);
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 1200px;
+            width: 90%;
+        }
+
+        .games-scroll-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 20px;
+        }
+
+        .selected-game {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+
+        .remove-icon {
+            cursor: pointer;
+            color: #dc3545;
+        }
+
+        .remove-icon:hover {
+            color: #c82333;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-results {
+            position: absolute;
+            width: calc(100% - 74px);
+            max-height: 250px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .search-result {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-result:last-child {
+            border-bottom: none;
+        }
+
+        .search-result:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    {% load navbar_tags %}
+    {% render_navbar user=request.user %}
+    
+    <div class="page-container">
+        <div class="container">
+            <h2>Edit List</h2>
+            <div class="form-group">
+                <label for="listName">List Name</label>
+                <input type="text" id="listName" class="form-control" value="{{ list.name }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="listDescription">Description</label>
+                <textarea id="listDescription" class="form-control">{{ list.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="visibility">Visibility</label>
+                <select id="visibility" class="form-control">
+                    <option value="public" {% if list.visibility == 'public' %}selected{% endif %}>Public</option>
+                    <option value="private" {% if list.visibility == 'private' %}selected{% endif %}>Private</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Current Games</label>
+                <div class="games-scroll-container">
+                    {% for game in game_details %}
+                    <div class="selected-game" data-game-id="{{ game.id }}">
+                        <span>{{ game.name }}</span>
+                        <i class="fas fa-times remove-icon" onclick="removeGame('{{ game.id }}')"></i>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="gameSearch">Add New Games</label>
+                <div class="input-group search-container">
+                    <input type="text" id="gameSearch" class="form-control" placeholder="Search for a game">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="searchGames()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+            </div>
+
+            <button onclick="saveChanges()" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'lists:view_lists' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </div>
+
+    <script>
+        let currentGames = {{ game_ids|safe }};
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchResults = document.getElementById('searchResults');
+            const searchInput = document.getElementById('gameSearch');
+            const searchButton = document.querySelector('.btn-primary');
+            
+            if (!searchResults.contains(event.target) && 
+                event.target !== searchInput && 
+                event.target !== searchButton) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        async function searchGames() {
+            const query = document.getElementById('gameSearch').value;
+            if (!query) return;
+            
+            fetch("{% url 'lists:search_igdb_games' %}", {
+                method: "POST",
+                body: new URLSearchParams({ 'query': query })
+            })
+            .then(response => 
+                response.json().then(games => {
+                    const searchResults = document.getElementById('searchResults');
+                    searchResults.innerHTML = '';
+                    games.forEach(game => {
+                        // Check if game is already in the list
+                        if (!currentGames.includes(game.id)) {
+                            const option = document.createElement('div');
+                            option.className = 'search-result';
+                            option.textContent = game.name;
+                            option.onclick = () => addGameToList(game);
+                            searchResults.appendChild(option);
+                        }
+                    });
+                    if (searchResults.children.length > 0) {
+                        searchResults.style.display = 'block';
+                    } else {
+                        searchResults.innerHTML = '<div class="search-result">No new games found</div>';
+                        searchResults.style.display = 'block';
+                    }
+                }))
+            .catch(error => {
+                console.error('Error fetching game data:', error);
+            });
+        }
+
+        function addGameToList(game) {
+            if (!currentGames.includes(game.id)) {
+                currentGames.push(game.id);
+                
+                const gameContainer = document.querySelector('.games-scroll-container');
+                const gameElement = document.createElement('div');
+                gameElement.className = 'selected-game';
+                gameElement.dataset.gameId = game.id;
+                gameElement.innerHTML = `
+                    <span>${game.name}</span>
+                    <i class="fas fa-times remove-icon" onclick="removeGame('${game.id}')"></i>
+                `;
+                
+                gameContainer.appendChild(gameElement);
+                document.getElementById('searchResults').style.display = 'none';
+                document.getElementById('gameSearch').value = '';
+            } else {
+                alert("This game is already in your list!");
+            }
+        }
+
+        function removeGame(gameId) {
+            currentGames = currentGames.filter(id => id !== gameId);
+            document.querySelector(`[data-game-id="${gameId}"]`).remove();
+        }
+
+        function saveChanges() {
+            if (currentGames.length === 0) {
+                alert("You need to add at least one game in the list!");
+                return;
+            }
+
+            const name = document.getElementById('listName').value;
+            if (!name) {
+                alert("Please enter the name!");
+                return;
+            }
+
+            const data = {
+                listId: '{{ list.listId }}',
+                name: name,
+                description: document.getElementById('listDescription').value,
+                visibility: document.getElementById('visibility').value,
+                games: currentGames
+            };
+
+            fetch("{% url 'lists:update_list' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("List updated successfully!");
+                    window.location.href = "{% url 'lists:view_lists' %}";
+                } else {
+                    alert('Failed to update list: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the list');
+            });
+        }
+    </script>
+</body>
+</html> 
