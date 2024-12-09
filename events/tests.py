@@ -66,7 +66,7 @@ class EventViewsTest(TestCase):
             # Create a unique filename for the image
             filename = f"{slugify(username)}.png"   
             # Save the image to the ImageField
-            self.user_profile.profile_photo.save(filename, ContentFile(response.content), save=True)
+            self.user_profile.profile_photo = ContentFile(response.content)
         else:
             raise ValueError("Avatar link not available")
         # Create a user with a different role
