@@ -64,6 +64,7 @@ def get_event(event_id):
             return event
     return None
 
+@login_required
 def event_list(request):
     list(messages.get_messages(request))
 
@@ -146,6 +147,7 @@ def unregister_event(request, event_id):
 
     return redirect('events:event_detail', event_id=event_id)
 
+@login_required
 def event_detail(request, event_id):
     """View for displaying event details."""
     event = get_event(event_id)  # Fetch the event details
