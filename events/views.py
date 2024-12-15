@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.urls import reverse
 from userProfile.models import UserProfile
 from .models import Event
 from django.contrib.auth import get_user_model
@@ -180,6 +181,7 @@ def event_detail(request, event_id):
     context = {
         'event': event,
         'is_participant': is_participant,
+        'curPath' : reverse('events:event_detail', args=[event_id])
     }
     return render(request, 'events/event_detail.html', context)
 

@@ -1,14 +1,16 @@
-<div class="user-profile">
+<a href="{{ profile_link }}" class="user-profile">
     <div class="avatar-crop">
         {% if user_profile.profile_photo %}
             <img src="{{ user_profile.profile_photo.url }}" alt="Avatar" class="img-fluid" />
-        {%else %}
-            <img src="https://ui-avatars.com/api/?name={{user_profile.display_name}}" alt="Avatar" class="img-fluid" />
-        {%endif%}
+        {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ user_profile.display_name }}" alt="Avatar" class="img-fluid" />
+        {% endif %}
     </div>
     <div class="card hover-card shadow-sm">
         <div class="card-body">
-            <h5 class="card-title mb-2"><strong>{{ user_profile.display_name }}</strong></h5>
+            <h5 class="card-title mb-2">
+                <strong>{{ user_profile.display_name }}</strong>
+            </h5>
             <p class="card-text text-muted">{{ user_profile.bio }} 
                 {% if user_profile.account_role == 'creator' %}
                     <span class="badge bg-success">CREATOR</span>
@@ -20,12 +22,14 @@
             </p>
         </div>
     </div>
-</div>
+</a>
 
 <style>
 .user-profile {
     position: relative;
     display: inline-block;
+    text-decoration: none; /* Remove underline from link */
+    color: inherit; /* Use inherited text color */
 }
 
 .avatar-crop {
