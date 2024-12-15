@@ -1,6 +1,7 @@
 from django import template
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from userProfile.models import UserProfile
 
@@ -13,4 +14,7 @@ def render_user_info(user_id):
         return ""
 
     # Render the user info HTML using the template
-    return render_to_string('userProfile/user_info.html', {'user_profile': user_profile})
+    return render_to_string('userProfile/user_info.html', 
+                            {'user_profile': user_profile,
+                             "profile_link": reverse('userProfile:viewProfile', 
+                                                    args=[user_id])})
