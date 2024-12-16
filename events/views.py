@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.urls import reverse
 from userProfile.models import UserProfile
 from .models import Event
 from django.contrib.auth import get_user_model
@@ -64,6 +65,7 @@ def get_event(event_id):
             return event
     return None
 
+@login_required
 def event_list(request):
     list(messages.get_messages(request))
 
@@ -146,6 +148,7 @@ def unregister_event(request, event_id):
 
     return redirect('events:event_detail', event_id=event_id)
 
+@login_required
 def event_detail(request, event_id):
     """View for displaying event details."""
     event = get_event(event_id)  # Fetch the event details
@@ -178,6 +181,7 @@ def event_detail(request, event_id):
     context = {
         'event': event,
         'is_participant': is_participant,
+        'curPath' : reverse('events:event_detail', args=[event_id])
     }
     return render(request, 'events/event_detail.html', context)
 

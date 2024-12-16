@@ -121,5 +121,11 @@
             </div>
         </div>
     </div>
+    {% load comment_tags %}
+    {% with event_detail="event_detail" %}
+    {% with event_id=event.eventId|stringformat:"s" %}
+        {% render_comment_board event_detail|add:event_id %}
+    {% endwith %}
+    {% endwith %}
 </body>
 </html>
